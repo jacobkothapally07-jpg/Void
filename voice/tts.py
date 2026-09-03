@@ -1,0 +1,103 @@
+import subprocess
+import re
+import threading
+import os
+import asyncio
+import time
+
+current_audio_proc = None
+is_speaking_lock = False
+
+def stop_speaking():
+    global current_audio_proc, is_speaking_lock
+    is_speaking_lock = False
+    try:
+        if current_audio_proc and current_audio_proc.poll() is None:
+            current_audio_proc.kill()
+            current_audio_proc = None
+    except Exception:
+        pass
+    try:
+        subprocess.run(["pkill", "-9", "afplay"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["pkill", "-9", "say"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+def is_speaking():
+    global current_audio_proc, is_speaking_lock
+    if is_speaking_lock:
+        return True
+    return current_audio_proc is not None and current_audio_proc.poll() is None
+
+def get_is_speaking():
+    return is_speaking()
+
+def clean_for_speech(text: str) -> str:
+    """Removes markdown symbols, URLs, and code blocks for smooth, natural speech."""
+    text = re.sub(r"```.*?```", "code omitted", text, flags=re.DOTALL)
+    text = re.sub(r"`.*?`", "", text)
+    text = re.sub(r"[*_~#>-]", " ", text)
+    text = re.sub(r"[{}]", "", text)
+    text = re.sub(r"https?://\S+", "", text)
+    text = text.replace("J.A.R.V.I.S.", "Jarvis").replace("JARVIS", "Jarvis")
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+def _speak_neural_sync(clean_text: str):
+    global current_audio_proc, is_speaking_lock
+    is_speaking_lock = True
+    temp_audio = f"/tmp/jarvis_speech_{os.getpid()}_{int(time.time()*1000)}.mp3"
+    
+    played_neural = False
+    try:
+        import edge_tts
+        
+        async def _generate():
+            communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural", rate="+0%", pitch="+0Hz")
+            await communicate.save(temp_audio)
+            
+        asyncio.run(asyncio.wait_for(_generate(), timeout=3.5))
+        
+        if os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
+            current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            current_audio_proc.wait()
+            played_neural = True
+            
+    except Exception as e:
+        played_neural = False
+        
+    if not played_neural:
+        try:
+            current_audio_proc = subprocess.Popen(["say", "-v", "Daniel", "-r", "170", clean_text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            current_audio_proc.wait()
+        except Exception:
+            pass
+            
+    is_speaking_lock = False
+    current_audio_proc = None
+    try:
+        if os.path.exists(temp_audio):
+            os.remove(temp_audio)
+    except Exception:
+        pass
+
+def speak(text: str, voice: str = "en-GB-RyanNeural", async_mode: bool = True):
+    """
+    Speaks the given text using the ultra-realistic British neural voice (en-GB-RyanNeural - Paul Bettany style),
+    falling back reliably to macOS Daniel voice if offline or slow.
+    """
+    clean_text = clean_for_speech(text)
+    if not clean_text:
+        return
+
+    # Ensure audio output is unmuted
+    try:
+        subprocess.run(["osascript", "-e", "set volume without output muted"], check=False)
+    except Exception:
+        pass
+
+    if async_mode:
+        t = threading.Thread(target=_speak_neural_sync, args=(clean_text,), daemon=True)
+        t.start()
+    else:
+        _speak_neural_sync(clean_text)

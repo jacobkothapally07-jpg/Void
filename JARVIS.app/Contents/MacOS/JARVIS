@@ -1,0 +1,10 @@
+#!/bin/bash
+export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+cd "/Users/jacobkothapally/.gemini/antigravity/scratch/jarvis"
+
+PYTHON_BIN="/Library/Frameworks/Python.framework/Versions/3.13/bin/python3"
+if [ ! -f "$PYTHON_BIN" ]; then
+    PYTHON_BIN="$(which python3)"
+fi
+
+exec "$PYTHON_BIN" "/Users/jacobkothapally/.gemini/antigravity/scratch/jarvis/app.py" >> /tmp/jarvis_launch.log 2>&1

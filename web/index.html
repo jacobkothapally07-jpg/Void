@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. // JK INDUSTRIES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="/three.min.js"></script>
+    <style>
+        :root {
+            --gold: #ffaa00;
+            --gold-glow: rgba(255, 170, 0, 0.65);
+            --gold-dim: rgba(255, 170, 0, 0.2);
+            --cyan: #00f0ff;
+            --cyan-glow: rgba(0, 240, 255, 0.6);
+            --bg: #02050a;
+            --panel-bg: rgba(6, 12, 22, 0.88);
+            --font-display: "Orbitron", sans-serif;
+            --font-mono: "Share Tech Mono", monospace;
+            --font-ui: "Chakra Petch", sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg);
+            color: #ffeedd;
+            font-family: var(--font-ui);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 170, 0, 0.07) 0%, transparent 70%),
+                linear-gradient(rgba(255, 170, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 170, 0, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            overflow-x: hidden;
+        }
+
+        /* Scanline Overlay */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* Top Header */
+        .topbar {
+            width: 100%;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--gold-dim);
+            background: rgba(3, 7, 14, 0.95);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .brand-block { display: flex; align-items: center; gap: 16px; }
+        .brand-title {
+            font-family: var(--font-display);
+            font-size: 23px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: var(--gold);
+            text-shadow: 0 0 16px var(--gold-glow);
+        }
+        .brand-sub {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #ffcc66;
+            letter-spacing: 3px;
+            border-left: 2px solid var(--gold);
+            padding-left: 10px;
+        }
+
+        .status-badge {
+            font-family: var(--font-display);
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #00ffaa;
+            padding: 6px 16px;
+            border: 1px solid #00ffaa;
+            border-radius: 4px;
+            background: rgba(0, 255, 170, 0.08);
+            box-shadow: 0 0 12px rgba(0, 255, 170, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        .status-badge.standby {
+            color: #ff8800;
+            border-color: #ff8800;
+            background: rgba(255, 136, 0, 0.08);
+            box-shadow: 0 0 12px rgba(255, 136, 0, 0.3);
+        }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: #00ffaa; box-shadow: 0 0 8px #00ffaa; }
+        .status-badge.standby .dot { background: #ff8800; box-shadow: 0 0 8px #ff8800; }
+
+        /* Main Grid */
+        .hud-container {
+            width: 100%;
+            max-width: 1440px;
+            display: grid;
+            grid-template-columns: 290px 1fr 410px;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+            align-items: stretch;
+        }
+        @media (max-width: 1080px) { .hud-container { grid-template-columns: 1fr; } }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--gold-dim);
+            border-radius: 8px;
+            padding: 22px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .glass-panel::before { content: ""; position: absolute; top: -1px; left: -1px; width: 14px; height: 14px; border-top: 2px solid var(--gold); border-left: 2px solid var(--gold); }
+        .glass-panel::after { content: ""; position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-bottom: 2px solid var(--gold); border-right: 2px solid var(--gold); }
+
+        .panel-header {
+            font-family: var(--font-display);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 170, 0, 0.15);
+            padding-bottom: 8px;
+        }
+
+        .gauge-list { display: flex; flex-direction: column; gap: 16px; }
+        .gauge-item { display: flex; flex-direction: column; gap: 6px; }
+        .gauge-label { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: #ccaa77; }
+        .gauge-val { color: var(--gold); font-family: var(--font-display); font-weight: 700; }
+        .bar-bg { width: 100%; height: 7px; background: rgba(255, 170, 0, 0.08); border-radius: 2px; overflow: hidden; border: 1px solid rgba(255, 170, 0, 0.2); }
+        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), #ffdd66); box-shadow: 0 0 10px var(--gold); transition: width 0.5s ease-in-out; }
+
+        /* Battery Saver Tag */
+        
+        .power-btn {
+            background: rgba(255, 34, 85, 0.15);
+            color: #ff2255;
+            border: 1px solid #ff2255;
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .power-btn:hover {
+            background: #ff2255;
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(255, 34, 85, 0.6);
+        }
+
+        .power-card {
+            margin-top: auto;
+            padding: 12px;
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            background: rgba(0, 255, 170, 0.03);
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #88ffcc;
+            line-height: 1.6;
+        }
+
+        /* CENTER: THREE.JS SPHERE & LIVE SUBTITLES */
+        .center-hud-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #sphereCanvasContainer {
+            width: 400px;
+            height: 400px;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: opacity 0.4s ease;
+        }
+        #threeCanvas { width: 100%; height: 100%; border-radius: 50%; filter: drop-shadow(0 0 35px var(--gold-glow)); }
+
+        .sphere-center-label {
+            position: absolute;
+            pointer-events: none;
+            text-align: center;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 21px;
+            letter-spacing: 7px;
+            color: #ffffff;
+            text-shadow: 0 0 15px var(--gold), 0 0 35px var(--gold-glow);
+            z-index: 5;
+        }
+
+        /* LIVE REAL-TIME VOICE SUBTITLES BOX */
+        .live-subtitle-box {
+            width: 95%;
+            min-height: 50px;
+            background: rgba(2, 6, 12, 0.9);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 20px rgba(255, 170, 0, 0.25);
+            border-radius: 6px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-top: 15px;
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffeedd;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+        .live-subtitle-box.hearing {
+            border-color: var(--cyan);
+            box-shadow: 0 0 30px var(--cyan-glow);
+            color: var(--cyan);
+        }
+        .live-subtitle-box.speaking {
+            border-color: #ffaa00;
+            box-shadow: 0 0 30px var(--gold-glow);
+            color: #ffdd77;
+        }
+        .live-subtitle-box.standby {
+            border-color: #665533;
+            box-shadow: none;
+            color: #887755;
+            background: rgba(4, 4, 6, 0.7);
+        }
+
+        .mic-banner {
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--gold);
+            margin-top: 12px;
+            text-align: center;
+            text-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        /* Right Panel: Chat Stream */
+        .chat-stream {
+            flex: 1;
+            height: 420px;
+            overflow-y: auto;
+            background: rgba(2, 5, 10, 0.75);
+            border: 1px solid var(--gold-dim);
+            border-radius: 6px;
+            padding: 16px;
+            font-family: var(--font-ui);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-stream::-webkit-scrollbar { width: 4px; }
+        .chat-stream::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+        .msg-box {
+            padding: 12px 16px;
+            border-radius: 4px;
+            background: rgba(255, 170, 0, 0.05);
+            border-left: 3px solid var(--gold);
+            animation: fadeIn 0.3s ease;
+        }
+        .msg-box.user { border-left-color: var(--cyan); background: rgba(0, 240, 255, 0.05); }
+        .msg-author {
+            font-family: var(--font-display);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .msg-author.jarvis { color: var(--gold); }
+        .msg-author.user { color: var(--cyan); }
+
+        /* FUTURISTIC COMMAND BAR & INPUT */
+        .cmd-bar {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper::before {
+            content: ">";
+            position: absolute;
+            left: 14px;
+            color: var(--gold);
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: bold;
+            pointer-events: none;
+            text-shadow: 0 0 8px var(--gold-glow);
+        }
+        input[type="text"] {
+            width: 100%;
+            background: rgba(3, 8, 16, 0.9);
+            border: 1px solid rgba(255, 170, 0, 0.35);
+            border-radius: 4px;
+            padding: 14px 14px 14px 34px;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-size: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        input[type="text"]::placeholder {
+            color: rgba(255, 204, 102, 0.35);
+            font-family: var(--font-mono);
+            letter-spacing: 2px;
+        }
+        input[type="text"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 16px var(--gold-glow), inset 0 0 10px rgba(255, 170, 0, 0.1);
+        }
+
+        .submit-btn {
+            background: rgba(255, 170, 0, 0.15);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            border-radius: 4px;
+            padding: 0 24px;
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .submit-btn:hover {
+            background: var(--gold);
+            color: #02050a;
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="brand-block">
+            <img src="jarvis_logo.png" style="width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 0 14px rgba(0, 240, 255, 0.6); border: 1px solid var(--cyan);" alt="JARVIS Core">
+            <div>
+                <div class="brand-title" style="font-size: 20px; line-height: 1;">J.A.R.V.I.S.</div>
+                <div class="brand-sub" style="margin-top: 2px;">JK INDUSTRIES // NEURAL MATRIX</div>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="status-badge" id="statusBadge">
+                <div class="dot"></div>
+                <span id="liveStatusText">ONLINE — READY</span>
+            </div>
+            <button type="button" class="power-btn" onclick="shutdownJarvis()" title="Shut Down J.A.R.V.I.S.">
+                ⏻ SHUT DOWN
+            </button>
+        </div>
+    </header>
+
+    <main class="hud-container">
+        <!-- LEFT: Telemetry -->
+        <section class="glass-panel">
+            <div class="panel-header">
+                <span>Hardware Telemetry</span>
+                <span style="color: var(--gold); font-size: 10px;">REAL-TIME</span>
+            </div>
+            <div class="gauge-list">
+                <div class="gauge-item">
+                    <div class="gauge-label">
+                        <span>BATTERY LEVEL</span>
+                        <span class="gauge-val" id="battVal">--%</span>
+                    </div>
+                    <div class="bar-bg"><div class="bar-fill" id="battBar"></div></div>
+                </div>
+                <div class="gauge-item">
+                    <div class="gauge-label">
+                        <span>CPU UTILIZATION</span>
+                        <span class="gauge-val" id="cpuVal">--%</span>
+                    </div>
+                    <div class="bar-bg"><div class="bar-fill" id="cpuBar"></div></div>
+                </div>
+                <div class="gauge-item">
+                    <div class="gauge-label">
+                        <span>RAM USAGE</span>
+                        <span class="gauge-val" id="memVal">--%</span>
+                    </div>
+                    <div class="bar-bg"><div class="bar-fill" id="memBar"></div></div>
+                </div>
+                <div class="gauge-item">
+                    <div class="gauge-label">
+                        <span>SSD STORAGE</span>
+                        <span class="gauge-val" id="diskVal">--%</span>
+                    </div>
+                    <div class="bar-bg"><div class="bar-fill" id="diskBar"></div></div>
+                </div>
+            </div>
+
+            <div class="power-card">
+                <div style="color: #00ffaa; font-weight: bold; margin-bottom: 4px; font-family: Orbitron; font-size: 10px;">⚡ ZERO BATTERY DRAIN:</div>
+                When you say <b>"Go to sleep"</b> or <b>"Goodbye"</b>, J.A.R.V.I.S. suspends GPU/CPU cycles into ultra-low-power standby mode. Say <b>"Wake up"</b> anytime to revive!
+            </div>
+        </section>
+
+        <!-- CENTER: THREE.JS SPHERE & LIVE SUBTITLES -->
+        <section class="glass-panel center-hud-panel">
+            <div class="panel-header" style="width: 100%;">
+                <span>NEURAL CORE (MCU EXACT)</span>
+                <span id="micBadge" style="color: #00ffaa; font-size: 10px;">ALWAYS LISTENING</span>
+            </div>
+
+            <div id="sphereCanvasContainer" onclick="toggleMic()">
+                <div id="threeCanvas"></div>
+                <div class="sphere-center-label">
+                    <div>J.A.R.V.I.S.</div>
+                    <div style="font-size: 9px; letter-spacing: 4px; opacity: 0.8; font-family: var(--font-mono); margin-top: 3px;">JK ONLINE</div>
+                </div>
+            </div>
+
+            <!-- LIVE TRANSCRIPTION SUBTITLES BOX -->
+            <div class="live-subtitle-box" id="subtitlesBox">
+                <span id="liveTranscriptText">🎙️ LISTENING... SPEAK ANYTIME</span>
+            </div>
+
+            <!-- INSTANT STOP / BARGE-IN BUTTON -->
+            <div style="display: flex; gap: 10px; margin-top: 8px; justify-content: center; width: 100%;">
+                <button type="button" id="stopSpeechBtn" onclick="interruptJarvis()" style="background: rgba(255, 34, 85, 0.2); border: 1px solid #ff2255; color: #ff2255; font-family: var(--font-orbitron); font-size: 11px; padding: 6px 16px; border-radius: 4px; cursor: pointer; letter-spacing: 2px; transition: all 0.2s;">🛑 STOP SPEAKING</button>
+            </div>
+
+            <div class="mic-banner" id="micStatus">TAP SPHERE OR SPEAK ("HEY JARVIS")</div>
+        </section>
+
+        <!-- RIGHT: Chat Stream -->
+        <section class="glass-panel">
+            <div class="panel-header">
+                <span>CONVERSATION STREAM</span>
+                <span style="color: #00ffaa; font-size: 10px;">JK ACTIVE</span>
+            </div>
+
+            <div class="chat-stream" id="chatStream">
+                <div class="msg-box">
+                    <div class="msg-author jarvis">J.A.R.V.I.S.</div>
+                    Online and operational, Sir. Systems tuned for JK Industries. How may I assist you today?
+                </div>
+            </div>
+
+            <form class="cmd-bar" onsubmit="handleSend(event)">
+                <div class="input-wrapper">
+                    <input type="text" id="userInput" placeholder="COMMAND OR QUERY..." autocomplete="off">
+                </div>
+                <button type="submit" class="submit-btn">SEND</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        // ==========================================================
+        // 1. THREE.JS GOLDEN NEURAL MATRIX WITH BATTERY SAVER MODE
+        // ==========================================================
+        const container = document.getElementById("threeCanvas");
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+        camera.position.z = 240;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+        renderer.setSize(400, 400);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+        container.appendChild(renderer.domElement);
+
+        const neuralGroup = new THREE.Group();
+        scene.add(neuralGroup);
+
+        const particleCount = 1800;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        const goldColor = new THREE.Color(0xffaa00);
+        const brightColor = new THREE.Color(0xfff2aa);
+
+        for (let i = 0; i < particleCount; i++) {
+            const u = Math.random();
+            const v = Math.random();
+            const theta = u * 2.0 * Math.PI;
+            const phi = Math.acos(2.0 * v - 1.0);
+            const r = 85 + (Math.random() - 0.5) * 20;
+
+            positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = r * Math.cos(phi);
+
+            const c = Math.random() > 0.3 ? goldColor : brightColor;
+            colors[i * 3] = c.r;
+            colors[i * 3 + 1] = c.g;
+            colors[i * 3 + 2] = c.b;
+        }
+
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+        const pMaterial = new THREE.PointsMaterial({
+            size: 2.8,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
+        });
+        const particleSystem = new THREE.Points(geometry, pMaterial);
+        neuralGroup.add(particleSystem);
+
+        const lineGeo = new THREE.BufferGeometry();
+        const linePos = [];
+        for (let i = 0; i < 350; i++) {
+            const idx1 = Math.floor(Math.random() * particleCount);
+            const idx2 = Math.floor(Math.random() * particleCount);
+            linePos.push(
+                positions[idx1 * 3], positions[idx1 * 3 + 1], positions[idx1 * 3 + 2],
+                positions[idx2 * 3], positions[idx2 * 3 + 1], positions[idx2 * 3 + 2]
+            );
+        }
+        lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePos, 3));
+        const lineMat = new THREE.LineBasicMaterial({
+            color: 0xffaa00,
+            transparent: true,
+            opacity: 0.25,
+            blending: THREE.AdditiveBlending
+        });
+        const lineSystem = new THREE.LineSegments(lineGeo, lineMat);
+        neuralGroup.add(lineSystem);
+
+        const ringGeo1 = new THREE.RingGeometry(95, 96, 64);
+        const ringMat1 = new THREE.MeshBasicMaterial({ color: 0xffaa00, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
+        const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+        ring1.rotation.x = Math.PI / 3;
+        neuralGroup.add(ring1);
+
+        const ringGeo2 = new THREE.RingGeometry(110, 112, 64);
+        const ringMat2 = new THREE.MeshBasicMaterial({ color: 0xff8800, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+        const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+        ring2.rotation.y = Math.PI / 4;
+        neuralGroup.add(ring2);
+
+        let isSpeaking = false;
+        let isListening = false;
+        let isStandby = false;
+
+        let lastJarvisResponse = "";
+        let ttsSpeakingPollInterval = null;
+
+        let clock = new THREE.Clock();
+
+        function animateThree() {
+            requestAnimationFrame(animateThree);
+            
+            if (isStandby) {
+                neuralGroup.rotation.y += 0.004;
+                renderer.render(scene, camera);
+                return;
+            }
+
+            const time = clock.getElapsedTime();
+            const active = isSpeaking || isListening;
+
+            // Fast dynamic acceleration when voice is active
+            neuralGroup.rotation.y += (active ? 0.035 : 0.009);
+            neuralGroup.rotation.x += (active ? 0.020 : 0.005);
+            ring1.rotation.z += (active ? 0.032 : 0.010);
+            ring2.rotation.z -= (active ? 0.038 : 0.012);
+
+            // Dynamic voice energy pulse
+            const freq = active ? (isSpeaking ? 9.0 : 6.5) : 2.2;
+            const amp = active ? (isSpeaking ? 0.14 : 0.08) : 0.03;
+            const scale = 1 + Math.sin(time * freq) * amp;
+            neuralGroup.scale.set(scale, scale, scale);
+
+            // Particle point size flare when speaking
+            if (pMaterial) {
+                pMaterial.size = active ? 3.4 : 2.5;
+                pMaterial.opacity = active ? 0.95 : 0.80;
+            }
+            if (lineMat) {
+                lineMat.opacity = active ? 0.45 : 0.20;
+            }
+
+            renderer.render(scene, camera);
+        }
+        animateThree();
+
+        // ==========================================
+        // 2. HARDWARE TELEMETRY
+        // ==========================================
+        async function updateTelemetry() {
+            try {
+                let data = null;
+                if (window.pywebview && window.pywebview.api) {
+                    data = await window.pywebview.api.get_stats();
+                } else {
+                    const res = await fetch("/api/stats");
+                    data = await res.json();
+                }
+                if (data && data.status === "success") {
+                    if (data.battery && data.battery.percent) {
+                        const pct = data.battery.percent.replace("%", "");
+                        document.getElementById("battVal").innerText = pct + "% " + (data.battery.is_charging ? "⚡" : "");
+                        document.getElementById("battBar").style.width = pct + "%";
+                    }
+                    if (data.cpu && data.cpu.estimated_utilization) {
+                        const cpu = data.cpu.estimated_utilization;
+                        document.getElementById("cpuVal").innerText = cpu;
+                        document.getElementById("cpuBar").style.width = cpu;
+                    }
+                    if (data.memory && data.memory.used_percent) {
+                        const mem = data.memory.used_percent;
+                        document.getElementById("memVal").innerText = mem;
+                        document.getElementById("memBar").style.width = mem;
+                    }
+                    if (data.disk && data.disk.used_percent) {
+                        const disk = data.disk.used_percent;
+                        document.getElementById("diskVal").innerText = disk;
+                        document.getElementById("diskBar").style.width = disk;
+                    }
+                }
+            } catch (e) {}
+        }
+        updateTelemetry();
+        setInterval(updateTelemetry, 5000);
+
+        // ==========================================
+        // 3. VOICE ENGINE WITH SLEEP & WAKE PROTOCOLS
+        // ==========================================
+        const micStatus = document.getElementById("micStatus");
+        const chatStream = document.getElementById("chatStream");
+        const micBadge = document.getElementById("micBadge");
+        const statusBadge = document.getElementById("statusBadge");
+        const liveStatusText = document.getElementById("liveStatusText");
+        const subtitlesBox = document.getElementById("subtitlesBox");
+        const liveTranscriptText = document.getElementById("liveTranscriptText");
+
+        const sleepKeywords = ["bye", "goodbye", "exit", "quit", "stop listening", "go to sleep", "sleep", "shut down", "that will be all", "that is all", "dismissed", "standby"];
+        const wakeKeywords = ["wake up", "wake up jarvis", "hey jarvis", "jarvis online", "start listening", "hello jarvis", "jarvis"];
+
+        let recognition = null;
+        let isProcessing = false;
+        let speechBuffer = "";
+        let silenceTimer = null;
+
+        
+        async function interruptJarvis() {
+            isSpeaking = false;
+            try {
+                await fetch("/api/stop", { method: "POST" });
+            } catch(e) {}
+            subtitlesBox.className = "live-subtitle-box";
+            liveTranscriptText.innerText = "🛑 MUTED / STOPPED — READY";
+            micStatus.innerText = "ONLINE — LISTENING FOR YOU";
+            micBadge.innerText = "ALWAYS LISTENING";
+            micBadge.style.color = "#00ffaa";
+        }
+
+        function startListening() {
+            if (isProcessing) return;
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                if (liveTranscriptText) liveTranscriptText.innerText = "MOBILE & REMOTE HUD ACTIVE";
+                return;
+            }
+
+            if (recognition) {
+                try { recognition.abort(); } catch(e) {}
+            }
+
+            try {
+                recognition = new SpeechRec();
+            } catch(e) {
+                if (liveTranscriptText) liveTranscriptText.innerText = "TAP TO SPEAK OR TYPE BELOW";
+                return;
+            }
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = "en-US";
+
+            recognition.onstart = () => {
+                isListening = false;
+                if (!isStandby) {
+                    micStatus.innerText = "ONLINE — LISTENING FOR YOU";
+                    micBadge.innerText = "ALWAYS LISTENING";
+                    micBadge.style.color = "#00ffaa";
+                    statusBadge.className = "status-badge";
+                    liveStatusText.innerText = "ONLINE — READY";
+                    subtitlesBox.className = "live-subtitle-box";
+                    liveTranscriptText.innerText = "🎙️ LISTENING... SPEAK ANYTIME";
+                }
+            };
+
+            recognition.onresult = (event) => {
+                // HARD ECHO GATE: If J.A.R.V.I.S. is speaking, strictly ignore all audio
+                if (isSpeaking) {
+                    return;
+                }
+
+                let liveText = "";
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    liveText += event.results[i][0].transcript;
+                }
+
+                liveText = liveText.trim();
+                if (!liveText) return;
+
+                speechBuffer = liveText;
+
+                // If in standby, only react if wake word is mentioned
+                if (isStandby) {
+                    const cleanLower = liveText.toLowerCase();
+                    const wantsWake = wakeKeywords.some(w => cleanLower.includes(w));
+                    if (wantsWake) {
+                        wakeUpJarvis(liveText);
+                    }
+                    return;
+                }
+
+                isListening = true;
+                subtitlesBox.className = "live-subtitle-box hearing";
+                liveTranscriptText.innerText = "🗣️ \"" + liveText.toUpperCase() + "\"";
+                micStatus.innerText = "HEARING VOICE...";
+
+                let isFinal = false;
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) isFinal = true;
+                }
+
+                clearTimeout(silenceTimer);
+                silenceTimer = setTimeout(() => {
+                    commitSpeech();
+                }, isFinal ? 200 : 450);
+            };
+
+            recognition.onerror = (event) => {};
+
+            recognition.onend = () => {
+                isListening = false;
+                if (!isProcessing) {
+                    try { recognition.start(); } catch(e) {}
+                }
+            };
+
+            try {
+                recognition.start();
+            } catch(e) {}
+        }
+
+        
+        async function shutdownJarvis() {
+            subtitlesBox.className = "live-subtitle-box";
+            subtitlesBox.style.borderColor = "#ff2255";
+            subtitlesBox.style.boxShadow = "0 0 25px rgba(255, 34, 85, 0.5)";
+            liveTranscriptText.innerText = "🔌 SHUTTING DOWN J.A.R.V.I.S. (PROCESS TERMINATED)";
+            micStatus.innerText = "SYSTEMS SHUT DOWN (0% CPU / 0% BATTERY)";
+            micBadge.innerText = "OFFLINE";
+            micBadge.style.color = "#ff2255";
+            appendMsg("System", "Powering down all neural relays and shutting down process. Goodbye, Sir.", false);
+            
+            try {
+                if (recognition) { recognition.abort(); }
+                await fetch("/api/shutdown", { method: "POST" });
+            } catch(e) {}
+            
+            setTimeout(() => {
+                window.close();
+            }, 1200);
+        }
+
+        function wakeUpJarvis(query = "") {
+            isStandby = false;
+            statusBadge.className = "status-badge";
+            liveStatusText.innerText = "ONLINE — READY";
+            subtitlesBox.className = "live-subtitle-box";
+            liveTranscriptText.innerText = "🎙️ J.A.R.V.I.S. AWAKENED! READY.";
+            micStatus.innerText = "ONLINE — LISTENING FOR YOU";
+            micBadge.innerText = "ALWAYS LISTENING";
+            micBadge.style.color = "#00ffaa";
+            appendMsg("You (Voice)", query || "Wake up Jarvis", true);
+            sendQuery("Hello Jarvis, I am back.");
+        }
+
+        function sleepJarvis(query = "") {
+            shutdownJarvis();
+        }
+
+        function commitSpeech() {
+            if (isProcessing || !speechBuffer.trim()) return;
+
+            let query = speechBuffer.trim();
+            speechBuffer = "";
+            clearTimeout(silenceTimer);
+
+            const cleanLower = query.toLowerCase();
+
+            if (isStandby) {
+                const wantsWake = wakeKeywords.some(w => cleanLower.includes(w));
+                if (wantsWake) {
+                    wakeUpJarvis(query);
+                }
+                return;
+            }
+
+            const wantsSleep = sleepKeywords.some(w => cleanLower.includes(w));
+            if (wantsSleep) {
+                sleepJarvis(query);
+                return;
+            }
+
+            const match = query.match(/(?:hey\s+)?jarvis[,\s]*(.*)/i);
+            if (match && match[1]) {
+                query = match[1].trim();
+            }
+            if (!query) return;
+
+            appendMsg("You (Voice)", query, true);
+            sendQuery(query);
+        }
+
+        function toggleMic() {
+            if (isSpeaking) {
+                interruptJarvis();
+                return;
+            }
+            if (isStandby) {
+                wakeUpJarvis();
+            } else {
+                startListening();
+            }
+        }
+
+        function appendMsg(sender, text, isUser = false) {
+            const div = document.createElement("div");
+            div.className = "msg-box " + (isUser ? "user" : "");
+            div.innerHTML = "<div class=\"msg-author " + (isUser ? "user" : "jarvis") + "\">" + sender.toUpperCase() + "</div>" + text;
+            chatStream.appendChild(div);
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
+
+        async function waitForSpeechToFinish() {
+            // Give 500ms for audio to start
+            await new Promise(r => setTimeout(r, 600));
+            const startTime = Date.now();
+            
+            while (Date.now() - startTime < 30000) {
+                try {
+                    const res = await fetch("/api/speaking_status");
+                    const data = await res.json();
+                    if (!data.is_speaking) {
+                        break;
+                    }
+                } catch(e) {
+                    break;
+                }
+                await new Promise(r => setTimeout(r, 300));
+            }
+        }
+
+        
+        async function waitForAudioPlaybackToFinish() {
+            // Give 300ms for audio to begin
+            await new Promise(r => setTimeout(r, 400));
+            const startTime = Date.now();
+            while (Date.now() - startTime < 35000) {
+                try {
+                    const res = await fetch("/api/speaking_status");
+                    const data = await res.json();
+                    if (!data.is_speaking) {
+                        break;
+                    }
+                } catch(e) {
+                    break;
+                }
+                await new Promise(r => setTimeout(r, 250));
+            }
+            // 150ms cooldown for speaker echo to dissipate
+            await new Promise(r => setTimeout(r, 150));
+        }
+
+        async function sendQuery(msg) {
+            clearTimeout(silenceTimer);
+            isSpeaking = true;
+            if (recognition) { try { recognition.abort(); } catch(e) {} }
+
+            if (!isStandby) {
+                subtitlesBox.className = "live-subtitle-box speaking";
+                liveTranscriptText.innerText = "⚡ J.A.R.V.I.S. IS ANSWERING...";
+                micStatus.innerText = "J.A.R.V.I.S. IS RESPONDING...";
+                micBadge.innerText = "J.A.R.V.I.S. SPEAKING";
+                micBadge.style.color = "#ffaa00";
+            }
+
+            try {
+                const res = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                const replyText = (data && data.response) ? data.response : ((data && data.error) ? data.error : "At your service, Sir.");
+                lastJarvisResponse = replyText.toLowerCase();
+                appendMsg("J.A.R.V.I.S.", replyText, false);
+                updateTelemetry();
+                
+                // Mute mic and wait until audio playback finishes completely
+                await waitForAudioPlaybackToFinish();
+                
+            } finally {
+                isSpeaking = false;
+                isListening = false;
+                if (!isStandby) {
+                    subtitlesBox.className = "live-subtitle-box";
+                    liveTranscriptText.innerText = "🎙️ LISTENING... SPEAK ANYTIME";
+                    micStatus.innerText = "ONLINE — LISTENING FOR YOU";
+                    micBadge.innerText = "ALWAYS LISTENING";
+                    micBadge.style.color = "#00ffaa";
+                    startListening();
+                }
+            }
+        }
+
+        function handleSend(e) {
+            e.preventDefault();
+            const input = document.getElementById("userInput");
+            const val = input.value.trim();
+            if (!val) return;
+            appendMsg("You", val, true);
+            input.value = "";
+            sendQuery(val);
+        }
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                shutdownJarvis();
+            }
+        });
+
+        
+        window.addEventListener("DOMContentLoaded", async () => {
+            isSpeaking = true;
+            if (subtitlesBox) subtitlesBox.className = "live-subtitle-box speaking";
+            if (liveTranscriptText) liveTranscriptText.innerText = "⚡ J.A.R.V.I.S. INITIALIZING...";
+            if (micStatus) micStatus.innerText = "J.A.R.V.I.S. IS INITIALIZING...";
+            
+            // Wait until greeting speech completes + 500ms room silence buffer
+            await waitForAudioPlaybackToFinish();
+            await new Promise(r => setTimeout(r, 500));
+            
+            isSpeaking = false;
+            speechBuffer = "";
+            if (subtitlesBox) subtitlesBox.className = "live-subtitle-box";
+            if (liveTranscriptText) liveTranscriptText.innerText = "🎙️ LISTENING... SPEAK ANYTIME";
+            if (micStatus) micStatus.innerText = "ONLINE — LISTENING FOR YOU";
+            startListening();
+        });
+    </script>
+</body>
+</html>
