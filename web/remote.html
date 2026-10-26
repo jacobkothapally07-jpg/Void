@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J.A.R.V.I.S. // Stark AI</title>
+    <title>J.A.R.V.I.S. // Stark Control Centre</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#030408">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/iron-man.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #000000;
-            --surface-1: #0d0e12;
-            --surface-2: #16181f;
-            --surface-card: #14161e;
+            --bg: #030408;
+            --surface-bento: #0d0f17;
+            --surface-card: #121522;
             --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.16);
+            --border-glow: rgba(255, 255, 255, 0.16);
             --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --gradient-accent: linear-gradient(135deg, #c026d3 0%, #db2777 50%, #e11d48 100%);
-            --gradient-bubble: linear-gradient(135deg, #a855f7 0%, #d946ef 50%, #ec4899 100%);
-            --gradient-card: linear-gradient(180deg, rgba(217, 70, 239, 0.12) 0%, rgba(20, 22, 30, 0.8) 100%);
-            --purple-glow: rgba(217, 70, 239, 0.35);
+            --text-secondary: #8b9bb4;
+            --text-muted: #53627c;
+            --cyan-core: #00f0ff;
+            --cyan-glow: rgba(0, 240, 255, 0.4);
+            --stark-gold: #ffaa00;
+            --stark-gold-glow: rgba(255, 170, 0, 0.4);
+            --crimson: #ff3366;
+            --magenta-glow: rgba(236, 72, 153, 0.4);
         }
 
         * {
@@ -39,966 +40,1132 @@
         body {
             background-color: var(--bg);
             color: var(--text-primary);
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
             min-height: 100vh;
             min-height: 100dvh;
             display: flex;
             flex-direction: column;
+            align-items: center;
             overflow-x: hidden;
             position: relative;
+            padding: max(12px, env(safe-area-inset-top)) 0 max(20px, env(safe-area-inset-bottom));
         }
 
-        /* Ambient glowing blur orbs at top (matching Image 1) */
-        .ambient-glow {
+        /* Subtle atmospheric ambient glow matching reference */
+        .ambient-glow-top {
             position: fixed;
-            top: -120px;
-            right: -60px;
-            width: 380px;
-            height: 380px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.32) 0%, rgba(168, 85, 247, 0.22) 50%, transparent 75%);
-            filter: blur(70px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .ambient-glow-left {
-            position: fixed;
-            top: 20%;
-            left: -140px;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%);
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.22) 0%, rgba(6, 182, 212, 0.16) 45%, transparent 70%);
             filter: blur(80px);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Header Bar */
-        .nav-header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
+        .ambient-glow-bottom {
+            position: fixed;
+            bottom: -120px;
+            right: -80px;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 65%);
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Main Container */
+        .app-shell {
+            width: 100%;
+            max-width: 440px;
             display: flex;
+            flex-direction: column;
+            gap: 18px;
+            z-index: 1;
+            padding: 0 16px;
+        }
+
+        /* Top Navigation Header (Matching Reference Image) */
+        .top-nav {
+            display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            padding: max(16px, env(safe-area-inset-top)) 20px 14px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 6px 4px 8px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .sparkle-icon {
-            width: 38px;
-            height: 38px;
+        .nav-round-btn {
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #a855f7, #ec4899);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.09);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 16px rgba(236, 72, 153, 0.45);
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(12px);
         }
 
-        .sparkle-svg {
-            width: 20px;
-            height: 20px;
-            fill: #ffffff;
+        .nav-round-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.12);
         }
 
-        .header-title-box {
+        .nav-title-group {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            gap: 2px;
         }
 
-        .header-title {
-            font-size: 17px;
+        .nav-title {
+            font-size: 19px;
             font-weight: 700;
+            letter-spacing: -0.3px;
             color: #ffffff;
-            letter-spacing: -0.2px;
         }
 
-        .header-subtitle {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .nav-tabs {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 3px;
-        }
-
-        .nav-tab {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 12px;
+        .nav-subtitle {
+            font-size: 11px;
             font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .nav-tab.active {
-            background: #ffffff;
-            color: #000000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Screen Views */
-        .view-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 520px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .view-page {
-            display: none;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-            flex: 1;
-        }
-
-        .view-page.active {
-            display: flex;
-        }
-
-        /* TAB 1: MAIN DASHBOARD & CHAT */
-        .hero-section {
-            padding: 20px 20px 12px;
-        }
-
-        .hero-title {
-            font-size: 28px;
-            font-weight: 800;
-            line-height: 1.2;
-            letter-spacing: -0.6px;
-            color: #ffffff;
-            margin-bottom: 16px;
-        }
-
-        /* Search Pill Bar (Image 1 Left) */
-        .search-pill {
+            color: var(--cyan-core);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 12px 18px;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            gap: 5px;
         }
 
-        .search-pill:active {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.18);
+        .pulsing-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan-core);
+            box-shadow: 0 0 8px var(--cyan-core);
+            animation: pulse-dot 1.8s infinite;
         }
 
-        .search-icon {
-            width: 17px;
-            height: 17px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.8); }
         }
 
-        .search-text {
-            font-size: 14.5px;
-            font-weight: 500;
-        }
-
-        /* Horizontal Carousel (Image 1 Left Screen) */
-        .carousel-track {
+        /* Hero Squircle Carousel with Peek Cards (Exact match to Reference Image 2) */
+        .carousel-container {
+            width: 100%;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 12px;
+            position: relative;
+        }
+
+        .carousel-viewport {
+            width: 100%;
             overflow-x: auto;
-            padding: 4px 20px 16px;
+            display: flex;
+            gap: 14px;
+            padding: 4px 6px 12px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
         }
 
-        .carousel-track::-webkit-scrollbar {
+        .carousel-viewport::-webkit-scrollbar {
             display: none;
         }
 
-        .action-tile {
-            flex: 0 0 138px;
-            height: 138px;
-            background: var(--surface-card);
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            padding: 16px;
+        /* Giant Luminous Squircle Card (Reference Image 2) */
+        .luminous-card {
+            flex: 0 0 calc(100% - 24px);
+            max-width: 380px;
+            height: 270px;
+            border-radius: 38px;
+            padding: 24px 22px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            align-items: center;
+            text-align: center;
             position: relative;
-            cursor: pointer;
-            scroll-snap-align: start;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            scroll-snap-align: center;
             overflow: hidden;
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                0 18px 45px rgba(0, 0, 0, 0.85);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .action-tile::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+        /* Card 1: Stark Battery & Reactor Core (Luminous Magenta/Violet Aura) */
+        .card-reactor {
+            background: radial-gradient(circle at 50% -10%, rgba(217, 70, 239, 0.42) 0%, rgba(147, 51, 234, 0.2) 40%, #0d0f1a 80%);
+            border: 1px solid rgba(217, 70, 239, 0.35);
         }
 
-        .action-tile:active {
-            transform: scale(0.95);
-            border-color: rgba(236, 72, 153, 0.5);
-            box-shadow: 0 8px 24px rgba(236, 72, 153, 0.25);
+        /* Card 2: Mac Workstation Diagnostics (Luminous Cyan/Blue Aura) */
+        .card-diagnostics {
+            background: radial-gradient(circle at 50% -10%, rgba(6, 182, 212, 0.42) 0%, rgba(37, 99, 235, 0.2) 40%, #0d0f1a 80%);
+            border: 1px solid rgba(6, 182, 212, 0.35);
         }
 
-        .tile-icon {
-            font-size: 22px;
-        }
-
-        .tile-title {
-            font-size: 13.5px;
-            font-weight: 700;
-            line-height: 1.25;
-            color: #ffffff;
-            margin-top: 6px;
-        }
-
-        .tile-arrow {
-            position: absolute;
-            bottom: 14px;
-            right: 14px;
-            font-size: 16px;
-            color: var(--text-muted);
-            transition: color 0.2s;
-        }
-
-        .action-tile:hover .tile-arrow,
-        .action-tile:active .tile-arrow {
-            color: #ffffff;
-        }
-
-        /* Chat Message Stream (Image 1 Middle Screen) */
-        .chat-section {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            padding: 0 18px 100px;
-            gap: 16px;
-            overflow-y: auto;
-        }
-
-        .chat-bubble-row {
-            display: flex;
-            gap: 10px;
+        /* Card Header */
+        .card-header-bar {
             width: 100%;
-            animation: fadeIn 0.25s ease-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-        .chat-bubble-row.user {
-            justify-content: flex-end;
+        .card-tag {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+            letter-spacing: -0.2px;
         }
 
-        .chat-bubble-row.jarvis {
-            justify-content: flex-start;
-        }
-
-        .avatar-mini {
-            width: 28px;
-            height: 28px;
+        .info-circle {
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* Dot Matrix Core Readout (Reference Image 2) */
+        .card-body-telemetry {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
             margin-top: 4px;
         }
 
-        .avatar-mini.jarvis {
-            background: linear-gradient(135deg, #a855f7, #ec4899);
-            box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
-        }
-
-        .avatar-mini.user {
-            background: #27272a;
+        .dot-matrix-display {
+            font-family: 'Space Mono', monospace;
+            font-size: 58px;
+            font-weight: 700;
+            letter-spacing: 4px;
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            line-height: 1;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.45);
         }
 
-        /* User Message Bubble with exact purple-to-fuchsia gradient */
-        .user-bubble {
-            background: var(--gradient-bubble);
-            color: #ffffff;
-            border-radius: 20px 20px 4px 20px;
-            padding: 13px 17px;
-            max-width: 82%;
-            font-size: 14.5px;
-            font-weight: 500;
-            line-height: 1.45;
-            box-shadow: 0 4px 18px rgba(217, 70, 239, 0.28);
-            word-break: break-word;
+        .telemetry-unit {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 2px;
         }
 
-        /* J.A.R.V.I.S. Assistant Bubble with dark charcoal surface & action row */
-        .jarvis-card {
-            background: var(--surface-card);
-            border: 1px solid var(--border);
-            border-radius: 20px 20px 20px 4px;
-            padding: 14px 18px;
-            max-width: 86%;
-            color: #f1f5f9;
-            font-size: 14px;
-            line-height: 1.5;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .jarvis-actions {
+        /* Graphic Orbital Dotted Wave at Bottom (Reference Image 2) */
+        .orbital-wave-box {
+            width: 100%;
+            height: 52px;
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 16px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            color: var(--text-muted);
-            font-size: 13px;
+            justify-content: center;
         }
 
-        .action-btn-mini {
-            background: none;
-            border: none;
+        .orbital-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .sub-metric-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            letter-spacing: 0.2px;
+            margin-top: 2px;
+        }
+
+        /* Pagination Dots */
+        .pagination-track {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .page-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .page-dot.active {
+            width: 18px;
+            border-radius: 4px;
+            background: #ffffff;
+        }
+
+        /* Quick Access Control Centre Bento Grid */
+        .bento-section-title {
+            font-size: 13px;
+            font-weight: 700;
             color: var(--text-muted);
-            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding-left: 4px;
+            margin-bottom: -6px;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        /* Bento Squircle Card 1: Mac Host & Uptime (Left Big Card) */
+        .bento-card-tall {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 20px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 195px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+        }
+
+        .bento-card-tall::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
+        .bento-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .bento-metric-large {
+            font-family: 'Space Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 8px;
+        }
+
+        .bento-unit-tag {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        .dotted-slider-track {
+            width: 100%;
+            height: 8px;
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 13px;
-            transition: color 0.15s ease;
+            margin-top: 14px;
         }
 
-        .action-btn-mini:hover, .action-btn-mini:active {
+        .dot-segment {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .dot-segment.filled {
+            background: var(--cyan-core);
+            box-shadow: 0 0 6px var(--cyan-core);
+        }
+
+        /* Right Column Bento Stack */
+        .bento-right-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Toggle Card (Matching "Training" card with toggle in Reference Image 2) */
+        .bento-card-toggle {
+            background: radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.22) 0%, var(--surface-card) 60%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 24px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 85px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+        }
+
+        .toggle-label-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .toggle-name {
+            font-size: 13px;
+            font-weight: 700;
             color: #ffffff;
         }
 
-        /* Media Snapshot Card */
-        .snapshot-container {
-            width: 100%;
-            border-radius: 18px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: #090a0f;
-            margin-top: 6px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        .toggle-sub {
+            font-size: 11px;
+            color: #94a3b8;
         }
 
-        .snapshot-container img {
+        /* Native iOS Style Switch */
+        .ios-switch {
+            width: 48px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            position: relative;
+            transition: background 0.25s ease;
+            cursor: pointer;
+        }
+
+        .ios-switch.active {
+            background: #2563eb;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+        }
+
+        .switch-knob {
+            width: 24px;
+            height: 24px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .ios-switch.active .switch-knob {
+            transform: translateX(20px);
+        }
+
+        /* Sleep Display Bento Card (Matching Sunset orange/red "Breath Volume" Card in Reference Image 2) */
+        .bento-card-sleep {
+            background: radial-gradient(circle at 50% 120%, rgba(239, 68, 68, 0.38) 0%, rgba(249, 115, 22, 0.25) 40%, var(--surface-card) 85%);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            border-radius: 24px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 98px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bento-card-sleep:active {
+            transform: scale(0.96);
+            border-color: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .sleep-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sleep-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .sleep-status-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sleep-readout-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-top: 6px;
+        }
+
+        .sleep-val {
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .sleep-icon {
+            font-size: 20px;
+        }
+
+        /* 4-Tile Tactical Action Strip */
+        .action-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .strip-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 14px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .strip-card:active {
+            transform: scale(0.92);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .strip-icon {
+            font-size: 20px;
+        }
+
+        .strip-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #e2e8f0;
+            text-align: center;
+        }
+
+        /* Live Snapshot Modal View */
+        .snapshot-viewer {
+            display: none;
+            width: 100%;
+            background: var(--surface-card);
+            border: 1px solid var(--cyan-core);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 0 30px var(--cyan-glow);
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .snapshot-header {
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 240, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+        }
+
+        .snapshot-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--cyan-core);
+            letter-spacing: 0.5px;
+        }
+
+        .snapshot-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 2px 8px;
+        }
+
+        .snapshot-img {
             width: 100%;
             max-height: 280px;
             object-fit: cover;
             display: block;
         }
 
-        /* Floating Pill Input Bar (Image 1 Middle Screen) */
-        .floating-input-bar {
+        /* Bottom Command Deck (Exact match to Reference Image 2, Right Screen) */
+        .bottom-controller-deck {
             position: fixed;
             bottom: max(16px, env(safe-area-inset-bottom));
             left: 50%;
             transform: translateX(-50%);
             width: calc(100% - 32px);
-            max-width: 480px;
-            background: rgba(22, 24, 31, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 440px;
+            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.35) 0%, rgba(18, 21, 34, 0.95) 75%);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            border-radius: 34px;
+            padding: 16px 20px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border-radius: 36px;
-            padding: 6px 8px 6px 18px;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            z-index: 50;
+        }
+
+        .controller-status-row {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.7);
-            z-index: 40;
-        }
-
-        .chat-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 15px;
-            outline: none;
-            user-select: text;
-        }
-
-        .chat-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .mic-icon-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: none;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .mic-icon-btn.listening {
-            background: linear-gradient(135deg, #a855f7, #ec4899);
-            box-shadow: 0 0 14px rgba(236, 72, 153, 0.6);
-            animation: pulse-ring 1.5s infinite;
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(0.95); }
-        }
-
-        .send-pill-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #ffffff;
-            border: none;
-            color: #000000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .send-pill-btn:active {
-            transform: scale(0.9);
-        }
-
-        /* TAB 2: LIVE VOICE ORB MODE (Exact Match to Image 1 Right Screen) */
-        .voice-mode-page {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: space-between;
-            padding: 30px 20px max(30px, env(safe-area-inset-bottom));
-            text-align: center;
-            min-height: calc(100vh - 80px);
-        }
-
-        .voice-orb-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            position: relative;
-            width: 100%;
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
         }
 
-        #voiceCanvas {
-            width: 290px;
-            height: 290px;
-            border-radius: 50%;
-            filter: drop-shadow(0 0 35px rgba(217, 70, 239, 0.5));
-        }
-
-        .voice-transcript-box {
-            margin-top: 24px;
-            max-width: 320px;
-        }
-
-        .voice-transcript-title {
-            font-size: 21px;
-            font-weight: 700;
+        .controller-status-center {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             color: #ffffff;
-            line-height: 1.35;
-            letter-spacing: -0.3px;
+            font-weight: 600;
+            font-size: 12.5px;
         }
 
-        .voice-transcript-sub {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-
-        /* Bottom Controls Row in Voice Mode (Image 1 Right Screen) */
-        .voice-controls-bar {
-            width: 100%;
-            max-width: 320px;
+        .controller-buttons-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 0;
+            gap: 12px;
         }
 
-        .voice-mini-btn {
-            width: 46px;
-            height: 46px;
+        .deck-round-btn {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 17px;
+            color: #ffffff;
+            font-size: 18px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
         }
 
-        .voice-mini-btn:active {
+        .deck-round-btn:active {
             transform: scale(0.9);
             background: rgba(255, 255, 255, 0.15);
         }
 
-        .voice-primary-mic {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        /* Giant Center Action Pill: SLEEP MAC (User Request) */
+        .deck-primary-pill {
+            flex: 1;
+            height: 48px;
+            border-radius: 24px;
+            background: #ffffff;
             border: none;
-            color: #ffffff;
-            font-size: 26px;
+            color: #030408;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14.5px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 28px rgba(236, 72, 153, 0.6);
+            gap: 8px;
             cursor: pointer;
+            box-shadow: 0 4px 18px rgba(255, 255, 255, 0.3);
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .voice-primary-mic:active {
-            transform: scale(0.92);
+        .deck-primary-pill:active {
+            transform: scale(0.96);
+            background: #f1f5f9;
         }
 
-        .voice-primary-mic.speaking {
-            animation: pulse-voice 1.4s infinite;
+        /* Slide-over Fullscreen Drawer for Chat & Voice */
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        @keyframes pulse-voice {
-            0% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 45px rgba(236, 72, 153, 0.9); transform: scale(1.08); }
-            100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); transform: scale(1); }
-        }
-
-        /* TAB 3: TELEMETRY & ACTIVITY (Inspired by Image 2) */
-        .telemetry-page {
-            padding: 20px 20px 100px;
+        .drawer-sheet {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 90vh;
+            background: #090b12;
+            border-radius: 32px 32px 0 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 101;
+            padding: 16px 18px max(20px, env(safe-area-inset-bottom));
         }
 
-        /* Glowing Squircle Big Card with Dot Matrix Typography */
-        .stat-card-big {
-            background: radial-gradient(circle at 50% 0%, rgba(217, 70, 239, 0.28) 0%, rgba(20, 22, 30, 0.95) 75%);
-            border: 1px solid rgba(217, 70, 239, 0.3);
-            border-radius: 28px;
-            padding: 24px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-        }
-
-        .stat-badge-top {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .drawer-handle {
+            width: 40px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.25);
+            align-self: center;
             margin-bottom: 12px;
         }
 
-        /* Dot-matrix style typography */
-        .dot-matrix-val {
-            font-family: 'Space Mono', monospace;
-            font-size: 52px;
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .drawer-title {
+            font-size: 17px;
             font-weight: 700;
             color: #ffffff;
-            letter-spacing: 3px;
-            text-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
-            line-height: 1;
-            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .stat-unit {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .stat-subtext {
-            font-size: 14px;
-            color: #e2e8f0;
-            font-weight: 600;
-            margin-top: 14px;
-        }
-
-        .grid-2x2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        .drawer-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
             gap: 12px;
         }
 
-        .stat-pill-card {
-            background: var(--surface-card);
-            border: 1px solid var(--border);
+        .msg-bubble {
+            max-width: 84%;
+            padding: 12px 16px;
             border-radius: 20px;
-            padding: 18px 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 105px;
+            font-size: 14px;
+            line-height: 1.45;
         }
 
-        .pill-card-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .pill-card-value {
-            font-family: 'Space Mono', monospace;
-            font-size: 24px;
-            font-weight: 700;
+        .msg-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
             color: #ffffff;
-            margin-top: 8px;
+            border-radius: 20px 20px 4px 20px;
         }
 
-        .pill-card-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 4px;
+        .msg-bubble.jarvis {
+            align-self: flex-start;
+            background: #151824;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #f1f5f9;
+            border-radius: 20px 20px 20px 4px;
+        }
+
+        .drawer-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            padding: 6px 6px 6px 16px;
+        }
+
+        .drawer-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 15px;
+            outline: none;
+            user-select: text;
         }
     </style>
 </head>
 <body>
-    <!-- Ambient Neon Blur Orbs -->
-    <div class="ambient-glow"></div>
-    <div class="ambient-glow-left"></div>
+    <!-- Atmospheric Ambient Glows -->
+    <div class="ambient-glow-top"></div>
+    <div class="ambient-glow-bottom"></div>
 
-    <!-- Navigation Header -->
-    <header class="nav-header">
-        <div class="header-left">
-            <div class="sparkle-icon">
-                <svg class="sparkle-svg" viewBox="0 0 24 24">
-                    <path d="M12 0L14.7 9.3L24 12L14.7 14.7L12 24L9.3 14.7L0 12L9.3 9.3L12 0Z"/>
+    <div class="app-shell">
+        <!-- Top Navigation (Matching Reference Image 2) -->
+        <div class="top-nav">
+            <button class="nav-round-btn" onclick="sendCommand('battery health')" title="Refresh Sitrep">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
+            </button>
+
+            <div class="nav-title-group">
+                <span class="nav-title">Control Centre</span>
+                <span class="nav-subtitle">
+                    <div class="pulsing-indicator"></div>
+                    STARK OS // ONLINE
+                </span>
             </div>
-            <div class="header-title-box">
-                <span class="header-title">J.A.R.V.I.S.</span>
-                <span class="header-subtitle">Stark Neural OS</span>
-            </div>
+
+            <button class="nav-round-btn" onclick="openChatDrawer()" title="Open Neural Chat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
         </div>
 
-        <!-- Mode Navigation Tabs -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" id="tabChat" onclick="switchTab('chat')">Chat</button>
-            <button class="nav-tab" id="tabVoice" onclick="switchTab('voice')">Voice</button>
-            <button class="nav-tab" id="tabStats" onclick="switchTab('stats')">Health</button>
-        </div>
-    </header>
-
-    <div class="view-container">
-
-        <!-- PAGE 1: CHAT & COMMAND HUB -->
-        <div class="view-page active" id="pageChat">
-            <div class="hero-section">
-                <h1 class="hero-title">Command, explore,<br>stay connected</h1>
-                
-                <!-- Search / Query Pill -->
-                <div class="search-pill" onclick="focusChatInput()">
-                    <svg class="search-icon" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <span class="search-text">Ask anything or command Mac...</span>
-                </div>
-            </div>
-
-            <!-- Horizontal Action Carousel (Image 1 Left) -->
-            <div class="carousel-track">
-                <div class="action-tile" onclick="sendCommand('screenshot')">
-                    <div class="tile-icon">📸</div>
-                    <div class="tile-title">Retina<br>Screenshot</div>
-                    <div class="tile-arrow">↗</div>
-                </div>
-                <div class="action-tile" onclick="sendCommand('camera')">
-                    <div class="tile-icon">👁️</div>
-                    <div class="tile-title">Desk Sentry<br>Vision</div>
-                    <div class="tile-arrow">↗</div>
-                </div>
-                <div class="action-tile" onclick="sendCommand('lock workstation')">
-                    <div class="tile-icon">🔒</div>
-                    <div class="tile-title">Lock<br>Workstation</div>
-                    <div class="tile-arrow">↗</div>
-                </div>
-                <div class="action-tile" onclick="sendCommand('battery health')">
-                    <div class="tile-icon">🔋</div>
-                    <div class="tile-title">System<br>Battery</div>
-                    <div class="tile-arrow">↗</div>
-                </div>
-                <div class="action-tile" onclick="sendCommand('play music')">
-                    <div class="tile-icon">🎵</div>
-                    <div class="tile-title">Spotify<br>Playback</div>
-                    <div class="tile-arrow">↗</div>
-                </div>
-            </div>
-
-            <!-- Chat Stream (Image 1 Middle) -->
-            <div class="chat-section" id="chatStream">
-                <div class="chat-bubble-row jarvis">
-                    <div class="avatar-mini jarvis">✦</div>
-                    <div class="jarvis-card">
-                        <div>Good evening, Sir. All Mac telemetry channels are linked. What would you like me to execute?</div>
-                        <div class="jarvis-actions">
-                            <button class="action-btn-mini" onclick="copyText(this)">📋 Copy</button>
-                            <button class="action-btn-mini" onclick="speakText('Good evening, Sir. All Mac telemetry channels are linked.')">🔊 Speak</button>
-                        </div>
+        <!-- Hero Squircle Carousel with Peek Edges (Reference Image 2) -->
+        <div class="carousel-container">
+            <div class="carousel-viewport" id="cardViewport">
+                <!-- Card 1: Battery & Reactor Output (Luminous Violet/Magenta) -->
+                <div class="luminous-card card-reactor">
+                    <div class="card-header-bar">
+                        <span class="card-tag">Stark Arc Reactor</span>
+                        <div class="info-circle">ⓘ</div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Floating Pill Bottom Input Bar -->
-            <div class="floating-input-bar">
-                <input type="text" id="chatInput" class="chat-input" placeholder="Send message..." onkeydown="if(event.key==='Enter') sendInputMessage()">
-                <button class="mic-icon-btn" id="chatMicBtn" onclick="toggleSpeech()" title="Voice Dictate">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="22"></line>
-                    </svg>
-                </button>
-                <button class="send-pill-btn" onclick="sendInputMessage()" title="Send">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="19" x2="12" y2="5"></line>
-                        <polyline points="5 12 12 5 19 12"></polyline>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- PAGE 2: LIVE VOICE ORB MODE (Image 1 Right Screen) -->
-        <div class="view-page" id="pageVoice">
-            <div class="voice-mode-page">
-                <div class="voice-orb-container">
-                    <canvas id="voiceCanvas" width="580" height="580"></canvas>
-                    <div class="voice-transcript-box">
-                        <div class="voice-transcript-title" id="voiceTranscript">"Tell me what to execute..."</div>
-                        <div class="voice-transcript-sub" id="voiceStateSub">Tap the mic to talk with J.A.R.V.I.S.</div>
+                    <div class="card-body-telemetry">
+                        <div class="dot-matrix-display" id="mainBatteryVal">46%</div>
+                        <span class="telemetry-unit">Battery Level</span>
                     </div>
-                </div>
 
-                <div class="voice-controls-bar">
-                    <button class="voice-mini-btn" onclick="sendCommand('pause music')" title="Pause">⏸</button>
-                    <button class="voice-primary-mic" id="voicePrimaryBtn" onclick="toggleSpeech()">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                            <line x1="12" y1="19" x2="12" y2="22"></line>
+                    <div class="orbital-wave-box">
+                        <svg class="orbital-svg" viewBox="0 0 240 40">
+                            <!-- Dotted orbital concentric waves like Reference Image 2 -->
+                            <ellipse cx="120" cy="35" rx="85" ry="24" fill="none" stroke="rgba(255,255,255,0.22)" stroke-dasharray="3,4" stroke-width="1.2"/>
+                            <ellipse cx="120" cy="35" rx="55" ry="16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-dasharray="2,3" stroke-width="1.2"/>
+                            <circle cx="95" cy="18" r="2.5" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)"/>
+                            <circle cx="145" cy="18" r="2.5" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)"/>
+                            <circle cx="120" cy="11" r="3" fill="#ffffff" filter="drop-shadow(0 0 4px #ec4899)"/>
                         </svg>
-                    </button>
-                    <button class="voice-mini-btn" onclick="switchTab('chat')" title="Back to Chat">✕</button>
+                    </div>
+
+                    <span class="sub-metric-label">Power Source: Battery • Optimal</span>
+                </div>
+
+                <!-- Card 2: Workstation Diagnostics (Luminous Cyan/Blue) -->
+                <div class="luminous-card card-diagnostics">
+                    <div class="card-header-bar">
+                        <span class="card-tag">Workstation Health</span>
+                        <div class="info-circle">ⓘ</div>
+                    </div>
+
+                    <div class="card-body-telemetry">
+                        <div class="dot-matrix-display" id="cpuLoadVal">0.0</div>
+                        <span class="telemetry-unit">CPU Utilization %</span>
+                    </div>
+
+                    <div class="orbital-wave-box">
+                        <svg class="orbital-svg" viewBox="0 0 240 40">
+                            <ellipse cx="120" cy="35" rx="85" ry="24" fill="none" stroke="rgba(0,240,255,0.28)" stroke-dasharray="3,4" stroke-width="1.2"/>
+                            <ellipse cx="120" cy="35" rx="55" ry="16" fill="none" stroke="rgba(0,240,255,0.4)" stroke-dasharray="2,3" stroke-width="1.2"/>
+                            <circle cx="75" cy="24" r="2.5" fill="#00f0ff" filter="drop-shadow(0 0 4px #00f0ff)"/>
+                            <circle cx="165" cy="24" r="2.5" fill="#00f0ff" filter="drop-shadow(0 0 4px #00f0ff)"/>
+                            <circle cx="120" cy="11" r="3" fill="#ffffff" filter="drop-shadow(0 0 4px #00f0ff)"/>
+                        </svg>
+                    </div>
+
+                    <span class="sub-metric-label">MacBook Air • macOS 15 Active</span>
+                </div>
+            </div>
+
+            <div class="pagination-track">
+                <div class="page-dot active" id="dot0"></div>
+                <div class="page-dot" id="dot1"></div>
+            </div>
+        </div>
+
+        <!-- Quick Access Control Centre Bento Grid -->
+        <span class="bento-section-title">Quick Access Bento</span>
+        <div class="bento-grid">
+            <!-- Left Tall Card: System Uptime & Status (Reference Image 2 Daily Streak card) -->
+            <div class="bento-card-tall">
+                <div>
+                    <span class="bento-title">System Status</span>
+                    <div class="bento-metric-large" id="hostStatus">ONLINE<span class="bento-unit-tag">Mac</span></div>
+                </div>
+
+                <div>
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Neural Link: Active</span>
+                    <div class="dotted-slider-track">
+                        <div class="dot-segment filled"></div>
+                        <div class="dot-segment filled"></div>
+                        <div class="dot-segment filled"></div>
+                        <div class="dot-segment filled"></div>
+                        <div class="dot-segment"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column Stack -->
+            <div class="bento-right-stack">
+                <!-- Training / Sentry Toggle Card (Reference Image 2) -->
+                <div class="bento-card-toggle" onclick="toggleSentry()">
+                    <div class="toggle-label-box">
+                        <span class="toggle-name">Desk Sentry</span>
+                        <span class="toggle-sub" id="sentrySubText">Face Vision</span>
+                    </div>
+                    <div class="ios-switch active" id="sentrySwitch">
+                        <div class="switch-knob"></div>
+                    </div>
+                </div>
+
+                <!-- SLEEP WORKSTATION CARD (Reference Image 2 Orange/Red Breath Volume Card) -->
+                <div class="bento-card-sleep" onclick="triggerSleepMac()">
+                    <div class="sleep-header-row">
+                        <span class="sleep-label">Sleep Workstation</span>
+                        <span class="sleep-status-tag" id="sleepTag">AWAKE</span>
+                    </div>
+                    <div class="sleep-readout-row">
+                        <span class="sleep-val" id="sleepVal">STANDBY</span>
+                        <span class="sleep-icon">🌙</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- PAGE 3: TELEMETRY & HEALTH (Inspired by Image 2) -->
-        <div class="view-page" id="pageStats">
-            <div class="telemetry-page">
-                <!-- Large Dot Matrix Activity Card -->
-                <div class="stat-card-big">
-                    <div class="stat-badge-top">Mac Workstation Battery</div>
-                    <div class="dot-matrix-val" id="dotMatrixBatt">46%</div>
-                    <div class="stat-unit">Power Source: Battery</div>
-                    <div class="stat-subtext">Optimal System Health</div>
-                </div>
-
-                <div class="grid-2x2">
-                    <div class="stat-pill-card">
-                        <span class="pill-card-label">Mac Host</span>
-                        <span class="pill-card-value" style="color: #10b981;">ACTIVE</span>
-                        <span class="pill-card-sub">CoreAudio & Vision Online</span>
-                    </div>
-                    <div class="stat-pill-card">
-                        <span class="pill-card-label">Security Protocol</span>
-                        <span class="pill-card-value" style="color: #ec4899;">ARMED</span>
-                        <span class="pill-card-sub">Face Sentry Active</span>
-                    </div>
-                    <div class="stat-pill-card" onclick="sendCommand('play music')">
-                        <span class="pill-card-label">Spotify Remote</span>
-                        <span class="pill-card-value" style="font-size: 16px; margin-top: 14px;">▶ PLAY</span>
-                        <span class="pill-card-sub">Tap to play music</span>
-                    </div>
-                    <div class="stat-pill-card" onclick="sendCommand('lock workstation')">
-                        <span class="pill-card-label">Workstation</span>
-                        <span class="pill-card-value" style="font-size: 16px; margin-top: 14px; color: #ef4444;">🔒 LOCK</span>
-                        <span class="pill-card-sub">Immediate lockdown</span>
-                    </div>
-                </div>
+        <!-- Tactical Action Strip -->
+        <div class="action-strip">
+            <div class="strip-card" onclick="sendCommand('screenshot')">
+                <div class="strip-icon">📸</div>
+                <span class="strip-label">Screen</span>
+            </div>
+            <div class="strip-card" onclick="sendCommand('camera')">
+                <div class="strip-icon">👁️</div>
+                <span class="strip-label">Sentry</span>
+            </div>
+            <div class="strip-card" onclick="sendCommand('lock workstation')">
+                <div class="strip-icon">🔒</div>
+                <span class="strip-label">Lock</span>
+            </div>
+            <div class="strip-card" onclick="sendCommand('play music')">
+                <div class="strip-icon">🎵</div>
+                <span class="strip-label">Spotify</span>
             </div>
         </div>
 
+        <!-- Live Snapshot Preview Card -->
+        <div id="snapshotViewer" class="snapshot-viewer">
+            <div class="snapshot-header">
+                <span class="snapshot-title" id="snapshotTitle">📸 LIVE VISUAL CAPTURE</span>
+                <button class="snapshot-close" onclick="closeSnapshot()">✕</button>
+            </div>
+            <img id="snapshotImg" class="snapshot-img" src="" alt="Snapshot">
+        </div>
+
+        <!-- Spacing for bottom floating deck -->
+        <div style="height: 95px;"></div>
+    </div>
+
+    <!-- Bottom Command Deck (Exact Match to Reference Image 2, Right Screen) -->
+    <div class="bottom-controller-deck">
+        <div class="controller-status-row">
+            <span>Core: 100%</span>
+            <div class="controller-status-center">
+                <span>✦</span>
+                <span id="deckStatusText">J.A.R.V.I.S. Ready</span>
+            </div>
+            <span id="deckBattText">46%</span>
+        </div>
+
+        <div class="controller-buttons-row">
+            <!-- Reset / Repeat Button -->
+            <button class="deck-round-btn" onclick="sendCommand('battery health')" title="Refresh Sitrep">
+                ⟲
+            </button>
+
+            <!-- Giant Primary Action Pill: SLEEP MAC (User Requested) -->
+            <button class="deck-primary-pill" onclick="triggerSleepMac()">
+                <span>🌙</span>
+                <span id="sleepBtnLabel">SLEEP MAC</span>
+            </button>
+
+            <!-- Mic / Speech Button -->
+            <button class="deck-round-btn" id="deckMicBtn" onclick="toggleSpeech()" title="Voice Dictation">
+                🎙️
+            </button>
+        </div>
+    </div>
+
+    <!-- Slide-over Fullscreen Drawer for Chat -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeChatDrawer()"></div>
+    <div class="drawer-sheet" id="drawerSheet">
+        <div class="drawer-handle"></div>
+        <div class="drawer-header">
+            <div class="drawer-title">
+                <span style="color: var(--cyan-core);">✦</span>
+                <span>J.A.R.V.I.S. Neural Stream</span>
+            </div>
+            <button class="nav-round-btn" style="width: 34px; height: 34px;" onclick="closeChatDrawer()">✕</button>
+        </div>
+
+        <div class="drawer-messages" id="drawerMessages">
+            <div class="msg-bubble jarvis">
+                Pocket J.A.R.V.I.S. online, Sir. Quick access control centre active. What are your orders?
+            </div>
+        </div>
+
+        <div class="drawer-input-row">
+            <input type="text" id="drawerInput" class="drawer-input" placeholder="Type a command or order..." onkeydown="if(event.key==='Enter') sendDrawerText()">
+            <button class="nav-round-btn" style="width: 36px; height: 36px; background: #ffffff; color: #000;" onclick="sendDrawerText()">
+                ↑
+            </button>
+        </div>
     </div>
 
     <script>
         const CMD_TOPIC = "jk_jarvis_cmd";
         const REPLY_TOPIC = "jk_jarvis_reply";
 
-        const chatStream = document.getElementById("chatStream");
-        const chatInput = document.getElementById("chatInput");
-        const chatMicBtn = document.getElementById("chatMicBtn");
-        const voicePrimaryBtn = document.getElementById("voicePrimaryBtn");
-        const voiceTranscript = document.getElementById("voiceTranscript");
-        const voiceStateSub = document.getElementById("voiceStateSub");
-        const dotMatrixBatt = document.getElementById("dotMatrixBatt");
+        const mainBatteryVal = document.getElementById("mainBatteryVal");
+        const cpuLoadVal = document.getElementById("cpuLoadVal");
+        const deckBattText = document.getElementById("deckBattText");
+        const sleepTag = document.getElementById("sleepTag");
+        const sleepVal = document.getElementById("sleepVal");
+        const sleepBtnLabel = document.getElementById("sleepBtnLabel");
+        const deckStatusText = document.getElementById("deckStatusText");
+        const snapshotViewer = document.getElementById("snapshotViewer");
+        const snapshotImg = document.getElementById("snapshotImg");
+        const snapshotTitle = document.getElementById("snapshotTitle");
+        const drawerOverlay = document.getElementById("drawerOverlay");
+        const drawerSheet = document.getElementById("drawerSheet");
+        const drawerMessages = document.getElementById("drawerMessages");
+        const drawerInput = document.getElementById("drawerInput");
+        const deckMicBtn = document.getElementById("deckMicBtn");
+        const sentrySwitch = document.getElementById("sentrySwitch");
+
+        let isSleeping = false;
 
         function triggerHaptic() {
             if (navigator.vibrate) navigator.vibrate(15);
         }
 
-        function switchTab(tab) {
-            triggerHaptic();
-            document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
-            document.querySelectorAll(".view-page").forEach(p => p.classList.remove("active"));
-
-            if (tab === 'chat') {
-                document.getElementById("tabChat").classList.add("active");
-                document.getElementById("pageChat").classList.add("active");
-            } else if (tab === 'voice') {
-                document.getElementById("tabVoice").classList.add("active");
-                document.getElementById("pageVoice").classList.add("active");
-                startOrbAnimation();
-            } else if (tab === 'stats') {
-                document.getElementById("tabStats").classList.add("active");
-                document.getElementById("pageStats").classList.add("active");
-            }
-        }
-
-        function focusChatInput() {
-            chatInput.focus();
-        }
-
-        function addUserMessage(text) {
-            const row = document.createElement("div");
-            row.className = "chat-bubble-row user";
-            row.innerHTML = `
-                <div class="user-bubble">${escapeHtml(text)}</div>
-                <div class="avatar-mini user">Y</div>
-            `;
-            chatStream.appendChild(row);
-            chatStream.scrollTop = chatStream.scrollHeight;
-        }
-
-        function addJarvisMessage(text, photoUrl = null) {
-            const row = document.createElement("div");
-            row.className = "chat-bubble-row jarvis";
-            
-            let photoHtml = "";
-            if (photoUrl) {
-                photoHtml = `
-                    <div class="snapshot-container">
-                        <img src="${photoUrl}" alt="Snapshot">
-                    </div>
-                `;
-            }
-
-            row.innerHTML = `
-                <div class="avatar-mini jarvis">✦</div>
-                <div class="jarvis-card">
-                    <div>${text.replace(/\n/g, "<br>")}</div>
-                    ${photoHtml}
-                    <div class="jarvis-actions">
-                        <button class="action-btn-mini" onclick="copyText(this)">📋 Copy</button>
-                        <button class="action-btn-mini" onclick="speakText('${escapeAttr(text)}')">🔊 Speak</button>
-                    </div>
-                </div>
-            `;
-            chatStream.appendChild(row);
-            chatStream.scrollTop = chatStream.scrollHeight;
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        function escapeAttr(str) {
-            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        }
-
-        function copyText(btn) {
-            const card = btn.closest(".jarvis-card");
-            const text = card.querySelector("div").innerText;
-            navigator.clipboard.writeText(text);
-            btn.innerText = "✓ Copied";
-            setTimeout(() => btn.innerText = "📋 Copy", 1500);
-        }
-
-        function speakText(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 1.0;
-                utterance.pitch = 0.95;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
         async function sendCommand(cmd) {
             triggerHaptic();
-            addUserMessage(cmd);
+            addDrawerMessage(cmd, true);
+            deckStatusText.innerText = "Transmitting...";
             try {
                 await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
                     method: "POST",
                     body: cmd
                 });
             } catch(e) {
-                addJarvisMessage("Could not dispatch command: " + e.message);
+                deckStatusText.innerText = "Error: " + e.message;
             }
         }
 
-        function sendInputMessage() {
-            const text = chatInput.value.trim();
+        // SLEEP WORKSTATION ACTION (User Request)
+        function triggerSleepMac() {
+            triggerHaptic();
+            if (!isSleeping) {
+                isSleeping = true;
+                sendCommand("sleep display");
+                sleepTag.innerText = "SLEEPING";
+                sleepTag.style.color = "#ef4444";
+                sleepVal.innerText = "STANDBY";
+                sleepBtnLabel.innerText = "WAKE MAC";
+                deckStatusText.innerText = "Workstation Asleep";
+            } else {
+                isSleeping = false;
+                sendCommand("wake up");
+                sleepTag.innerText = "AWAKE";
+                sleepTag.style.color = "#10b981";
+                sleepVal.innerText = "ACTIVE";
+                sleepBtnLabel.innerText = "SLEEP MAC";
+                deckStatusText.innerText = "Systems Active";
+            }
+        }
+
+        function toggleSentry() {
+            triggerHaptic();
+            sentrySwitch.classList.toggle("active");
+            if (sentrySwitch.classList.contains("active")) {
+                sendCommand("camera");
+                deckStatusText.innerText = "Sentry Scanning...";
+            } else {
+                deckStatusText.innerText = "Sentry Standby";
+            }
+        }
+
+        function closeSnapshot() {
+            snapshotViewer.style.display = "none";
+        }
+
+        // Drawer Controls
+        function openChatDrawer() {
+            triggerHaptic();
+            drawerOverlay.style.display = "block";
+            setTimeout(() => {
+                drawerOverlay.style.opacity = "1";
+                drawerSheet.style.transform = "translateY(0)";
+            }, 10);
+        }
+
+        function closeChatDrawer() {
+            drawerOverlay.style.opacity = "0";
+            drawerSheet.style.transform = "translateY(100%)";
+            setTimeout(() => {
+                drawerOverlay.style.display = "none";
+            }, 300);
+        }
+
+        function addDrawerMessage(text, isUser = false) {
+            const div = document.createElement("div");
+            div.className = "msg-bubble " + (isUser ? "user" : "jarvis");
+            div.innerText = text;
+            drawerMessages.appendChild(div);
+            drawerMessages.scrollTop = drawerMessages.scrollHeight;
+        }
+
+        function sendDrawerText() {
+            const text = drawerInput.value.trim();
             if (!text) return;
-            chatInput.value = "";
+            drawerInput.value = "";
             sendCommand(text);
         }
 
-        // Live Server-Sent Events from Mac
+        // Carousel Scroll Tracker for Pagination Dots
+        const cardViewport = document.getElementById("cardViewport");
+        const dot0 = document.getElementById("dot0");
+        const dot1 = document.getElementById("dot1");
+
+        cardViewport.addEventListener("scroll", () => {
+            const scrollLeft = cardViewport.scrollLeft;
+            const cardWidth = cardViewport.offsetWidth * 0.8;
+            if (scrollLeft > cardWidth / 2) {
+                dot0.classList.remove("active");
+                dot1.classList.add("active");
+            } else {
+                dot1.classList.remove("active");
+                dot0.classList.add("active");
+            }
+        });
+
+        // Server-Sent Events (Live incoming alerts from Mac)
         const eventSource = new EventSource(`https://ntfy.sh/${REPLY_TOPIC}/sse`);
         eventSource.onmessage = function(event) {
             try {
@@ -1006,33 +1173,41 @@
                 if (data.event === "message") {
                     triggerHaptic();
 
-                    let photoUrl = null;
+                    // Handle Photo Attachment
                     if (data.attachment && data.attachment.url) {
-                        photoUrl = data.attachment.url;
+                        snapshotImg.src = data.attachment.url;
+                        snapshotTitle.innerText = data.title ? ("📸 " + data.title.toUpperCase()) : "📸 LIVE VISUAL CAPTURE";
+                        snapshotViewer.style.display = "block";
+                        snapshotViewer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
 
+                    // Handle Text Reply
                     if (data.message && !data.message.startsWith("You received a file:")) {
-                        addJarvisMessage(data.message, photoUrl);
+                        addDrawerMessage(data.message, false);
+                        deckStatusText.innerText = data.message.length > 25 ? (data.message.substring(0, 24) + "...") : data.message;
 
-                        // If in voice mode, update transcript
-                        voiceTranscript.innerText = `"${data.message}"`;
-                        voiceStateSub.innerText = "J.A.R.V.I.S. Replied";
-
-                        // Update Battery Telemetry
+                        // Parse Battery
                         if (data.message.includes("Battery:")) {
                             const match = data.message.match(/Battery:\s*(\d+%)/);
                             if (match) {
-                                dotMatrixBatt.innerText = match[1];
+                                mainBatteryVal.innerText = match[1];
+                                deckBattText.innerText = match[1];
                             }
                         }
-                    } else if (photoUrl) {
-                        addJarvisMessage("Here is the visual capture from your workstation display, Sir.", photoUrl);
+
+                        // Parse CPU
+                        if (data.message.includes("CPU:")) {
+                            const matchCpu = data.message.match(/CPU:\s*(\d+)%/);
+                            if (matchCpu) {
+                                cpuLoadVal.innerText = matchCpu[1] + ".0";
+                            }
+                        }
                     }
                 }
             } catch(e) {}
         };
 
-        // Speech Recognition Setup
+        // Voice Dictation Setup
         let recognition = null;
         let isListening = false;
 
@@ -1040,48 +1215,33 @@
             const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechClass();
             recognition.continuous = false;
-            recognition.interimResults = true;
+            recognition.interimResults = false;
             recognition.lang = 'en-US';
 
             recognition.onstart = function() {
                 isListening = true;
-                chatMicBtn.classList.add("listening");
-                voicePrimaryBtn.classList.add("speaking");
-                voiceTranscript.innerText = "Listening...";
-                voiceStateSub.innerText = "Speak your order to J.A.R.V.I.S.";
+                deckMicBtn.style.background = "linear-gradient(135deg, #a855f7, #ec4899)";
+                deckStatusText.innerText = "Listening...";
                 triggerHaptic();
             };
 
             recognition.onresult = function(event) {
-                let finalTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                    } else {
-                        voiceTranscript.innerText = `"${event.results[i][0].transcript}"`;
-                    }
-                }
-
-                if (finalTranscript) {
-                    voiceTranscript.innerText = `"${finalTranscript}"`;
-                    voiceStateSub.innerText = "Transmitting to your Mac...";
-                    sendCommand(finalTranscript);
-                }
+                const transcript = event.results[0][0].transcript;
+                deckStatusText.innerText = `"${transcript}"`;
+                sendCommand(transcript);
             };
 
             recognition.onerror = function() {
-                resetMicState();
+                isListening = false;
+                deckMicBtn.style.background = "";
+                deckStatusText.innerText = "J.A.R.V.I.S. Ready";
             };
 
             recognition.onend = function() {
-                resetMicState();
+                isListening = false;
+                deckMicBtn.style.background = "";
+                deckStatusText.innerText = "J.A.R.V.I.S. Ready";
             };
-        }
-
-        function resetMicState() {
-            isListening = false;
-            chatMicBtn.classList.remove("listening");
-            voicePrimaryBtn.classList.remove("speaking");
         }
 
         function toggleSpeech() {
@@ -1095,101 +1255,6 @@
                 recognition.start();
             }
         }
-
-        // 3D Particle Glowing Wireframe Orb (Replicating Image 1 Screen 3)
-        const canvas = document.getElementById("voiceCanvas");
-        const ctx = canvas.getContext("2d");
-        let animId = null;
-
-        const numPoints = 600;
-        const radius = 170;
-        const points = [];
-
-        // Generate points distributed on a sphere
-        for (let i = 0; i < numPoints; i++) {
-            const theta = Math.acos(1 - 2 * (i + 0.5) / numPoints);
-            const phi = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
-            points.push({
-                x: radius * Math.sin(theta) * Math.cos(phi),
-                y: radius * Math.sin(theta) * Math.sin(phi),
-                z: radius * Math.cos(theta),
-                baseX: radius * Math.sin(theta) * Math.cos(phi),
-                baseY: radius * Math.sin(theta) * Math.sin(phi),
-                baseZ: radius * Math.cos(theta),
-                phase: Math.random() * Math.PI * 2
-            });
-        }
-
-        let rotX = 0;
-        let rotY = 0;
-        let tick = 0;
-
-        function renderOrb() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const cx = canvas.width / 2;
-            const cy = canvas.height / 2;
-
-            tick += 0.035;
-            rotX += 0.006;
-            rotY += 0.009;
-
-            const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-            const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-
-            // Morphing amplitude when listening
-            const amp = isListening ? 24 : 10;
-
-            for (let i = 0; i < points.length; i++) {
-                const p = points[i];
-
-                // Noise deformation
-                const wave = Math.sin(tick * 2 + p.phase) * amp;
-                const r = radius + wave;
-                const factor = r / radius;
-
-                let px = p.baseX * factor;
-                let py = p.baseY * factor;
-                let pz = p.baseZ * factor;
-
-                // Rotation around Y
-                let x1 = px * cosY - pz * sinY;
-                let z1 = px * sinY + pz * cosY;
-
-                // Rotation around X
-                let y2 = py * cosX - z1 * sinX;
-                let z2 = py * sinX + z1 * cosX;
-
-                // Perspective projection
-                const fov = 420;
-                const scale = fov / (fov + z2);
-                const x2d = cx + x1 * scale;
-                const y2d = cy + y2 * scale;
-
-                // Depth coloring (Fuchsia/Magenta foreground, violet background)
-                const depthNorm = (z2 + radius) / (2 * radius);
-                const alpha = Math.max(0.15, Math.min(1.0, 0.2 + 0.8 * depthNorm));
-                const size = Math.max(1.2, 2.8 * scale);
-
-                ctx.beginPath();
-                ctx.arc(x2d, y2d, size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${Math.floor(220 + 35 * depthNorm)}, ${Math.floor(70 + 80 * depthNorm)}, ${Math.floor(200 + 40 * depthNorm)}, ${alpha})`;
-                ctx.shadowColor = 'rgba(236, 72, 153, 0.7)';
-                ctx.shadowBlur = isListening ? 8 : 4;
-                ctx.fill();
-            }
-
-            animId = requestAnimationFrame(renderOrb);
-        }
-
-        function startOrbAnimation() {
-            if (!animId) {
-                renderOrb();
-            }
-        }
-
-        // Start render immediately
-        startOrbAnimation();
     </script>
 </body>
 </html>

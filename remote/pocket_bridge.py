@@ -160,11 +160,12 @@ def handle_remote_command(command_text: str):
         send_phone_reply(msg, title="System Health", tags="battery")
         return
 
-    # 5. Sleep / Wake
-    if any(k in lower for k in ["sleep", "standby"]):
+    # 5. Sleep / Wake / Standby
+    if any(k in lower for k in ["sleep display", "sleep mac", "put mac to sleep", "sleep workstation", "sleep", "standby"]):
+        control_mac_settings("sleep_display")
         from voice_listener import set_jarvis_sleeping
         set_jarvis_sleeping(True)
-        send_phone_reply("J.A.R.V.I.S. is now in low-power standby mode, Sir.", title="Standby Mode", tags="moon")
+        send_phone_reply("Mac display sleeping and J.A.R.V.I.S. placed on low-power standby, Sir.", title="System Sleeping", tags="moon,zzz")
         return
 
     if any(k in lower for k in ["wake", "wake up"]):
