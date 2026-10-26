@@ -2,276 +2,707 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pocket J.A.R.V.I.S.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Pocket J.A.R.V.I.S. // Stark OS</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#030712">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/iron-man.png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #ff9900;
-            --gold-bright: #ffaa00;
-            --gold-glow: rgba(255, 150, 0, 0.6);
-            --cyan: #00f0ff;
-            --cyan-glow: rgba(0, 240, 255, 0.6);
-            --bg: #05070a;
-            --card-bg: rgba(15, 23, 42, 0.75);
-            --border: rgba(255, 170, 0, 0.25);
+            --gold: #f59e0b;
+            --gold-bright: #fbbf24;
+            --gold-glow: rgba(245, 158, 11, 0.45);
+            --gold-subtle: rgba(245, 158, 11, 0.12);
+            --cyan: #06b6d4;
+            --cyan-bright: #22d3ee;
+            --cyan-glow: rgba(6, 182, 212, 0.45);
+            --cyan-subtle: rgba(6, 182, 212, 0.12);
+            --emerald: #10b981;
+            --bg: #030712;
+            --card-bg: rgba(15, 23, 42, 0.65);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-gold: rgba(245, 158, 11, 0.35);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
 
         body {
             background-color: var(--bg);
-            background-image: radial-gradient(circle at 50% 0%, rgba(255, 150, 0, 0.15) 0%, transparent 60%);
-            color: #f1f5f9;
-            font-family: 'Rajdhani', sans-serif;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+            color: #f8fafc;
+            font-family: 'Rajdhani', -apple-system, sans-serif;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 16px;
+            padding: max(12px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+            overflow-x: hidden;
         }
 
+        /* Top Stark Arc Reactor & Telemetry Header */
         header {
             width: 100%;
-            max-width: 440px;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 8px 0 16px;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+            position: relative;
+        }
+
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0 20px;
-            border-bottom: 1px solid var(--border);
         }
 
         .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Animated Mini Arc Reactor */
+        .arc-reactor {
+            width: 44px;
+            height: 44px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arc-outer {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px dashed var(--gold-bright);
+            position: absolute;
+            animation: spin 16s linear infinite;
+            box-shadow: 0 0 14px var(--gold-glow);
+        }
+
+        .arc-middle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid var(--cyan-bright);
+            position: absolute;
+            animation: spin-reverse 8s linear infinite;
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        .arc-core {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffffff 10%, var(--cyan-bright) 70%);
+            box-shadow: 0 0 16px var(--cyan-bright);
+            animation: core-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
+        @keyframes core-pulse {
+            0%, 100% { transform: scale(0.9); opacity: 0.85; filter: drop-shadow(0 0 4px var(--cyan)); }
+            50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 12px var(--cyan-bright)); }
+        }
+
+        .titles {
             display: flex;
             flex-direction: column;
         }
 
         .title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 20px;
+            font-size: 21px;
             font-weight: 900;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             color: var(--gold-bright);
-            text-shadow: 0 0 12px var(--gold-glow);
+            text-shadow: 0 0 14px var(--gold-glow);
         }
 
         .subtitle {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
-        .status-badge {
+        .status-pill {
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(0, 255, 170, 0.1);
-            border: 1px solid rgba(0, 255, 170, 0.3);
-            padding: 4px 10px;
-            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            padding: 5px 11px;
+            border-radius: 20px;
             font-family: 'Share Tech Mono', monospace;
             font-size: 11px;
-            color: #00ffaa;
+            color: #10b981;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(8px);
         }
 
-        .dot {
+        .status-dot {
             width: 7px;
             height: 7px;
-            background: #00ffaa;
+            background: #10b981;
             border-radius: 50%;
-            box-shadow: 0 0 8px #00ffaa;
-            animation: pulse 2s infinite;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse-dot 1.8s infinite;
         }
 
-        @keyframes pulse {
+        @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.85); }
+            50% { opacity: 0.4; transform: scale(0.85); }
         }
 
-        .container {
-            width: 100%;
-            max-width: 440px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .grid {
+        /* Telemetry Banner */
+        .telemetry-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
         }
 
-        .btn-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px 12px;
+        .telemetry-badge {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 6px 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #f8fafc;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            cursor: pointer;
             backdrop-filter: blur(10px);
-            transition: all 0.2s ease;
         }
 
-        .btn-card:active {
+        .telemetry-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .telemetry-val {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-top: 2px;
+        }
+
+        /* Layout Container */
+        .main-content {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 14px;
+            flex: 1;
+        }
+
+        /* Section Heading */
+        .section-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10.5px;
+            color: var(--gold-bright);
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            margin-bottom: -6px;
+        }
+
+        .section-tag::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.3), transparent);
+        }
+
+        /* Action Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
+        .action-card:active {
             transform: scale(0.96);
             border-color: var(--gold-bright);
             box-shadow: 0 0 16px var(--gold-glow);
         }
 
-        .btn-card .icon {
-            font-size: 26px;
+        .action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            background: var(--gold-subtle);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--gold-bright);
         }
 
-        .chat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
+        .action-icon.cyan {
+            background: var(--cyan-subtle);
+            border-color: rgba(6, 182, 212, 0.25);
+            color: var(--cyan-bright);
+        }
+
+        .action-icon.danger {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.25);
+            color: #ef4444;
+        }
+
+        .action-text {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            backdrop-filter: blur(10px);
+            text-align: left;
         }
 
-        .messages {
-            height: 220px;
+        .action-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #f1f5f9;
+        }
+
+        .action-sub {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9.5px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        /* Spotify Quick Controls Row */
+        .media-deck {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(14px);
+        }
+
+        .media-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .media-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .media-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: #cbd5e1;
+            letter-spacing: 0.5px;
+        }
+
+        .media-btns {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .mini-btn:active {
+            transform: scale(0.94);
+            border-color: var(--gold-bright);
+            background: var(--gold-subtle);
+        }
+
+        /* Live Snapshot Preview Card */
+        .preview-wrapper {
+            display: none;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--cyan-bright);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+            border-radius: 14px;
+            overflow: hidden;
+            backdrop-filter: blur(14px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .preview-header {
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(6, 182, 212, 0.12);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.25);
+        }
+
+        .preview-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--cyan-bright);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .preview-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 14px;
+            padding: 2px 6px;
+            cursor: pointer;
+        }
+
+        .preview-img {
+            width: 100%;
+            max-height: 260px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Tactical Chat Stream */
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            min-height: 240px;
+        }
+
+        .chat-terminal {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            height: 280px;
+            backdrop-filter: blur(14px);
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        .terminal-bar {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .messages-stream {
+            flex: 1;
+            padding: 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            font-size: 14px;
-            padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .msg {
-            padding: 8px 12px;
-            border-radius: 10px;
-            line-height: 1.4;
-            max-width: 90%;
-            word-wrap: break-word;
+        .msg-bubble {
+            max-width: 86%;
+            padding: 9px 13px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            position: relative;
+            animation: bubbleFade 0.2s ease-out;
+            word-break: break-word;
         }
 
-        .msg.user {
-            align-self: flex-end;
-            background: rgba(255, 170, 0, 0.2);
-            border: 1px solid rgba(255, 170, 0, 0.4);
-            color: #ffdd88;
-        }
+        @keyframes bubbleFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .msg.jarvis {
+        .msg-bubble.jarvis {
             align-self: flex-start;
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            color: #bbf2f6;
+            background: rgba(30, 41, 59, 0.7);
+            border-left: 3px solid var(--gold-bright);
+            border-radius: 4px 12px 12px 12px;
+            color: #f1f5f9;
         }
 
-        .input-bar {
+        .msg-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+            border-right: 3px solid var(--cyan-bright);
+            border-radius: 12px 4px 12px 12px;
+            color: #ffffff;
+        }
+
+        .msg-time {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: #64748b;
+            margin-top: 4px;
+            display: block;
+            text-align: right;
+        }
+
+        /* Voice & Text Command Input Bar */
+        .command-bar {
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.85);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
-        input {
+        .cmd-input {
             flex: 1;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 10px;
+            padding: 10px 12px;
             color: #fff;
-            padding: 12px;
             font-family: 'Rajdhani', sans-serif;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
+            transition: all 0.2s ease;
+            user-select: text;
         }
 
-        input:focus {
+        .cmd-input:focus {
             border-color: var(--gold-bright);
             box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        /* Voice Mic Button (Web Speech Recognition) */
+        .mic-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            color: var(--cyan-bright);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .mic-btn.listening {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
+            color: #ef4444;
+            animation: pulse-dot 1s infinite;
         }
 
         .send-btn {
             background: linear-gradient(135deg, var(--gold), #d97706);
             border: none;
-            color: #000;
+            color: #05070a;
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
+            font-size: 12px;
+            letter-spacing: 0.5px;
             border-radius: 10px;
-            padding: 0 18px;
+            padding: 0 15px;
+            height: 40px;
             cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
         }
 
-        .preview-box {
-            display: none;
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--cyan);
-            box-shadow: 0 0 16px var(--cyan-glow);
-            margin-top: 8px;
-        }
-
-        .preview-box img {
-            width: 100%;
-            height: auto;
-            display: block;
+        .send-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="brand">
-            <div class="title">J.A.R.V.I.S.</div>
-            <div class="subtitle">POCKET MOBILE BRIDGE // JK INDUSTRIES</div>
+        <div class="header-top">
+            <div class="brand">
+                <div class="arc-reactor">
+                    <div class="arc-outer"></div>
+                    <div class="arc-middle"></div>
+                    <div class="arc-core"></div>
+                </div>
+                <div class="titles">
+                    <div class="title">J.A.R.V.I.S.</div>
+                    <div class="subtitle">STARK REMOTE PILOT // MARK VII</div>
+                </div>
+            </div>
+            <div class="status-pill">
+                <div class="status-dot"></div>
+                <span id="linkStatus">ARMED</span>
+            </div>
         </div>
-        <div class="status-badge">
-            <div class="dot"></div>
-            <span>LINKED</span>
+
+        <div class="telemetry-row">
+            <div class="telemetry-badge">
+                <span class="telemetry-label">Mac Workstation</span>
+                <span class="telemetry-val" id="macHost">ONLINE</span>
+            </div>
+            <div class="telemetry-badge">
+                <span class="telemetry-label">Battery Level</span>
+                <span class="telemetry-val" id="battStat">46%</span>
+            </div>
+            <div class="telemetry-badge">
+                <span class="telemetry-label">Security State</span>
+                <span class="telemetry-val" id="secState" style="color: #10b981;">ACTIVE</span>
+            </div>
         </div>
     </header>
 
-    <div class="container">
-        <div class="grid">
-            <button class="btn-card" onclick="sendCommand('screenshot')">
-                <div class="icon">📸</div>
-                <span>SCREENSHOT</span>
-            </button>
-            <button class="btn-card" onclick="sendCommand('camera')">
-                <div class="icon">👁️</div>
-                <span>DESK SENTRY</span>
-            </button>
-            <button class="btn-card" onclick="sendCommand('lock workstation')">
-                <div class="icon">🔒</div>
-                <span>LOCK MAC</span>
-            </button>
-            <button class="btn-card" onclick="sendCommand('battery health')">
-                <div class="icon">🔋</div>
-                <span>BATTERY</span>
-            </button>
-        </div>
-
-        <div id="previewBox" class="preview-box">
-            <img id="previewImg" src="" alt="Capture">
-        </div>
-
-        <div class="chat-card">
-            <div class="messages" id="messagesBox">
-                <div class="msg jarvis">Pocket J.A.R.V.I.S. online, Sir. Remote channel secured. What are your orders?</div>
+    <div class="main-content">
+        <!-- Quick Tactical Actions -->
+        <div class="section-tag">Surveillance & Control</div>
+        <div class="action-grid">
+            <div class="action-card" onclick="sendCommand('screenshot')">
+                <div class="action-icon">📸</div>
+                <div class="action-text">
+                    <span class="action-name">SCREENSHOT</span>
+                    <span class="action-sub">Retina Display Capture</span>
+                </div>
             </div>
-            <div class="input-bar">
-                <input type="text" id="cmdInput" placeholder="Command J.A.R.V.I.S..." onkeydown="if(event.key==='Enter') sendText()">
-                <button class="send-btn" onclick="sendText()">SEND</button>
+            <div class="action-card" onclick="sendCommand('camera')">
+                <div class="action-icon cyan">👁️</div>
+                <div class="action-text">
+                    <span class="action-name">DESK SENTRY</span>
+                    <span class="action-sub">FaceTime HD Vision</span>
+                </div>
+            </div>
+            <div class="action-card" onclick="sendCommand('lock workstation')">
+                <div class="action-icon danger">🔒</div>
+                <div class="action-text">
+                    <span class="action-name">LOCK MAC</span>
+                    <span class="action-sub">Workstation Lockdown</span>
+                </div>
+            </div>
+            <div class="action-card" onclick="sendCommand('battery health')">
+                <div class="action-icon">🔋</div>
+                <div class="action-text">
+                    <span class="action-name">HEALTH SITREP</span>
+                    <span class="action-sub">CPU, RAM & Power</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spotify Media Deck -->
+        <div class="section-tag">Audio Control</div>
+        <div class="media-deck">
+            <div class="media-info">
+                <div class="media-badge">🎵</div>
+                <span class="media-title">Spotify Player</span>
+            </div>
+            <div class="media-btns">
+                <button class="mini-btn" onclick="sendCommand('play music')">PLAY</button>
+                <button class="mini-btn" onclick="sendCommand('pause music')">PAUSE</button>
+                <button class="mini-btn" onclick="sendCommand('next song')">NEXT ⏭</button>
+            </div>
+        </div>
+
+        <!-- Live Image View Box -->
+        <div id="previewWrapper" class="preview-wrapper">
+            <div class="preview-header">
+                <span class="preview-title" id="previewTitle">📸 LIVE VISUAL FEED</span>
+                <button class="preview-close" onclick="closePreview()">✕ CLOSE</button>
+            </div>
+            <img id="previewImg" class="preview-img" src="" alt="Feed Snapshot">
+        </div>
+
+        <!-- Interactive Terminal Chat Stream -->
+        <div class="section-tag">Neural Link Communication</div>
+        <div class="chat-section">
+            <div class="chat-terminal">
+                <div class="terminal-bar">
+                    <span>TERMINAL CHANNEL // ENCRYPTED</span>
+                    <span id="pingCounter">LATENCY: 42ms</span>
+                </div>
+                <div class="messages-stream" id="messagesBox">
+                    <div class="msg-bubble jarvis">
+                        Pocket J.A.R.V.I.S. online, Sir. Remote channel secured. What are your orders?
+                        <span class="msg-time">SYSTEM</span>
+                    </div>
+                </div>
+                <div class="command-bar">
+                    <button class="mic-btn" id="micBtn" onclick="toggleSpeech()" title="Tap to Speak">🎙️</button>
+                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Give an order, Sir..." onkeydown="if(event.key==='Enter') sendText()">
+                    <button class="send-btn" onclick="sendText()">SEND</button>
+                </div>
             </div>
         </div>
     </div>
@@ -282,18 +713,33 @@
 
         const messagesBox = document.getElementById("messagesBox");
         const cmdInput = document.getElementById("cmdInput");
-        const previewBox = document.getElementById("previewBox");
+        const previewWrapper = document.getElementById("previewWrapper");
         const previewImg = document.getElementById("previewImg");
+        const previewTitle = document.getElementById("previewTitle");
+        const micBtn = document.getElementById("micBtn");
+        const battStat = document.getElementById("battStat");
+
+        function triggerHaptic() {
+            if (navigator.vibrate) {
+                navigator.vibrate(15);
+            }
+        }
+
+        function getTimeString() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
 
         function addMessage(text, isUser = false) {
             const div = document.createElement("div");
-            div.className = "msg " + (isUser ? "user" : "jarvis");
-            div.innerText = text;
+            div.className = "msg-bubble " + (isUser ? "user" : "jarvis");
+            div.innerHTML = text.replace(/\n/g, "<br>") + `<span class="msg-time">${isUser ? 'YOU' : 'JARVIS'} • ${getTimeString()}</span>`;
             messagesBox.appendChild(div);
             messagesBox.scrollTop = messagesBox.scrollHeight;
         }
 
         async function sendCommand(cmd) {
+            triggerHaptic();
             addMessage(cmd, true);
             try {
                 await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
@@ -301,7 +747,7 @@
                     body: cmd
                 });
             } catch(e) {
-                addMessage("Failed to dispatch command: " + e.message, false);
+                addMessage("Warning: Command dispatch delayed (" + e.message + ")", false);
             }
         }
 
@@ -312,23 +758,90 @@
             sendCommand(text);
         }
 
-        // Listen for live replies from your Mac
+        function closePreview() {
+            previewWrapper.style.display = "none";
+        }
+
+        // Live Server-Sent Event (SSE) Stream from Mac
         const eventSource = new EventSource(`https://ntfy.sh/${REPLY_TOPIC}/sse`);
         eventSource.onmessage = function(event) {
             try {
                 const data = JSON.parse(event.data);
                 if (data.event === "message") {
+                    triggerHaptic();
+                    
+                    // Handle Photo Attachment
                     if (data.attachment && data.attachment.url) {
                         previewImg.src = data.attachment.url;
-                        previewBox.style.display = "block";
-                        previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        previewTitle.innerText = data.title ? ("📸 " + data.title.toUpperCase()) : "📸 LIVE VISUAL FEED";
+                        previewWrapper.style.display = "block";
+                        previewWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
+                    
+                    // Handle Text Reply
                     if (data.message && !data.message.startsWith("You received a file:")) {
                         addMessage(data.message, false);
+
+                        // Parse Battery status if present
+                        if (data.message.includes("Battery:")) {
+                            const match = data.message.match(/Battery:\s*(\d+%)/);
+                            if (match) {
+                                battStat.innerText = match[1];
+                            }
+                        }
                     }
                 }
             } catch(e) {}
         };
+
+        // Mobile Web Speech Recognition (Tap Mic to Speak directly into J.A.R.V.I.S.)
+        let recognition = null;
+        let isListening = false;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechClass();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = function() {
+                isListening = true;
+                micBtn.classList.add("listening");
+                cmdInput.placeholder = "Listening to your voice...";
+                triggerHaptic();
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                cmdInput.value = transcript;
+                sendText();
+            };
+
+            recognition.onerror = function() {
+                isListening = false;
+                micBtn.classList.remove("listening");
+                cmdInput.placeholder = "Give an order, Sir...";
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                micBtn.classList.remove("listening");
+                cmdInput.placeholder = "Give an order, Sir...";
+            };
+        }
+
+        function toggleSpeech() {
+            if (!recognition) {
+                alert("Speech recognition is not supported on this browser.");
+                return;
+            }
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
     </script>
 </body>
 </html>
