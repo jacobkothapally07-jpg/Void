@@ -86,109 +86,11 @@ class JarvisBrain:
         if any(w in clean for w in ["goodbye", "bye jarvis", "bye", "standby mode", "go to sleep", "shut down", "stop listening", "that will be all"]):
             return random.choice(LOCAL_FAREWELLS)
 
-        # FAST LOCAL INTENT ROUTING (0ms latency, 100% reliability, no API lag)
-        # Instant Time & Date
-        if any(k in clean for k in ["what time", "what's the time", "current time", "tell me the time", "time is it"]):
-            import datetime
-            now_time = datetime.datetime.now().strftime("%I:%M %p")
-            return f"It is currently {now_time}, Sir."
-
-        if any(k in clean for k in ["what date", "today's date", "what day", "what's today"]):
-            import datetime
-            today = datetime.datetime.now().strftime("%A, %B %d, %Y")
-            return f"Today is {today}, Sir."
-
-        if any(k in clean for k in ["where am i", "current location", "what city"]):
-            res = self.execute_tool("get_current_location", {})
-            return res.get("detail", "You are currently in Hyderabad, India, Sir.")
-
-        # Coding problem solve & auto-paste
-        if any(k in clean for k in ["solve this", "solve problem", "solve the code", "solve coding", "solve question", "paste the answer", "paste code"]):
-            res = self.execute_tool("solve_and_paste_code", {"auto_paste": True})
-            return res.get("detail", "Problem analyzed and solution processed, Sir.")
-
-        # Screen watch
-        if "watch my screen" in clean or "keep an eye on my screen" in clean or "start watching screen" in clean:
-            res = self.execute_tool("toggle_watch_screen", {"active": True})
-            return res.get("detail", "Watch My Screen mode active, Sir.")
-        if "stop watching screen" in clean or "stop watching my screen" in clean:
-            res = self.execute_tool("toggle_watch_screen", {"active": False})
-            return res.get("detail", "Watch My Screen mode deactivated, Sir.")
-
-        # Screen Q&A / error detection
-        if any(k in clean for k in ["what's on my screen", "what is on my screen", "look at my screen", "look at this", "what is this error", "what does this error mean"]):
-            res = self.execute_tool("ask_about_screen", {"query": user_input})
-            return res.get("detail", res.get("answer", "I have examined your screen, Sir."))
-
-        # Window arrange
-        if "split" in clean and "left" in clean:
-            res = self.execute_tool("arrange_window", {"preset": "left_half"})
-            return res.get("detail", "Window arranged to the left, Sir.")
-        if "split" in clean and "right" in clean:
-            res = self.execute_tool("arrange_window", {"preset": "right_half"})
-            return res.get("detail", "Window arranged to the right, Sir.")
-        if "maximize" in clean or "fullscreen" in clean:
-            res = self.execute_tool("arrange_window", {"preset": "maximize"})
-            return res.get("detail", "Window maximized, Sir.")
-        if "center window" in clean:
-            res = self.execute_tool("arrange_window", {"preset": "center"})
-            return res.get("detail", "Window centered, Sir.")
-
-        # Dictation
-        if clean.startswith("dictate ") or clean.startswith("type this "):
-            raw = re.sub(r"^(dictate|type this)\s+", "", user_input, flags=re.IGNORECASE)
-            res = self.execute_tool("dictate_and_insert", {"raw_text": raw})
-            return res.get("detail", f"Dictated: '{raw}'")
-
-        # Meeting Copilot
-        if "start meeting" in clean or "meeting notes" in clean or "meeting copilot" in clean:
-            res = self.execute_tool("start_meeting_copilot", {"meeting_title": "Live Call"})
-            return res.get("detail", "Meeting Copilot active. I am taking notes, Sir.")
-        if "finish meeting" in clean or "save meeting" in clean or "end meeting" in clean:
-            res = self.execute_tool("stop_meeting_copilot", {"title": "Meeting Summary"})
-            return res.get("detail", "Meeting concluded and notes saved to Apple Notes, Sir.")
-
-        # Spotify
-        if "pause" in clean and "music" in clean:
-            res = self.execute_tool("control_spotify", {"action": "pause"})
-            return res.get("detail", "Spotify playback paused, Sir.")
-        if ("resume" in clean or "play" in clean) and "music" in clean:
-            res = self.execute_tool("control_spotify", {"action": "play"})
-            return res.get("detail", "Spotify playback resumed, Sir.")
-        if "next song" in clean or "next track" in clean or "skip song" in clean:
-            res = self.execute_tool("control_spotify", {"action": "next"})
-            return res.get("detail", "Track skipped, Sir.")
-
-        # Timers
-        m = re.search(r"timer (?:for )?(\d+)\s*(min|minute|sec|second)", clean)
-        if m:
-            val = int(m.group(1))
-            unit = m.group(2)
-            secs = val * 60 if "min" in unit else val
-            res = self.execute_tool("set_timer", {"duration_seconds": secs})
-            return res.get("detail", f"Timer set for {val} {unit}, Sir.")
-
-        # Mac Hardware & Settings
-        if "dark mode" in clean or "dim the lights" in clean or "go dark" in clean:
-            res = self.execute_tool("control_mac_settings", {"action": "dark_mode_on"})
-            return res.get("detail", "Dark mode engaged, Sir.")
-        if "lock" in clean and ("mac" in clean or "screen" in clean or "down" in clean):
-            res = self.execute_tool("control_mac_settings", {"action": "lock"})
-            return res.get("detail", "Screen locked, Sir.")
-        if "empty trash" in clean or "clear the junk" in clean:
-            res = self.execute_tool("control_mac_settings", {"action": "empty_trash"})
-            return res.get("detail", "Trash emptied, Sir.")
-        if "how much juice" in clean or "battery" in clean or "system health" in clean:
-            res = self.execute_tool("get_system_health", {})
-            return f"Battery is at {res.get('battery_percent', 100)}% ({res.get('power_source', 'plugged in')}), and CPU is stable at {res.get('cpu_usage_percent', 0)}%, Sir."
-
-        # Math Calculations
-        calc_match = re.search(r"(?:calculate|what is|compute)\s+([0-9\.\s\+\-\*\/\(\)\^sqrtpi]+)$", clean)
-        if calc_match:
-            expr = calc_match.group(1).strip()
-            if any(c in expr for c in "+-*/^"):
-                res = self.execute_tool("calculate_expression", {"expression": expr})
-                return res.get("detail", f"The answer is {res.get('result')}, Sir.")
+        # FAST DETERMINISTIC ATTICUS ENGINE (0ms, 100% reliable, zero cloud lag)
+        from brain.fast_engine import dispatch_fast_action
+        matched, fast_reply = dispatch_fast_action(clean)
+        if matched and fast_reply:
+            return fast_reply
 
         return None
 
