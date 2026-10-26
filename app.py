@@ -86,20 +86,24 @@ def setup_app_profile(profile_dir, port):
     except Exception:
         pass
 
-def launch_chrome_app(url):
+def launch_chrome_app(url, widget_mode=True):
     chrome_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     profile_dir = os.path.expanduser("~/.jarvis_chrome_app_profile")
     os.makedirs(profile_dir, exist_ok=True)
     setup_app_profile(profile_dir, actual_port)
 
+    size = "--window-size=350,470" if widget_mode else "--window-size=1150,850"
+    pos = "--window-position=1070,60" if widget_mode else "--window-position=100,100"
+
     flags = [
         chrome_path,
         f"--app={url}",
         f"--user-data-dir={profile_dir}",
+        size,
+        pos,
         "--use-fake-ui-for-media-stream",
         "--autoplay-policy=no-user-gesture-required",
         "--enable-features=OverlayScrollbar",
-        "--window-size=1150,850",
         "--no-first-run",
         "--no-default-browser-check"
     ]
@@ -143,8 +147,8 @@ if __name__ == "__main__":
     # Greet user immediately with ElevenLabs neural voice on app startup
     speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
 
-    # Launch Chrome HUD in dedicated app window
-    launch_chrome_app(f"http://127.0.0.1:{actual_port}")
+    # Launch Floating Arc Reactor Widget in dedicated compact app window
+    launch_chrome_app(f"http://127.0.0.1:{actual_port}/widget", widget_mode=True)
 
     # Keep server running persistently on main thread
     try:

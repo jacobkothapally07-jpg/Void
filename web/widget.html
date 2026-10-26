@@ -329,7 +329,9 @@
             }
         }
 
-        // Web Speech Recognition for Chrome / WKWebView
+        let speechTimeout = null;
+
+        // Web Speech Recognition for Chrome
         function initSpeech() {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRec) {
@@ -350,15 +352,18 @@
             recognition.onresult = (e) => {
                 if (isSpeaking) return;
                 let text = "";
+                let isFinal = false;
                 for (let i = e.resultIndex; i < e.results.length; i++) {
                     text += e.results[i][0].transcript;
+                    if (e.results[i].isFinal) isFinal = true;
                 }
                 text = text.trim();
                 if (text) {
                     showSubtitle(text, 0);
-                    if (e.results[e.results.length - 1].isFinal) {
+                    clearTimeout(speechTimeout);
+                    speechTimeout = setTimeout(() => {
                         handleCommand(text);
-                    }
+                    }, isFinal ? 650 : 1200);
                 }
             };
 
@@ -370,6 +375,9 @@
                 isListening = false;
                 if (!isSpeaking) {
                     setStatus("idle", "JARVIS // ONLINE");
+                    setTimeout(() => {
+                        try { recognition.start(); } catch(e) {}
+                    }, 300);
                 }
             };
         }
@@ -401,10 +409,11 @@
                 setStatus("speaking", "SPEAKING...");
                 showSubtitle(reply, 6000);
 
-                // Wait for speech to complete
+                // Wait for speech to complete (with 20s safety timeout)
                 isSpeaking = true;
-                while (true) {
-                    await new Promise(r => setTimeout(r, 400));
+                const waitStart = Date.now();
+                while (Date.now() - waitStart < 20000) {
+                    await new Promise(r => setTimeout(r, 300));
                     try {
                         const s = await fetch("/api/speaking_status");
                         const sData = await s.json();
