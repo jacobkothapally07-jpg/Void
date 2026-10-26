@@ -80,8 +80,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            -webkit-app-region: no-drag;
+            cursor: grab;
+        }
+        .reactor-box:active {
+            cursor: grabbing;
         }
 
         /* Audio Visualizer Wave Ring (24 radiating bars) */
@@ -448,15 +450,53 @@
             if (inputBar.style.display === "block") {
                 inputBar.style.display = "none";
             } else {
-                inputBar.style.display = "block";
-                setTimeout(() => {
-                    cmdInput.focus();
-                }, 50);
-                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
-                    window.webkit.messageHandlers.widget.postMessage({ action: "focus" });
-                }
+                focusInput();
             }
         }
+
+        function focusInput() {
+            inputBar.style.display = "block";
+            setTimeout(() => {
+                cmdInput.focus();
+            }, 50);
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                window.webkit.messageHandlers.widget.postMessage({ action: "focus" });
+            }
+        }
+
+        // --- BUTTERY SMOOTH DESKTOP DRAGGING TO ANY PLACE ---
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        function attachDrag(el) {
+            if (!el) return;
+            el.addEventListener("mousedown", (e) => {
+                if (e.target.tagName === "BUTTON" || e.target.tagName === "INPUT" || e.target.closest(".input-bar")) return;
+                isDragging = true;
+                startX = e.screenX;
+                startY = e.screenY;
+            });
+        }
+
+        const hudHeaderEl = document.querySelector(".hud-header");
+        attachDrag(hudHeaderEl);
+        attachDrag(reactor);
+
+        window.addEventListener("mousemove", (e) => {
+            if (!isDragging) return;
+            const dx = e.screenX - startX;
+            const dy = e.screenY - startY;
+            startX = e.screenX;
+            startY = e.screenY;
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                window.webkit.messageHandlers.widget.postMessage({ action: "move", dx: dx, dy: dy });
+            }
+        });
+
+        window.addEventListener("mouseup", () => {
+            isDragging = false;
+        });
 
         cmdInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && cmdInput.value.trim()) {

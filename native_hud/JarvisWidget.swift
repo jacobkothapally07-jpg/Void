@@ -1,5 +1,6 @@
 import Cocoa
 import WebKit
+import Carbon
 
 class FloatingWidgetPanel: NSPanel {
     override var canBecomeKey: Bool { return true }
@@ -7,14 +8,19 @@ class FloatingWidgetPanel: NSPanel {
 }
 
 class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHandler {
+    static var shared: JarvisWidgetController?
+    
     var window: FloatingWidgetPanel!
     var webView: WKWebView!
     var statusItem: NSStatusItem!
+    var hotKeyRef: EventHotKeyRef?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        JarvisWidgetController.shared = self
         NSApp.setActivationPolicy(.accessory)
         setupStatusItem()
         setupWindow()
+        registerGlobalHotKey()
     }
     
     func setupStatusItem() {
@@ -30,7 +36,7 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
         let width: CGFloat = 330
         let height: CGFloat = 400
-        let rect = NSRect(x: screen.maxX - width - 20, y: screen.minY + 40, width: width, height: height)
+        let rect = NSRect(x: screen.maxX - width - 24, y: screen.minY + 40, width: width, height: height)
         
         window = FloatingWidgetPanel(
             contentRect: rect,
@@ -58,22 +64,45 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         window.makeKeyAndOrderFront(nil)
     }
     
+    func registerGlobalHotKey() {
+        var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+        InstallEventHandler(GetApplicationEventTarget(), { (_, _, _) -> OSStatus in
+            DispatchQueue.main.async {
+                JarvisWidgetController.shared?.toggleWidget()
+            }
+            return noErr
+        }, 1, &eventType, nil, nil)
+        
+        let hotKeyID = EventHotKeyID(signature: OSType(0x4A415256), id: 1) // "JARV"
+        // Register Option + Space (keyCode 49 is Space)
+        RegisterEventHotKey(UInt32(kVK_Space), UInt32(optionKey), hotKeyID, GetApplicationEventTarget(), 0, &hotKeyRef)
+    }
+    
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard let dict = message.body as? [String: Any], let action = dict["action"] as? String else { return }
+        
         if action == "focus" {
             DispatchQueue.main.async {
                 NSApp.activate(ignoringOtherApps: true)
                 self.window.makeKeyAndOrderFront(nil)
             }
+        } else if action == "move", let dx = dict["dx"] as? Double, let dy = dict["dy"] as? Double {
+            DispatchQueue.main.async {
+                var origin = self.window.frame.origin
+                origin.x += CGFloat(dx)
+                origin.y -= CGFloat(dy) // Cocoa Y-axis is inverted relative to web screenY
+                self.window.setFrameOrigin(origin)
+            }
         }
     }
     
     @objc func toggleWidget() {
-        if window.isVisible {
+        if window.isVisible && window.isKeyWindow {
             window.orderOut(nil)
         } else {
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
+            webView.evaluateJavaScript("focusInput()", completionHandler: nil)
         }
     }
 }
