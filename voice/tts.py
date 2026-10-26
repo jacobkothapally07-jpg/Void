@@ -8,12 +8,14 @@ import hashlib
 
 current_audio_proc = None
 is_speaking_lock = False
+current_speaking_text = ""
 TTS_CACHE_DIR = "/tmp/jarvis_tts_cache"
 os.makedirs(TTS_CACHE_DIR, exist_ok=True)
 
 def stop_speaking():
-    global current_audio_proc, is_speaking_lock
+    global current_audio_proc, is_speaking_lock, current_speaking_text
     is_speaking_lock = False
+    current_speaking_text = ""
     try:
         if current_audio_proc and current_audio_proc.poll() is None:
             current_audio_proc.kill()
@@ -34,6 +36,10 @@ def is_speaking():
 
 def get_is_speaking():
     return is_speaking()
+
+def get_current_speaking_text() -> str:
+    global current_speaking_text
+    return current_speaking_text
 
 def clean_for_speech(text: str) -> str:
     """Removes markdown symbols, URLs, and code blocks for smooth, natural speech."""
@@ -94,8 +100,9 @@ def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
     return False
 
 def _speak_neural_sync(clean_text: str):
-    global current_audio_proc, is_speaking_lock
+    global current_audio_proc, is_speaking_lock, current_speaking_text
     is_speaking_lock = True
+    current_speaking_text = clean_text.lower().strip()
     
     # 0ms Instant Cache Check for previously generated phrases
     text_hash = hashlib.md5(clean_text.encode('utf-8')).hexdigest()
@@ -164,6 +171,7 @@ def _speak_neural_sync(clean_text: str):
             
     is_speaking_lock = False
     current_audio_proc = None
+    current_speaking_text = ""
     try:
         if os.path.exists(temp_audio):
             os.remove(temp_audio)
