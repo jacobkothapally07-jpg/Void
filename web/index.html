@@ -891,10 +891,10 @@
                 return;
             }
 
-            const match = query.match(/(?:hey\s+)?jarvis[,\s]*(.*)/i);
-            if (match && match[1]) {
-                query = match[1].trim();
-            }
+            // Strip wake words at start or end ("hey jarvis what time is it" or "what time is it jarvis")
+            query = query.replace(/^(?:hey\s+)?jarvis[,\s]*/i, "");
+            query = query.replace(/[,\s]*(?:hey\s+)?jarvis$/i, "");
+            query = query.trim();
             if (!query) return;
 
             appendMsg("You (Voice)", query, true);

@@ -135,23 +135,18 @@ def start_daemon_server():
     httpd.serve_forever()
 
 if __name__ == "__main__":
+    # If launched directly or via JARVIS.app, always ensure daemon HTTP server runs and launch Chrome HUD
+    t = threading.Thread(target=start_daemon_server, daemon=True)
+    t.start()
+    time.sleep(0.5)
+
     # Greet user immediately with ElevenLabs neural voice on app startup
     speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
 
-    if "--gui" in sys.argv:
-        try:
-            import urllib.request
-            req = urllib.request.urlopen("http://127.0.0.1:8080/api/stats", timeout=0.8)
-            launch_chrome_app("http://127.0.0.1:8080")
-            sys.exit(0)
-        except Exception:
-            pass
-
-        t = threading.Thread(target=start_daemon_server, daemon=True)
-        t.start()
-        time.sleep(0.8)
-        proc = launch_chrome_app(f"http://127.0.0.1:{actual_port}")
-        if proc:
-            proc.wait()
+    proc = launch_chrome_app(f"http://127.0.0.1:{actual_port}")
+    if proc:
+        proc.wait()
     else:
-        start_daemon_server()
+        # Keep process alive if opened in regular browser
+        while True:
+            time.sleep(1)
