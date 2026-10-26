@@ -47,8 +47,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 270px;
-            padding: 4px 10px;
+            width: 250px;
+            padding: 4px 12px;
             background: rgba(8, 12, 18, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid var(--gold-dim);
@@ -60,37 +60,6 @@
             margin-bottom: 6px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 10px rgba(255,150,0,0.2);
             transition: all 0.2s ease;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .header-power-btn {
-            background: rgba(255, 59, 48, 0.15);
-            border: 1px solid rgba(255, 59, 48, 0.45);
-            color: #ff5544;
-            border-radius: 50%;
-            width: 17px;
-            height: 17px;
-            font-size: 11px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            line-height: 1;
-            padding: 0;
-            -webkit-app-region: no-drag;
-        }
-        .header-power-btn:hover {
-            background: #ff3b30;
-            color: #ffffff;
-            border-color: #ff3b30;
-            box-shadow: 0 0 10px rgba(255, 59, 48, 0.85);
-            transform: scale(1.1);
         }
 
         .status-dot {
@@ -286,18 +255,6 @@
             box-shadow: 0 0 10px var(--gold-glow);
         }
 
-        .shutdown-btn {
-            background: rgba(255, 59, 48, 0.12);
-            border: 1px solid rgba(255, 59, 48, 0.45);
-            color: #ff5544;
-        }
-        .shutdown-btn:hover {
-            background: rgba(255, 59, 48, 0.45);
-            border-color: #ff3b30;
-            color: #ffffff;
-            box-shadow: 0 0 10px rgba(255, 59, 48, 0.7);
-        }
-
         .rec-btn.recording {
             background: rgba(255, 59, 48, 0.35) !important;
             border-color: #ff3b30 !important;
@@ -343,10 +300,7 @@
         <!-- Telemetry Header -->
         <div class="hud-header">
             <div><span class="status-dot" id="statusDot"></span><span id="statusText">JARVIS // ONLINE</span></div>
-            <div class="header-actions">
-                <span id="telemetry">CPU 0% | 100%⚡</span>
-                <button class="header-power-btn" onclick="shutdownJarvis()" title="Shut Down J.A.R.V.I.S.">⏻</button>
-            </div>
+            <div id="telemetry">CPU 0% | 100%⚡</div>
         </div>
 
         <!-- Arc Reactor Glowing Orb Core -->
@@ -372,15 +326,6 @@
             <button class="pill-btn rec-btn" id="recBtn" onclick="toggleScreenRecording()" title="Start or Stop Screen Recording">🎥 REC</button>
             <button class="pill-btn" onclick="askQuick('what is on my screen right now')" title="Visual scan and explanation of current screen">👁️ SCAN</button>
             <button class="pill-btn" onclick="askQuick('solve the coding problem on screen and paste it')" title="Solve coding problem & auto-paste">⚡ CODE</button>
-            <button class="pill-btn" onclick="openHotkeyPicker()" id="hkBadge" title="Change hotkey">⌨️ ⌘⇧J</button>
-            <button class="pill-btn shutdown-btn" onclick="shutdownJarvis()" title="Shut Down J.A.R.V.I.S.">⏻ OFF</button>
-        </div>
-        
-        <!-- Hotkey Picker Modal -->
-        <div id="hkModal" style="display:none; position:absolute; top:20px; width:290px; background:rgba(12,16,24,0.96); border:1px solid #ffaa00; border-radius:16px; padding:12px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.9); z-index:999; -webkit-app-region:no-drag;">
-            <div style="font-family:var(--font-display); font-size:10px; color:#ffaa00; letter-spacing:1px; margin-bottom:6px;">CUSTOM AWAKENING HOTKEY</div>
-            <div id="hkStatus" style="font-size:12.5px; color:#ffffff; margin-bottom:8px;">Press your new shortcut...<br><span style="font-size:10px; color:#888;">(e.g. Cmd+Shift+J, Ctrl+Space, Option+J)</span></div>
-            <button class="pill-btn" onclick="closeHotkeyPicker()" style="margin-top:4px;">CANCEL</button>
         </div>
     </div>
 
