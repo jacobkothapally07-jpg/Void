@@ -202,6 +202,13 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 # 1. Fast Native Dispatch (< 1ms, Atticus-Mac style, zero cloud lag)
                 matched, fast_reply = dispatch_fast_action(user_msg)
                 if matched and fast_reply:
+                    if fast_reply == "Muted, Sir.":
+                        from voice.tts import stop_speaking
+                        stop_speaking()
+                        set_widget_state("idle", "JARVIS // ONLINE")
+                        self._send_json({"response": "Muted, Sir.", "status": "success", "fast_path": True})
+                        return
+
                     set_widget_state("speaking", fast_reply)
                     speak(fast_reply, async_mode=True)
                     self._send_json({"response": fast_reply, "status": "success", "fast_path": True})

@@ -137,19 +137,14 @@ def _speak_neural_sync(clean_text: str):
         except Exception:
             played_audio = False
 
-    # 2. Secondary Fail-Safe: Edge-TTS British RyanNeural
+    # 2. Secondary Fail-Safe: Google British Neural TTS (Unlimited & Free)
     if not played_audio:
         try:
-            import edge_tts
-            
-            async def _generate():
-                communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural", rate="+0%", pitch="+0Hz")
-                await communicate.save(temp_audio)
-                
-            asyncio.run(asyncio.wait_for(_generate(), timeout=3.2))
-            
+            from gtts import gTTS
+            tts = gTTS(text=clean_text, lang="en", tld="co.uk")
+            tts.save(temp_audio)
             if os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
-                if len(clean_text) < 120:
+                if len(clean_text) < 140:
                     try:
                         import shutil
                         shutil.copyfile(temp_audio, cached_file)

@@ -100,14 +100,14 @@ def dispatch_fast_action(user_input: str):
         set_jarvis_sleeping(True)
         return True, "Entering sleep mode, Sir. Wake me via shortcut or menu icon whenever you need me."
 
-    # 4. Instant Mute & Standby (Only for standalone stop/quiet/mute commands)
-    if lower in ["stop", "shut up", "be quiet", "quiet", "hush", "mute", "silence", "stop talking", "jarvis stop", "quiet please"]:
+    # 4. Instant Mute & Standby
+    if any(k in lower for k in ["stop", "shut up", "be quiet", "quiet", "hush", "mute", "silence", "stop talking", "stop yapping", "shut your mouth", "quiet please"]):
         from voice.tts import stop_speaking
         stop_speaking()
         return True, "Muted, Sir."
 
     # 5. Basic Greetings / Pings
-    if lower in ["wake up", "wake up jarvis", "ping jarvis", "ping", "open jarvis", "hey jarvis", "jarvis", "hello jarvis", "hi jarvis"]:
+    if lower in ["wake up", "wake up jarvis", "ping jarvis", "ping", "open jarvis", "hey jarvis", "jarvis", "hello jarvis", "hi jarvis", "are you there jarvis", "jarvis you there", "you there"]:
         from voice_listener import set_jarvis_sleeping
         from hud import set_widget_state
         from voice.sound_effects import play_repulsor_wake
