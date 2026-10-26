@@ -133,6 +133,10 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
                 NSApp.activate(ignoringOtherApps: true)
                 self.window.makeKeyAndOrderFront(nil)
             }
+        } else if action == "unfocus" {
+            DispatchQueue.main.async {
+                self.window.resignKey()
+            }
         } else if action == "move", let dx = dict["dx"] as? Double, let dy = dict["dy"] as? Double {
             DispatchQueue.main.async {
                 var origin = self.window.frame.origin

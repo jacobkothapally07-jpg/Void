@@ -149,29 +149,47 @@ def solve_and_paste_code(auto_paste: bool = True, language: str = "auto") -> dic
         raw_code = _call_gemini_vision(prompt, img_b64)
             
         # Clean markdown code blocks if model wrapped it
-        clean_code = raw_code
+        clean_code = raw_code.strip()
         if clean_code.startswith("```"):
             lines = clean_code.split("\n")
             if len(lines) > 2:
                 # Remove first line (e.g. ```python) and last line (```)
                 clean_code = "\n".join(lines[1:-1]).strip()
 
-        # Copy to macOS clipboard
+        # 1. Copy to macOS system clipboard
         process = subprocess.Popen(["pbcopy"], stdin=subprocess.PIPE)
         process.communicate(clean_code.encode("utf-8"))
         
         pasted = False
+        target_name = "editor"
         if auto_paste:
-            # Small delay to ensure active focus, then simulate Cmd+V
-            time.sleep(0.3)
-            script = 'tell application "System Events" to keystroke "v" using command down'
-            res = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
-            pasted = (res.returncode == 0)
+            # 2. Switch focus to the user's active editor/browser and simulate Cmd+V
+            paste_script = '''
+            tell application "System Events"
+                set appList to every application process whose visible is true and name is not "JarvisWidget" and name is not "Python" and name is not "Finder"
+                if (count of appList) > 0 then
+                    set targetApp to first item of appList
+                    set frontmost of targetApp to true
+                    set appName to name of targetApp
+                    delay 0.35
+                    keystroke "v" using command down
+                    return appName
+                end if
+                return "Unknown"
+            end tell
+            '''
+            res = subprocess.run(["osascript", "-e", paste_script], capture_output=True, text=True)
+            if res.returncode == 0:
+                pasted = True
+                out = res.stdout.strip()
+                if out:
+                    target_name = out
 
-        detail_msg = "Problem solved and code pasted directly into your editor, Sir." if pasted else "Problem solved and copied to clipboard, ready for you to paste, Sir."
+        detail_msg = f"Problem solved. Code copied to clipboard and pasted directly into {target_name}, Sir." if pasted else "Problem solved and copied to clipboard, Sir."
         return {
             "status": "success",
             "pasted": pasted,
+            "target": target_name,
             "code_preview": clean_code[:120] + "...",
             "detail": detail_msg
         }

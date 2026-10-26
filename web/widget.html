@@ -526,6 +526,9 @@
         });
 
         function askQuick(text) {
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                window.webkit.messageHandlers.widget.postMessage({ action: "unfocus" });
+            }
             handleCommand(text);
         }
 
