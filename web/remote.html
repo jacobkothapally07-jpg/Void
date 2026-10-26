@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pocket J.A.R.V.I.S. // Stark OS</title>
+    <title>J.A.R.V.I.S. // Stark AI</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#030712">
+    <meta name="theme-color" content="#000000">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/iron-man.png">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #f59e0b;
-            --gold-bright: #fbbf24;
-            --gold-glow: rgba(245, 158, 11, 0.45);
-            --gold-subtle: rgba(245, 158, 11, 0.12);
-            --cyan: #06b6d4;
-            --cyan-bright: #22d3ee;
-            --cyan-glow: rgba(6, 182, 212, 0.45);
-            --cyan-subtle: rgba(6, 182, 212, 0.12);
-            --emerald: #10b981;
-            --bg: #030712;
-            --card-bg: rgba(15, 23, 42, 0.65);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-border-gold: rgba(245, 158, 11, 0.35);
+            --bg: #000000;
+            --surface-1: #0d0e12;
+            --surface-2: #16181f;
+            --surface-card: #14161e;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --gradient-accent: linear-gradient(135deg, #c026d3 0%, #db2777 50%, #e11d48 100%);
+            --gradient-bubble: linear-gradient(135deg, #a855f7 0%, #d946ef 50%, #ec4899 100%);
+            --gradient-card: linear-gradient(180deg, rgba(217, 70, 239, 0.12) 0%, rgba(20, 22, 30, 0.8) 100%);
+            --purple-glow: rgba(217, 70, 239, 0.35);
         }
 
         * {
@@ -36,765 +38,1001 @@
 
         body {
             background-color: var(--bg);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
-                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-            color: #f8fafc;
-            font-family: 'Rajdhani', -apple-system, sans-serif;
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
             min-height: 100dvh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: max(12px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
             overflow-x: hidden;
-        }
-
-        /* Top Stark Arc Reactor & Telemetry Header */
-        header {
-            width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 8px 0 16px;
-            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
             position: relative;
         }
 
-        .header-top {
+        /* Ambient glowing blur orbs at top (matching Image 1) */
+        .ambient-glow {
+            position: fixed;
+            top: -120px;
+            right: -60px;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.32) 0%, rgba(168, 85, 247, 0.22) 50%, transparent 75%);
+            filter: blur(70px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-glow-left {
+            position: fixed;
+            top: 20%;
+            left: -140px;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header Bar */
+        .nav-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: max(16px, env(safe-area-inset-top)) 20px 14px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .brand {
+        .header-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        /* Animated Mini Arc Reactor */
-        .arc-reactor {
-            width: 44px;
-            height: 44px;
-            position: relative;
+        .sparkle-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 0 16px rgba(236, 72, 153, 0.45);
         }
 
-        .arc-outer {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px dashed var(--gold-bright);
-            position: absolute;
-            animation: spin 16s linear infinite;
-            box-shadow: 0 0 14px var(--gold-glow);
+        .sparkle-svg {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
         }
 
-        .arc-middle {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid var(--cyan-bright);
-            position: absolute;
-            animation: spin-reverse 8s linear infinite;
-            box-shadow: 0 0 10px var(--cyan-glow);
-        }
-
-        .arc-core {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #ffffff 10%, var(--cyan-bright) 70%);
-            box-shadow: 0 0 16px var(--cyan-bright);
-            animation: core-pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
-        @keyframes core-pulse {
-            0%, 100% { transform: scale(0.9); opacity: 0.85; filter: drop-shadow(0 0 4px var(--cyan)); }
-            50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 12px var(--cyan-bright)); }
-        }
-
-        .titles {
+        .header-title-box {
             display: flex;
             flex-direction: column;
         }
 
-        .title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 21px;
-            font-weight: 900;
-            letter-spacing: 2.5px;
-            color: var(--gold-bright);
-            text-shadow: 0 0 14px var(--gold-glow);
+        .header-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.2px;
         }
 
-        .subtitle {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            color: #94a3b8;
-            letter-spacing: 1.5px;
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        .status-pill {
+        .nav-tabs {
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.35);
-            padding: 5px 11px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            color: #10b981;
-            letter-spacing: 0.5px;
-            backdrop-filter: blur(8px);
+            padding: 3px;
         }
 
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            background: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #10b981;
-            animation: pulse-dot 1.8s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.85); }
-        }
-
-        /* Telemetry Banner */
-        .telemetry-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            width: 100%;
-        }
-
-        .telemetry-badge {
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 8px;
-            padding: 6px 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .telemetry-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .telemetry-val {
-            font-family: 'Orbitron', monospace;
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 12px;
-            font-weight: 700;
-            color: #f1f5f9;
-            margin-top: 2px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        /* Layout Container */
-        .main-content {
-            width: 100%;
-            max-width: 480px;
+        .nav-tab.active {
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Screen Views */
+        .view-container {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-top: 14px;
-            flex: 1;
-        }
-
-        /* Section Heading */
-        .section-tag {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10.5px;
-            color: var(--gold-bright);
-            letter-spacing: 1.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            margin-bottom: -6px;
-        }
-
-        .section-tag::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(245, 158, 11, 0.3), transparent);
-        }
-
-        /* Action Grid */
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .action-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 14px 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1;
         }
 
-        .action-card::before {
+        .view-page {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+        }
+
+        .view-page.active {
+            display: flex;
+        }
+
+        /* TAB 1: MAIN DASHBOARD & CHAT */
+        .hero-section {
+            padding: 20px 20px 12px;
+        }
+
+        .hero-title {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.6px;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        /* Search Pill Bar (Image 1 Left) */
+        .search-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 12px 18px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-pill:active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .search-icon {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        .search-text {
+            font-size: 14.5px;
+            font-weight: 500;
+        }
+
+        /* Horizontal Carousel (Image 1 Left Screen) */
+        .carousel-track {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 4px 20px 16px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .carousel-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        .action-tile {
+            flex: 0 0 138px;
+            height: 138px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            cursor: pointer;
+            scroll-snap-align: start;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .action-tile::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
         }
 
-        .action-card:active {
-            transform: scale(0.96);
-            border-color: var(--gold-bright);
-            box-shadow: 0 0 16px var(--gold-glow);
+        .action-tile:active {
+            transform: scale(0.95);
+            border-color: rgba(236, 72, 153, 0.5);
+            box-shadow: 0 8px 24px rgba(236, 72, 153, 0.25);
         }
 
-        .action-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+        .tile-icon {
+            font-size: 22px;
+        }
+
+        .tile-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #ffffff;
+            margin-top: 6px;
+        }
+
+        .tile-arrow {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            font-size: 16px;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .action-tile:hover .tile-arrow,
+        .action-tile:active .tile-arrow {
+            color: #ffffff;
+        }
+
+        /* Chat Message Stream (Image 1 Middle Screen) */
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 0 18px 100px;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .chat-bubble-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .chat-bubble-row.user {
+            justify-content: flex-end;
+        }
+
+        .chat-bubble-row.jarvis {
+            justify-content: flex-start;
+        }
+
+        .avatar-mini {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-            background: var(--gold-subtle);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            color: var(--gold-bright);
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 4px;
         }
 
-        .action-icon.cyan {
-            background: var(--cyan-subtle);
-            border-color: rgba(6, 182, 212, 0.25);
-            color: var(--cyan-bright);
+        .avatar-mini.jarvis {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
         }
 
-        .action-icon.danger {
-            background: rgba(239, 68, 68, 0.12);
-            border-color: rgba(239, 68, 68, 0.25);
-            color: #ef4444;
+        .avatar-mini.user {
+            background: #27272a;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .action-text {
+        /* User Message Bubble with exact purple-to-fuchsia gradient */
+        .user-bubble {
+            background: var(--gradient-bubble);
+            color: #ffffff;
+            border-radius: 20px 20px 4px 20px;
+            padding: 13px 17px;
+            max-width: 82%;
+            font-size: 14.5px;
+            font-weight: 500;
+            line-height: 1.45;
+            box-shadow: 0 4px 18px rgba(217, 70, 239, 0.28);
+            word-break: break-word;
+        }
+
+        /* J.A.R.V.I.S. Assistant Bubble with dark charcoal surface & action row */
+        .jarvis-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px 20px 20px 4px;
+            padding: 14px 18px;
+            max-width: 86%;
+            color: #f1f5f9;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
-            text-align: left;
-        }
-
-        .action-name {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 11.5px;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            color: #f1f5f9;
-        }
-
-        .action-sub {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9.5px;
-            color: #94a3b8;
-            margin-top: 2px;
-        }
-
-        /* Spotify Quick Controls Row */
-        .media-deck {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            backdrop-filter: blur(14px);
-        }
-
-        .media-info {
-            display: flex;
-            align-items: center;
             gap: 10px;
         }
 
-        .media-badge {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+        .jarvis-actions {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 14px;
+            gap: 16px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 13px;
         }
 
-        .media-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            color: #cbd5e1;
-            letter-spacing: 0.5px;
-        }
-
-        .media-btns {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .mini-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #f8fafc;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .mini-btn:active {
-            transform: scale(0.94);
-            border-color: var(--gold-bright);
-            background: var(--gold-subtle);
-        }
-
-        /* Live Snapshot Preview Card */
-        .preview-wrapper {
-            display: none;
-            width: 100%;
-            background: var(--card-bg);
-            border: 1px solid var(--cyan-bright);
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
-            border-radius: 14px;
-            overflow: hidden;
-            backdrop-filter: blur(14px);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-
-        .preview-header {
-            padding: 8px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(6, 182, 212, 0.12);
-            border-bottom: 1px solid rgba(6, 182, 212, 0.25);
-        }
-
-        .preview-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: var(--cyan-bright);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .preview-close {
+        .action-btn-mini {
             background: none;
             border: none;
-            color: #94a3b8;
-            font-size: 14px;
-            padding: 2px 6px;
+            color: var(--text-muted);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            transition: color 0.15s ease;
         }
 
-        .preview-img {
+        .action-btn-mini:hover, .action-btn-mini:active {
+            color: #ffffff;
+        }
+
+        /* Media Snapshot Card */
+        .snapshot-container {
             width: 100%;
-            max-height: 260px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: #090a0f;
+            margin-top: 6px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .snapshot-container img {
+            width: 100%;
+            max-height: 280px;
             object-fit: cover;
             display: block;
         }
 
-        /* Tactical Chat Stream */
-        .chat-section {
+        /* Floating Pill Input Bar (Image 1 Middle Screen) */
+        .floating-input-bar {
+            position: fixed;
+            bottom: max(16px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 480px;
+            background: rgba(22, 24, 31, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 36px;
+            padding: 6px 8px 6px 18px;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex: 1;
-            min-height: 240px;
-        }
-
-        .chat-terminal {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            display: flex;
-            flex-direction: column;
-            height: 280px;
-            backdrop-filter: blur(14px);
-            overflow: hidden;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-        }
-
-        .terminal-bar {
-            padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            color: #64748b;
-        }
-
-        .messages-stream {
-            flex: 1;
-            padding: 12px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
             gap: 10px;
-            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.7);
+            z-index: 40;
         }
 
-        .msg-bubble {
-            max-width: 86%;
-            padding: 9px 13px;
-            border-radius: 12px;
-            font-size: 13.5px;
-            line-height: 1.45;
-            position: relative;
-            animation: bubbleFade 0.2s ease-out;
-            word-break: break-word;
-        }
-
-        @keyframes bubbleFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-        .msg-bubble.jarvis {
-            align-self: flex-start;
-            background: rgba(30, 41, 59, 0.7);
-            border-left: 3px solid var(--gold-bright);
-            border-radius: 4px 12px 12px 12px;
-            color: #f1f5f9;
-        }
-
-        .msg-bubble.user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
-            border-right: 3px solid var(--cyan-bright);
-            border-radius: 12px 4px 12px 12px;
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
             color: #ffffff;
-        }
-
-        .msg-time {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: #64748b;
-            margin-top: 4px;
-            display: block;
-            text-align: right;
-        }
-
-        /* Voice & Text Command Input Bar */
-        .command-bar {
-            padding: 10px 12px;
-            background: rgba(15, 23, 42, 0.85);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .cmd-input {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            padding: 10px 12px;
-            color: #fff;
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 15px;
             outline: none;
-            transition: all 0.2s ease;
             user-select: text;
         }
 
-        .cmd-input:focus {
-            border-color: var(--gold-bright);
-            box-shadow: 0 0 10px var(--gold-glow);
+        .chat-input::placeholder {
+            color: var(--text-muted);
         }
 
-        /* Voice Mic Button (Web Speech Recognition) */
-        .mic-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: rgba(6, 182, 212, 0.15);
-            border: 1px solid rgba(6, 182, 212, 0.35);
-            color: var(--cyan-bright);
+        .mic-icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
             cursor: pointer;
             transition: all 0.2s ease;
-            flex-shrink: 0;
         }
 
-        .mic-btn.listening {
-            background: rgba(239, 68, 68, 0.25);
-            border-color: #ef4444;
-            color: #ef4444;
-            animation: pulse-dot 1s infinite;
+        .mic-icon-btn.listening {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            box-shadow: 0 0 14px rgba(236, 72, 153, 0.6);
+            animation: pulse-ring 1.5s infinite;
         }
 
-        .send-btn {
-            background: linear-gradient(135deg, var(--gold), #d97706);
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(0.95); }
+        }
+
+        .send-pill-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #ffffff;
             border: none;
-            color: #05070a;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-            border-radius: 10px;
-            padding: 0 15px;
-            height: 40px;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            flex-shrink: 0;
             transition: all 0.15s ease;
         }
 
-        .send-btn:active {
-            transform: scale(0.95);
+        .send-pill-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* TAB 2: LIVE VOICE ORB MODE (Exact Match to Image 1 Right Screen) */
+        .voice-mode-page {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 30px 20px max(30px, env(safe-area-inset-bottom));
+            text-align: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        .voice-orb-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+        }
+
+        #voiceCanvas {
+            width: 290px;
+            height: 290px;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 35px rgba(217, 70, 239, 0.5));
+        }
+
+        .voice-transcript-box {
+            margin-top: 24px;
+            max-width: 320px;
+        }
+
+        .voice-transcript-title {
+            font-size: 21px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.35;
+            letter-spacing: -0.3px;
+        }
+
+        .voice-transcript-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Bottom Controls Row in Voice Mode (Image 1 Right Screen) */
+        .voice-controls-bar {
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .voice-mini-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .voice-mini-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .voice-primary-mic {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border: none;
+            color: #ffffff;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 28px rgba(236, 72, 153, 0.6);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .voice-primary-mic:active {
+            transform: scale(0.92);
+        }
+
+        .voice-primary-mic.speaking {
+            animation: pulse-voice 1.4s infinite;
+        }
+
+        @keyframes pulse-voice {
+            0% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 45px rgba(236, 72, 153, 0.9); transform: scale(1.08); }
+            100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); transform: scale(1); }
+        }
+
+        /* TAB 3: TELEMETRY & ACTIVITY (Inspired by Image 2) */
+        .telemetry-page {
+            padding: 20px 20px 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Glowing Squircle Big Card with Dot Matrix Typography */
+        .stat-card-big {
+            background: radial-gradient(circle at 50% 0%, rgba(217, 70, 239, 0.28) 0%, rgba(20, 22, 30, 0.95) 75%);
+            border: 1px solid rgba(217, 70, 239, 0.3);
+            border-radius: 28px;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .stat-badge-top {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        /* Dot-matrix style typography */
+        .dot-matrix-val {
+            font-family: 'Space Mono', monospace;
+            font-size: 52px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 3px;
+            text-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-unit {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .stat-subtext {
+            font-size: 14px;
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-top: 14px;
+        }
+
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-pill-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 105px;
+        }
+
+        .pill-card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .pill-card-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 8px;
+        }
+
+        .pill-card-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-top">
-            <div class="brand">
-                <div class="arc-reactor">
-                    <div class="arc-outer"></div>
-                    <div class="arc-middle"></div>
-                    <div class="arc-core"></div>
-                </div>
-                <div class="titles">
-                    <div class="title">J.A.R.V.I.S.</div>
-                    <div class="subtitle">STARK REMOTE PILOT // MARK VII</div>
-                </div>
+    <!-- Ambient Neon Blur Orbs -->
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow-left"></div>
+
+    <!-- Navigation Header -->
+    <header class="nav-header">
+        <div class="header-left">
+            <div class="sparkle-icon">
+                <svg class="sparkle-svg" viewBox="0 0 24 24">
+                    <path d="M12 0L14.7 9.3L24 12L14.7 14.7L12 24L9.3 14.7L0 12L9.3 9.3L12 0Z"/>
+                </svg>
             </div>
-            <div class="status-pill">
-                <div class="status-dot"></div>
-                <span id="linkStatus">ARMED</span>
+            <div class="header-title-box">
+                <span class="header-title">J.A.R.V.I.S.</span>
+                <span class="header-subtitle">Stark Neural OS</span>
             </div>
         </div>
 
-        <div class="telemetry-row">
-            <div class="telemetry-badge">
-                <span class="telemetry-label">Mac Workstation</span>
-                <span class="telemetry-val" id="macHost">ONLINE</span>
-            </div>
-            <div class="telemetry-badge">
-                <span class="telemetry-label">Battery Level</span>
-                <span class="telemetry-val" id="battStat">46%</span>
-            </div>
-            <div class="telemetry-badge">
-                <span class="telemetry-label">Security State</span>
-                <span class="telemetry-val" id="secState" style="color: #10b981;">ACTIVE</span>
-            </div>
+        <!-- Mode Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" id="tabChat" onclick="switchTab('chat')">Chat</button>
+            <button class="nav-tab" id="tabVoice" onclick="switchTab('voice')">Voice</button>
+            <button class="nav-tab" id="tabStats" onclick="switchTab('stats')">Health</button>
         </div>
     </header>
 
-    <div class="main-content">
-        <!-- Quick Tactical Actions -->
-        <div class="section-tag">Surveillance & Control</div>
-        <div class="action-grid">
-            <div class="action-card" onclick="sendCommand('screenshot')">
-                <div class="action-icon">📸</div>
-                <div class="action-text">
-                    <span class="action-name">SCREENSHOT</span>
-                    <span class="action-sub">Retina Display Capture</span>
-                </div>
-            </div>
-            <div class="action-card" onclick="sendCommand('camera')">
-                <div class="action-icon cyan">👁️</div>
-                <div class="action-text">
-                    <span class="action-name">DESK SENTRY</span>
-                    <span class="action-sub">FaceTime HD Vision</span>
-                </div>
-            </div>
-            <div class="action-card" onclick="sendCommand('lock workstation')">
-                <div class="action-icon danger">🔒</div>
-                <div class="action-text">
-                    <span class="action-name">LOCK MAC</span>
-                    <span class="action-sub">Workstation Lockdown</span>
-                </div>
-            </div>
-            <div class="action-card" onclick="sendCommand('battery health')">
-                <div class="action-icon">🔋</div>
-                <div class="action-text">
-                    <span class="action-name">HEALTH SITREP</span>
-                    <span class="action-sub">CPU, RAM & Power</span>
-                </div>
-            </div>
-        </div>
+    <div class="view-container">
 
-        <!-- Spotify Media Deck -->
-        <div class="section-tag">Audio Control</div>
-        <div class="media-deck">
-            <div class="media-info">
-                <div class="media-badge">🎵</div>
-                <span class="media-title">Spotify Player</span>
-            </div>
-            <div class="media-btns">
-                <button class="mini-btn" onclick="sendCommand('play music')">PLAY</button>
-                <button class="mini-btn" onclick="sendCommand('pause music')">PAUSE</button>
-                <button class="mini-btn" onclick="sendCommand('next song')">NEXT ⏭</button>
-            </div>
-        </div>
-
-        <!-- Live Image View Box -->
-        <div id="previewWrapper" class="preview-wrapper">
-            <div class="preview-header">
-                <span class="preview-title" id="previewTitle">📸 LIVE VISUAL FEED</span>
-                <button class="preview-close" onclick="closePreview()">✕ CLOSE</button>
-            </div>
-            <img id="previewImg" class="preview-img" src="" alt="Feed Snapshot">
-        </div>
-
-        <!-- Interactive Terminal Chat Stream -->
-        <div class="section-tag">Neural Link Communication</div>
-        <div class="chat-section">
-            <div class="chat-terminal">
-                <div class="terminal-bar">
-                    <span>TERMINAL CHANNEL // ENCRYPTED</span>
-                    <span id="pingCounter">LATENCY: 42ms</span>
+        <!-- PAGE 1: CHAT & COMMAND HUB -->
+        <div class="view-page active" id="pageChat">
+            <div class="hero-section">
+                <h1 class="hero-title">Command, explore,<br>stay connected</h1>
+                
+                <!-- Search / Query Pill -->
+                <div class="search-pill" onclick="focusChatInput()">
+                    <svg class="search-icon" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span class="search-text">Ask anything or command Mac...</span>
                 </div>
-                <div class="messages-stream" id="messagesBox">
-                    <div class="msg-bubble jarvis">
-                        Pocket J.A.R.V.I.S. online, Sir. Remote channel secured. What are your orders?
-                        <span class="msg-time">SYSTEM</span>
+            </div>
+
+            <!-- Horizontal Action Carousel (Image 1 Left) -->
+            <div class="carousel-track">
+                <div class="action-tile" onclick="sendCommand('screenshot')">
+                    <div class="tile-icon">📸</div>
+                    <div class="tile-title">Retina<br>Screenshot</div>
+                    <div class="tile-arrow">↗</div>
+                </div>
+                <div class="action-tile" onclick="sendCommand('camera')">
+                    <div class="tile-icon">👁️</div>
+                    <div class="tile-title">Desk Sentry<br>Vision</div>
+                    <div class="tile-arrow">↗</div>
+                </div>
+                <div class="action-tile" onclick="sendCommand('lock workstation')">
+                    <div class="tile-icon">🔒</div>
+                    <div class="tile-title">Lock<br>Workstation</div>
+                    <div class="tile-arrow">↗</div>
+                </div>
+                <div class="action-tile" onclick="sendCommand('battery health')">
+                    <div class="tile-icon">🔋</div>
+                    <div class="tile-title">System<br>Battery</div>
+                    <div class="tile-arrow">↗</div>
+                </div>
+                <div class="action-tile" onclick="sendCommand('play music')">
+                    <div class="tile-icon">🎵</div>
+                    <div class="tile-title">Spotify<br>Playback</div>
+                    <div class="tile-arrow">↗</div>
+                </div>
+            </div>
+
+            <!-- Chat Stream (Image 1 Middle) -->
+            <div class="chat-section" id="chatStream">
+                <div class="chat-bubble-row jarvis">
+                    <div class="avatar-mini jarvis">✦</div>
+                    <div class="jarvis-card">
+                        <div>Good evening, Sir. All Mac telemetry channels are linked. What would you like me to execute?</div>
+                        <div class="jarvis-actions">
+                            <button class="action-btn-mini" onclick="copyText(this)">📋 Copy</button>
+                            <button class="action-btn-mini" onclick="speakText('Good evening, Sir. All Mac telemetry channels are linked.')">🔊 Speak</button>
+                        </div>
                     </div>
                 </div>
-                <div class="command-bar">
-                    <button class="mic-btn" id="micBtn" onclick="toggleSpeech()" title="Tap to Speak">🎙️</button>
-                    <input type="text" id="cmdInput" class="cmd-input" placeholder="Give an order, Sir..." onkeydown="if(event.key==='Enter') sendText()">
-                    <button class="send-btn" onclick="sendText()">SEND</button>
+            </div>
+
+            <!-- Floating Pill Bottom Input Bar -->
+            <div class="floating-input-bar">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Send message..." onkeydown="if(event.key==='Enter') sendInputMessage()">
+                <button class="mic-icon-btn" id="chatMicBtn" onclick="toggleSpeech()" title="Voice Dictate">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="22"></line>
+                    </svg>
+                </button>
+                <button class="send-pill-btn" onclick="sendInputMessage()" title="Send">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: LIVE VOICE ORB MODE (Image 1 Right Screen) -->
+        <div class="view-page" id="pageVoice">
+            <div class="voice-mode-page">
+                <div class="voice-orb-container">
+                    <canvas id="voiceCanvas" width="580" height="580"></canvas>
+                    <div class="voice-transcript-box">
+                        <div class="voice-transcript-title" id="voiceTranscript">"Tell me what to execute..."</div>
+                        <div class="voice-transcript-sub" id="voiceStateSub">Tap the mic to talk with J.A.R.V.I.S.</div>
+                    </div>
+                </div>
+
+                <div class="voice-controls-bar">
+                    <button class="voice-mini-btn" onclick="sendCommand('pause music')" title="Pause">⏸</button>
+                    <button class="voice-primary-mic" id="voicePrimaryBtn" onclick="toggleSpeech()">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="22"></line>
+                        </svg>
+                    </button>
+                    <button class="voice-mini-btn" onclick="switchTab('chat')" title="Back to Chat">✕</button>
                 </div>
             </div>
         </div>
+
+        <!-- PAGE 3: TELEMETRY & HEALTH (Inspired by Image 2) -->
+        <div class="view-page" id="pageStats">
+            <div class="telemetry-page">
+                <!-- Large Dot Matrix Activity Card -->
+                <div class="stat-card-big">
+                    <div class="stat-badge-top">Mac Workstation Battery</div>
+                    <div class="dot-matrix-val" id="dotMatrixBatt">46%</div>
+                    <div class="stat-unit">Power Source: Battery</div>
+                    <div class="stat-subtext">Optimal System Health</div>
+                </div>
+
+                <div class="grid-2x2">
+                    <div class="stat-pill-card">
+                        <span class="pill-card-label">Mac Host</span>
+                        <span class="pill-card-value" style="color: #10b981;">ACTIVE</span>
+                        <span class="pill-card-sub">CoreAudio & Vision Online</span>
+                    </div>
+                    <div class="stat-pill-card">
+                        <span class="pill-card-label">Security Protocol</span>
+                        <span class="pill-card-value" style="color: #ec4899;">ARMED</span>
+                        <span class="pill-card-sub">Face Sentry Active</span>
+                    </div>
+                    <div class="stat-pill-card" onclick="sendCommand('play music')">
+                        <span class="pill-card-label">Spotify Remote</span>
+                        <span class="pill-card-value" style="font-size: 16px; margin-top: 14px;">▶ PLAY</span>
+                        <span class="pill-card-sub">Tap to play music</span>
+                    </div>
+                    <div class="stat-pill-card" onclick="sendCommand('lock workstation')">
+                        <span class="pill-card-label">Workstation</span>
+                        <span class="pill-card-value" style="font-size: 16px; margin-top: 14px; color: #ef4444;">🔒 LOCK</span>
+                        <span class="pill-card-sub">Immediate lockdown</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         const CMD_TOPIC = "jk_jarvis_cmd";
         const REPLY_TOPIC = "jk_jarvis_reply";
 
-        const messagesBox = document.getElementById("messagesBox");
-        const cmdInput = document.getElementById("cmdInput");
-        const previewWrapper = document.getElementById("previewWrapper");
-        const previewImg = document.getElementById("previewImg");
-        const previewTitle = document.getElementById("previewTitle");
-        const micBtn = document.getElementById("micBtn");
-        const battStat = document.getElementById("battStat");
+        const chatStream = document.getElementById("chatStream");
+        const chatInput = document.getElementById("chatInput");
+        const chatMicBtn = document.getElementById("chatMicBtn");
+        const voicePrimaryBtn = document.getElementById("voicePrimaryBtn");
+        const voiceTranscript = document.getElementById("voiceTranscript");
+        const voiceStateSub = document.getElementById("voiceStateSub");
+        const dotMatrixBatt = document.getElementById("dotMatrixBatt");
 
         function triggerHaptic() {
-            if (navigator.vibrate) {
-                navigator.vibrate(15);
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
+
+        function switchTab(tab) {
+            triggerHaptic();
+            document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".view-page").forEach(p => p.classList.remove("active"));
+
+            if (tab === 'chat') {
+                document.getElementById("tabChat").classList.add("active");
+                document.getElementById("pageChat").classList.add("active");
+            } else if (tab === 'voice') {
+                document.getElementById("tabVoice").classList.add("active");
+                document.getElementById("pageVoice").classList.add("active");
+                startOrbAnimation();
+            } else if (tab === 'stats') {
+                document.getElementById("tabStats").classList.add("active");
+                document.getElementById("pageStats").classList.add("active");
             }
         }
 
-        function getTimeString() {
-            const now = new Date();
-            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        function focusChatInput() {
+            chatInput.focus();
         }
 
-        function addMessage(text, isUser = false) {
-            const div = document.createElement("div");
-            div.className = "msg-bubble " + (isUser ? "user" : "jarvis");
-            div.innerHTML = text.replace(/\n/g, "<br>") + `<span class="msg-time">${isUser ? 'YOU' : 'JARVIS'} • ${getTimeString()}</span>`;
-            messagesBox.appendChild(div);
-            messagesBox.scrollTop = messagesBox.scrollHeight;
+        function addUserMessage(text) {
+            const row = document.createElement("div");
+            row.className = "chat-bubble-row user";
+            row.innerHTML = `
+                <div class="user-bubble">${escapeHtml(text)}</div>
+                <div class="avatar-mini user">Y</div>
+            `;
+            chatStream.appendChild(row);
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
+
+        function addJarvisMessage(text, photoUrl = null) {
+            const row = document.createElement("div");
+            row.className = "chat-bubble-row jarvis";
+            
+            let photoHtml = "";
+            if (photoUrl) {
+                photoHtml = `
+                    <div class="snapshot-container">
+                        <img src="${photoUrl}" alt="Snapshot">
+                    </div>
+                `;
+            }
+
+            row.innerHTML = `
+                <div class="avatar-mini jarvis">✦</div>
+                <div class="jarvis-card">
+                    <div>${text.replace(/\n/g, "<br>")}</div>
+                    ${photoHtml}
+                    <div class="jarvis-actions">
+                        <button class="action-btn-mini" onclick="copyText(this)">📋 Copy</button>
+                        <button class="action-btn-mini" onclick="speakText('${escapeAttr(text)}')">🔊 Speak</button>
+                    </div>
+                </div>
+            `;
+            chatStream.appendChild(row);
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function escapeAttr(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        function copyText(btn) {
+            const card = btn.closest(".jarvis-card");
+            const text = card.querySelector("div").innerText;
+            navigator.clipboard.writeText(text);
+            btn.innerText = "✓ Copied";
+            setTimeout(() => btn.innerText = "📋 Copy", 1500);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 0.95;
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         async function sendCommand(cmd) {
             triggerHaptic();
-            addMessage(cmd, true);
+            addUserMessage(cmd);
             try {
                 await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
                     method: "POST",
                     body: cmd
                 });
             } catch(e) {
-                addMessage("Warning: Command dispatch delayed (" + e.message + ")", false);
+                addJarvisMessage("Could not dispatch command: " + e.message);
             }
         }
 
-        function sendText() {
-            const text = cmdInput.value.trim();
+        function sendInputMessage() {
+            const text = chatInput.value.trim();
             if (!text) return;
-            cmdInput.value = "";
+            chatInput.value = "";
             sendCommand(text);
         }
 
-        function closePreview() {
-            previewWrapper.style.display = "none";
-        }
-
-        // Live Server-Sent Event (SSE) Stream from Mac
+        // Live Server-Sent Events from Mac
         const eventSource = new EventSource(`https://ntfy.sh/${REPLY_TOPIC}/sse`);
         eventSource.onmessage = function(event) {
             try {
                 const data = JSON.parse(event.data);
                 if (data.event === "message") {
                     triggerHaptic();
-                    
-                    // Handle Photo Attachment
-                    if (data.attachment && data.attachment.url) {
-                        previewImg.src = data.attachment.url;
-                        previewTitle.innerText = data.title ? ("📸 " + data.title.toUpperCase()) : "📸 LIVE VISUAL FEED";
-                        previewWrapper.style.display = "block";
-                        previewWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                    
-                    // Handle Text Reply
-                    if (data.message && !data.message.startsWith("You received a file:")) {
-                        addMessage(data.message, false);
 
-                        // Parse Battery status if present
+                    let photoUrl = null;
+                    if (data.attachment && data.attachment.url) {
+                        photoUrl = data.attachment.url;
+                    }
+
+                    if (data.message && !data.message.startsWith("You received a file:")) {
+                        addJarvisMessage(data.message, photoUrl);
+
+                        // If in voice mode, update transcript
+                        voiceTranscript.innerText = `"${data.message}"`;
+                        voiceStateSub.innerText = "J.A.R.V.I.S. Replied";
+
+                        // Update Battery Telemetry
                         if (data.message.includes("Battery:")) {
                             const match = data.message.match(/Battery:\s*(\d+%)/);
                             if (match) {
-                                battStat.innerText = match[1];
+                                dotMatrixBatt.innerText = match[1];
                             }
                         }
+                    } else if (photoUrl) {
+                        addJarvisMessage("Here is the visual capture from your workstation display, Sir.", photoUrl);
                     }
                 }
             } catch(e) {}
         };
 
-        // Mobile Web Speech Recognition (Tap Mic to Speak directly into J.A.R.V.I.S.)
+        // Speech Recognition Setup
         let recognition = null;
         let isListening = false;
 
@@ -802,33 +1040,48 @@
             const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechClass();
             recognition.continuous = false;
-            recognition.interimResults = false;
+            recognition.interimResults = true;
             recognition.lang = 'en-US';
 
             recognition.onstart = function() {
                 isListening = true;
-                micBtn.classList.add("listening");
-                cmdInput.placeholder = "Listening to your voice...";
+                chatMicBtn.classList.add("listening");
+                voicePrimaryBtn.classList.add("speaking");
+                voiceTranscript.innerText = "Listening...";
+                voiceStateSub.innerText = "Speak your order to J.A.R.V.I.S.";
                 triggerHaptic();
             };
 
             recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                cmdInput.value = transcript;
-                sendText();
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        voiceTranscript.innerText = `"${event.results[i][0].transcript}"`;
+                    }
+                }
+
+                if (finalTranscript) {
+                    voiceTranscript.innerText = `"${finalTranscript}"`;
+                    voiceStateSub.innerText = "Transmitting to your Mac...";
+                    sendCommand(finalTranscript);
+                }
             };
 
             recognition.onerror = function() {
-                isListening = false;
-                micBtn.classList.remove("listening");
-                cmdInput.placeholder = "Give an order, Sir...";
+                resetMicState();
             };
 
             recognition.onend = function() {
-                isListening = false;
-                micBtn.classList.remove("listening");
-                cmdInput.placeholder = "Give an order, Sir...";
+                resetMicState();
             };
+        }
+
+        function resetMicState() {
+            isListening = false;
+            chatMicBtn.classList.remove("listening");
+            voicePrimaryBtn.classList.remove("speaking");
         }
 
         function toggleSpeech() {
@@ -842,6 +1095,101 @@
                 recognition.start();
             }
         }
+
+        // 3D Particle Glowing Wireframe Orb (Replicating Image 1 Screen 3)
+        const canvas = document.getElementById("voiceCanvas");
+        const ctx = canvas.getContext("2d");
+        let animId = null;
+
+        const numPoints = 600;
+        const radius = 170;
+        const points = [];
+
+        // Generate points distributed on a sphere
+        for (let i = 0; i < numPoints; i++) {
+            const theta = Math.acos(1 - 2 * (i + 0.5) / numPoints);
+            const phi = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
+            points.push({
+                x: radius * Math.sin(theta) * Math.cos(phi),
+                y: radius * Math.sin(theta) * Math.sin(phi),
+                z: radius * Math.cos(theta),
+                baseX: radius * Math.sin(theta) * Math.cos(phi),
+                baseY: radius * Math.sin(theta) * Math.sin(phi),
+                baseZ: radius * Math.cos(theta),
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+
+        let rotX = 0;
+        let rotY = 0;
+        let tick = 0;
+
+        function renderOrb() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            tick += 0.035;
+            rotX += 0.006;
+            rotY += 0.009;
+
+            const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+            const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+
+            // Morphing amplitude when listening
+            const amp = isListening ? 24 : 10;
+
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+
+                // Noise deformation
+                const wave = Math.sin(tick * 2 + p.phase) * amp;
+                const r = radius + wave;
+                const factor = r / radius;
+
+                let px = p.baseX * factor;
+                let py = p.baseY * factor;
+                let pz = p.baseZ * factor;
+
+                // Rotation around Y
+                let x1 = px * cosY - pz * sinY;
+                let z1 = px * sinY + pz * cosY;
+
+                // Rotation around X
+                let y2 = py * cosX - z1 * sinX;
+                let z2 = py * sinX + z1 * cosX;
+
+                // Perspective projection
+                const fov = 420;
+                const scale = fov / (fov + z2);
+                const x2d = cx + x1 * scale;
+                const y2d = cy + y2 * scale;
+
+                // Depth coloring (Fuchsia/Magenta foreground, violet background)
+                const depthNorm = (z2 + radius) / (2 * radius);
+                const alpha = Math.max(0.15, Math.min(1.0, 0.2 + 0.8 * depthNorm));
+                const size = Math.max(1.2, 2.8 * scale);
+
+                ctx.beginPath();
+                ctx.arc(x2d, y2d, size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${Math.floor(220 + 35 * depthNorm)}, ${Math.floor(70 + 80 * depthNorm)}, ${Math.floor(200 + 40 * depthNorm)}, ${alpha})`;
+                ctx.shadowColor = 'rgba(236, 72, 153, 0.7)';
+                ctx.shadowBlur = isListening ? 8 : 4;
+                ctx.fill();
+            }
+
+            animId = requestAnimationFrame(renderOrb);
+        }
+
+        function startOrbAnimation() {
+            if (!animId) {
+                renderOrb();
+            }
+        }
+
+        // Start render immediately
+        startOrbAnimation();
     </script>
 </body>
 </html>
