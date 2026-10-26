@@ -52,14 +52,15 @@ class JarvisBrain:
         url = "http://localhost:11434/api/generate"
         payload = {
             "model": "llama3.2:1b",
-            "prompt": f"System: {SYSTEM_PROMPT}\n\nUser: {prompt}\nJarvis:",
+            "system": "You are J.A.R.V.I.S., Tony Stark's witty, polite AI assistant. Speak like Paul Bettany in 1-2 crisp, intelligent sentences. Address the user as Sir.",
+            "prompt": prompt,
             "stream": False,
-            "options": {"num_predict": 128, "temperature": 0.4}
+            "options": {"num_predict": 60, "temperature": 0.5}
         }
         try:
             req_data = json.dumps(payload).encode("utf-8")
             req = urllib.request.Request(url, data=req_data, headers={"Content-Type": "application/json"}, method="POST")
-            with urllib.request.urlopen(req, timeout=8) as resp:
+            with urllib.request.urlopen(req, timeout=6) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 ans = data.get("response", "").strip()
                 if ans:
