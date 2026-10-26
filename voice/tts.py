@@ -191,6 +191,22 @@ def _speak_neural_sync(clean_text: str):
     except Exception:
         pass
 
+def speak_detached(text: str):
+    """Speaks text in a fully detached background process that outlives CLI script termination."""
+    clean_text = clean_for_speech(text)
+    if not clean_text:
+        return
+    try:
+        subprocess.run(["osascript", "-e", "set volume without output muted"], check=False)
+    except Exception:
+        pass
+    if is_short_operational_phrase(clean_text):
+        subprocess.Popen(["say", "-v", "Daniel", "-r", "180", clean_text], start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return
+    repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    helper = f"import sys; sys.path.append({repr(repo_dir)}); from voice.tts import _speak_neural_sync; _speak_neural_sync({repr(clean_text)})"
+    subprocess.Popen([sys.executable, "-c", helper], start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
 def speak(text: str, voice: str = "en-GB-RyanNeural", async_mode: bool = True):
     """
     Speaks the given text using the ultra-realistic British neural voice (en-GB-RyanNeural - Paul Bettany style),

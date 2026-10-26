@@ -40,6 +40,7 @@ import mimetypes
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from brain import JarvisBrain
+from brain.fast_engine import dispatch_fast_action
 from voice import speak
 from voice.tts import stop_speaking, get_is_speaking
 from tools.system_tools import get_system_health
@@ -143,7 +144,14 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 user_msg = body.get("message", "")
                 print(f"\n\033[92m[User Query] {user_msg}\033[0m")
                 
-                # Get brain response
+                # 1. Fast Native Dispatch (< 1ms, Atticus-Mac style, zero cloud lag)
+                matched, fast_reply = dispatch_fast_action(user_msg)
+                if matched and fast_reply:
+                    speak(fast_reply, async_mode=True)
+                    self._send_json({"response": fast_reply, "status": "success", "fast_path": True})
+                    return
+
+                # 2. Deep Intelligence (Gemini + Multi-Tool reasoning)
                 response = brain.respond(user_msg)
                 if not response:
                     response = "Operation completed successfully, Sir."

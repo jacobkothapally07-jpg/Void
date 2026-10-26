@@ -19,3 +19,4 @@ __pycache__/
 # Temp audio / profile
 /tmp/
 .jarvis_chrome_app_profile/
+native_hud/JarvisPill
