@@ -733,10 +733,11 @@
     <div class="app-shell">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <button class="nav-round-btn" onclick="sendCommand('battery health')" title="Refresh Sitrep">
+            <button class="nav-round-btn" id="navRefreshBtn" onclick="refreshApp()" title="Refresh App">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                 </svg>
             </button>
 
@@ -959,6 +960,15 @@
             } catch(e) {
                 streamStatusSub.innerText = "Error: " + e.message;
             }
+        }
+
+        function refreshApp() {
+            triggerHaptic();
+            const btn = document.getElementById("navRefreshBtn");
+            if (btn) btn.style.transform = "rotate(360deg)";
+            setTimeout(() => {
+                window.location.reload();
+            }, 180);
         }
 
         // Live Volume Slider Control
