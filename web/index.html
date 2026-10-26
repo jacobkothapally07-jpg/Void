@@ -460,9 +460,11 @@
                 <span id="liveTranscriptText">🎙️ LISTENING... SPEAK ANYTIME</span>
             </div>
 
-            <!-- INSTANT STOP / BARGE-IN BUTTON -->
-            <div style="display: flex; gap: 10px; margin-top: 8px; justify-content: center; width: 100%;">
-                <button type="button" id="stopSpeechBtn" onclick="interruptJarvis()" style="background: rgba(255, 34, 85, 0.2); border: 1px solid #ff2255; color: #ff2255; font-family: var(--font-orbitron); font-size: 11px; padding: 6px 16px; border-radius: 4px; cursor: pointer; letter-spacing: 2px; transition: all 0.2s;">🛑 STOP SPEAKING</button>
+            <!-- INSTANT AUTONOMOUS ACTION BUTTONS -->
+            <div style="display: flex; gap: 8px; margin-top: 10px; justify-content: center; width: 100%; flex-wrap: wrap;">
+                <button type="button" id="watchScreenBtn" onclick="toggleWatchScreenHUD()" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyan); color: var(--cyan); font-family: var(--font-display); font-size: 10px; padding: 6px 14px; border-radius: 4px; cursor: pointer; letter-spacing: 1.5px; transition: all 0.2s;">👁️ WATCH SCREEN: OFF</button>
+                <button type="button" id="solveScreenBtn" onclick="triggerSolveScreenHUD()" style="background: rgba(255, 170, 0, 0.2); border: 1px solid var(--gold); color: var(--gold); font-family: var(--font-display); font-size: 10px; padding: 6px 14px; border-radius: 4px; cursor: pointer; letter-spacing: 1.5px; transition: all 0.2s;">⚡ SOLVE & PASTE</button>
+                <button type="button" id="stopSpeechBtn" onclick="interruptJarvis()" style="background: rgba(255, 34, 85, 0.2); border: 1px solid #ff2255; color: #ff2255; font-family: var(--font-display); font-size: 10px; padding: 6px 14px; border-radius: 4px; cursor: pointer; letter-spacing: 1.5px; transition: all 0.2s;">🛑 STOP SPEAKING</button>
             </div>
 
             <div class="mic-banner" id="micStatus">TAP SPHERE OR SPEAK ("HEY JARVIS")</div>
@@ -787,6 +789,37 @@
         }
 
         
+        let isWatchingScreen = false;
+        async function toggleWatchScreenHUD() {
+            try {
+                const res = await fetch("/api/toggle_watch_screen");
+                const data = await res.json();
+                isWatchingScreen = data.active;
+                const btn = document.getElementById("watchScreenBtn");
+                if (btn) {
+                    btn.innerText = isWatchingScreen ? "👁️ WATCH SCREEN: ACTIVE" : "👁️ WATCH SCREEN: OFF";
+                    btn.style.borderColor = isWatchingScreen ? "#00ffaa" : "var(--cyan)";
+                    btn.style.color = isWatchingScreen ? "#00ffaa" : "var(--cyan)";
+                    btn.style.background = isWatchingScreen ? "rgba(0, 255, 170, 0.2)" : "rgba(0, 240, 255, 0.15)";
+                }
+                appendMsg("System", data.detail || (isWatchingScreen ? "Watch screen activated." : "Watch screen deactivated."), false);
+            } catch(e) {
+                console.error("Watch screen toggle error:", e);
+            }
+        }
+
+        async function triggerSolveScreenHUD() {
+            appendMsg("You", "⚡ Jarvis, solve the question on my screen and paste the code.", true);
+            liveTranscriptText.innerText = "⚡ ANALYZING SCREEN & SOLVING CODE...";
+            try {
+                const res = await fetch("/api/solve_screen");
+                const data = await res.json();
+                appendMsg("J.A.R.V.I.S.", data.detail || "Problem solved, Sir.", false);
+            } catch(e) {
+                appendMsg("J.A.R.V.I.S.", "Could not complete solving process, Sir.", false);
+            }
+        }
+
         async function shutdownJarvis() {
             subtitlesBox.className = "live-subtitle-box";
             subtitlesBox.style.borderColor = "#ff2255";

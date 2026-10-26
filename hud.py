@@ -77,13 +77,26 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             self._send_json({"status": "success", "message": "J.A.R.V.I.S. initiated"})
             return
         elif clean_path == "/api/status" or clean_path == "/api/health":
+            from tools.coding_solver_tools import get_watch_screen_status
             self._send_json({
                 "status": "online",
                 "system": "J.A.R.V.I.S.",
                 "owner": "Jacob Kothapally",
-                "version": "2.5-Neural",
+                "version": "3.0-Autonomous",
+                "watch_screen": get_watch_screen_status(),
                 "time": time.strftime("%Y-%m-%d %H:%M:%S")
             })
+            return
+        elif clean_path == "/api/toggle_watch_screen":
+            from tools.coding_solver_tools import toggle_watch_screen, get_watch_screen_status
+            new_state = not get_watch_screen_status()
+            res = toggle_watch_screen(new_state)
+            self._send_json(res)
+            return
+        elif clean_path == "/api/solve_screen":
+            from tools.coding_solver_tools import solve_and_paste_code
+            res = solve_and_paste_code(auto_paste=True)
+            self._send_json(res)
             return
         elif clean_path == "/api/speaking_status":
             self._send_json({"is_speaking": get_is_speaking()})

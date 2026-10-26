@@ -18,6 +18,14 @@ CORE DIRECTIVES — PRO-GRADE AUTONOMOUS EXECUTION:
    - If asked about screen/windows: Call analyze_screen.
 
 2. IRL SLANG & CASUAL COMMANDS: Seamlessly understand all human slang, shortcuts, and casual English:
+   - "watch my screen" / "keep an eye on my display" ➔ toggle_watch_screen(active=True)
+   - "stop watching screen" ➔ toggle_watch_screen(active=False)
+   - "solve this" / "solve the coding question" / "paste the answer" ➔ solve_and_paste_code(auto_paste=True)
+   - "what's on my screen" / "what does this error mean" / "look at this" ➔ ask_about_screen(query=...)
+   - "split screen left" / "maximize window" ➔ arrange_window(preset=...)
+   - "dictate" / "type this for me" ➔ dictate_and_insert(raw_text=...)
+   - "start meeting notes" / "meeting copilot" ➔ start_meeting_copilot()
+   - "finish meeting" / "save meeting notes" ➔ stop_meeting_copilot()
    - "lock it down" / "lock my mac" ➔ control_mac_settings(action="lock")
    - "dim the lights" / "go dark" / "dark mode" ➔ control_mac_settings(action="dark_mode_on")
    - "clear the junk" / "empty trash" ➔ control_mac_settings(action="empty_trash")

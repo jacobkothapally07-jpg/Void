@@ -19,6 +19,10 @@ from tools.spotify_tools import control_spotify
 from tools.imessage_tools import send_imessage
 from tools.math_tools import calculate_expression
 from tools.file_reader_tool import read_workspace_file
+from tools.coding_solver_tools import toggle_watch_screen, solve_and_paste_code, ask_about_screen
+from tools.window_tools import arrange_window, type_into_active_app
+from tools.meeting_copilot_tools import start_meeting_copilot, stop_meeting_copilot, record_meeting_point
+from tools.dictation_tools import dictate_and_insert
 
 TOOL_REGISTRY = {
     "get_system_health": get_system_health,
@@ -35,6 +39,15 @@ TOOL_REGISTRY = {
     "control_spotify": control_spotify,
     "calculate_expression": calculate_expression,
     "read_workspace_file": read_workspace_file,
+    "toggle_watch_screen": toggle_watch_screen,
+    "solve_and_paste_code": solve_and_paste_code,
+    "ask_about_screen": ask_about_screen,
+    "arrange_window": arrange_window,
+    "type_into_active_app": type_into_active_app,
+    "start_meeting_copilot": start_meeting_copilot,
+    "stop_meeting_copilot": stop_meeting_copilot,
+    "record_meeting_point": record_meeting_point,
+    "dictate_and_insert": dictate_and_insert,
     "make_phone_call": make_phone_call,
     "play_media_on_internet": play_media_on_internet,
     "analyze_screen": analyze_screen,
@@ -310,6 +323,84 @@ TOOL_DEFINITIONS = [
                 "max_lines": {"type": "integer", "description": "Maximum lines to read (default: 200)."}
             },
             "required": ["path"]
+        }
+    },
+    {
+        "name": "toggle_watch_screen",
+        "description": "Toggles continuous 'Watch My Screen' active monitoring mode. Keep active to give Jarvis real-time sight of your display.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "active": {"type": "boolean", "description": "True to start watching screen, False to stop."}
+            },
+            "required": ["active"]
+        }
+    },
+    {
+        "name": "solve_and_paste_code",
+        "description": "Scans the screen for coding questions, LeetCode problems, or programming tasks, writes optimal code, and automatically pastes it into the active code editor via Cmd+V.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "auto_paste": {"type": "boolean", "description": "True to paste directly into the editor, False to copy only to clipboard."}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "ask_about_screen",
+        "description": "Answers questions about whatever is currently visible on the user Mac screen, debugs compiler errors, or explains UI elements.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "The specific question or prompt regarding what is on screen."}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "arrange_window",
+        "description": "Arranges, tiles, centers, or maximizes application windows on macOS displays.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "preset": {"type": "string", "enum": ["left_half", "right_half", "maximize", "center"], "description": "Window position preset."},
+                "app_name": {"type": "string", "description": "Target application name (empty for frontmost application)."}
+            },
+            "required": ["preset"]
+        }
+    },
+    {
+        "name": "dictate_and_insert",
+        "description": "Polishes spoken speech into formatted text and types or pastes it directly at the active cursor on macOS.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "raw_text": {"type": "string", "description": "The text or speech to clean up and insert."}
+            },
+            "required": ["raw_text"]
+        }
+    },
+    {
+        "name": "start_meeting_copilot",
+        "description": "Starts Meeting Copilot to take structured notes, record discussion, and capture action items during video calls or meetings.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "meeting_title": {"type": "string", "description": "Title or subject of the meeting."}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "stop_meeting_copilot",
+        "description": "Concludes the active meeting and automatically writes the formatted minutes and action items to Apple Notes.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string", "description": "Title for the saved Apple Note."}
+            },
+            "required": []
         }
     }
 ]

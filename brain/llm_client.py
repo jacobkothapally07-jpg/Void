@@ -41,11 +41,10 @@ class JarvisBrain:
             {"role": "system", "content": SYSTEM_PROMPT}
         ]
         self.model_pool = [
+            "gemini-3-flash-preview",
             "gemini-2.5-flash",
             "gemini-2.5-pro",
-            "gemini-flash-latest",
-            "gemini-flash-lite-latest",
-            "gemini-3-flash-preview"
+            "gemini-flash-latest"
         ]
 
     def execute_tool(self, tool_name: str, tool_args: dict):
