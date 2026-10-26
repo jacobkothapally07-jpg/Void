@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J.A.R.V.I.S. // Stark Control Centre</title>
+    <title>J.A.R.V.I.S. // Mobile Pilot</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#030408">
@@ -14,19 +14,15 @@
     <style>
         :root {
             --bg: #030408;
-            --surface-bento: #0d0f17;
-            --surface-card: #121522;
+            --surface-card: #0f121c;
             --border: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(255, 255, 255, 0.16);
+            --border-hover: rgba(255, 255, 255, 0.16);
             --text-primary: #ffffff;
             --text-secondary: #8b9bb4;
             --text-muted: #53627c;
             --cyan-core: #00f0ff;
-            --cyan-glow: rgba(0, 240, 255, 0.4);
-            --stark-gold: #ffaa00;
-            --stark-gold-glow: rgba(255, 170, 0, 0.4);
-            --crimson: #ff3366;
-            --magenta-glow: rgba(236, 72, 153, 0.4);
+            --cyan-glow: rgba(0, 240, 255, 0.35);
+            --purple-glow: rgba(168, 85, 247, 0.35);
         }
 
         * {
@@ -48,52 +44,40 @@
             align-items: center;
             overflow-x: hidden;
             position: relative;
-            padding: max(12px, env(safe-area-inset-top)) 0 max(16px, env(safe-area-inset-bottom));
+            padding: max(14px, env(safe-area-inset-top)) 0 max(16px, env(safe-area-inset-bottom));
         }
 
         /* Subtle atmospheric ambient glow matching reference */
         .ambient-glow-top {
             position: fixed;
-            top: -150px;
+            top: -160px;
             left: 50%;
             transform: translateX(-50%);
             width: 480px;
             height: 480px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.22) 0%, rgba(6, 182, 212, 0.16) 45%, transparent 70%);
-            filter: blur(80px);
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, rgba(6, 182, 212, 0.12) 45%, transparent 70%);
+            filter: blur(85px);
             pointer-events: none;
             z-index: 0;
         }
 
-        .ambient-glow-bottom {
-            position: fixed;
-            bottom: -120px;
-            right: -80px;
-            width: 380px;
-            height: 380px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 65%);
-            filter: blur(90px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Main Container */
+        /* Main Container with generous, uncluttered breathing room */
         .app-shell {
             width: 100%;
             max-width: 440px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
             z-index: 1;
-            padding: 0 16px;
+            padding: 0 18px;
         }
 
-        /* Top Navigation Header (Matching Reference Image) */
+        /* Top Clean Navigation (Clean J.A.R.V.I.S. Branding) */
         .top-nav {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 4px 4px;
+            padding: 4px 2px;
         }
 
         .nav-round-btn {
@@ -124,8 +108,8 @@
         }
 
         .nav-title {
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 19px;
+            font-weight: 800;
             letter-spacing: -0.3px;
             color: #ffffff;
         }
@@ -133,20 +117,20 @@
         .nav-subtitle {
             font-size: 10.5px;
             font-weight: 600;
-            color: var(--cyan-core);
+            color: #10b981;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
 
         .pulsing-indicator {
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: var(--cyan-core);
-            box-shadow: 0 0 8px var(--cyan-core);
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
             animation: pulse-dot 1.8s infinite;
         }
 
@@ -170,7 +154,7 @@
             overflow-x: auto;
             display: flex;
             gap: 14px;
-            padding: 4px 6px 8px;
+            padding: 4px 6px 6px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
         }
@@ -179,13 +163,13 @@
             display: none;
         }
 
-        /* Giant Luminous Squircle Card (Reference Image 2) */
+        /* Luminous Squircle Card (Reference Image 2) */
         .luminous-card {
             flex: 0 0 calc(100% - 24px);
             max-width: 380px;
-            height: 240px;
+            height: 235px;
             border-radius: 34px;
-            padding: 20px 20px;
+            padding: 20px 22px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -195,24 +179,21 @@
             scroll-snap-align: center;
             overflow: hidden;
             box-shadow: 
-                inset 0 1px 0 rgba(255, 255, 255, 0.25),
-                0 18px 45px rgba(0, 0, 0, 0.85);
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                0 16px 40px rgba(0, 0, 0, 0.8);
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Card 1: Stark Battery & Reactor Core (Luminous Magenta/Violet Aura) */
-        .card-reactor {
-            background: radial-gradient(circle at 50% -10%, rgba(217, 70, 239, 0.42) 0%, rgba(147, 51, 234, 0.2) 40%, #0d0f1a 80%);
-            border: 1px solid rgba(217, 70, 239, 0.35);
+        .card-battery {
+            background: radial-gradient(circle at 50% -10%, rgba(217, 70, 239, 0.38) 0%, rgba(147, 51, 234, 0.18) 40%, #0d0f1a 80%);
+            border: 1px solid rgba(217, 70, 239, 0.3);
         }
 
-        /* Card 2: Mac Workstation Diagnostics (Luminous Cyan/Blue Aura) */
         .card-diagnostics {
-            background: radial-gradient(circle at 50% -10%, rgba(6, 182, 212, 0.42) 0%, rgba(37, 99, 235, 0.2) 40%, #0d0f1a 80%);
-            border: 1px solid rgba(6, 182, 212, 0.35);
+            background: radial-gradient(circle at 50% -10%, rgba(6, 182, 212, 0.38) 0%, rgba(37, 99, 235, 0.18) 40%, #0d0f1a 80%);
+            border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
-        /* Card Header */
         .card-header-bar {
             width: 100%;
             display: flex;
@@ -254,7 +235,7 @@
             letter-spacing: 3px;
             color: #ffffff;
             line-height: 1;
-            text-shadow: 0 0 22px rgba(255, 255, 255, 0.45);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
         }
 
         .telemetry-unit {
@@ -264,10 +245,10 @@
             margin-top: 2px;
         }
 
-        /* Graphic Orbital Dotted Wave at Bottom (Reference Image 2) */
+        /* Dotted Wave Graphics */
         .orbital-wave-box {
             width: 100%;
-            height: 44px;
+            height: 42px;
             position: relative;
             display: flex;
             align-items: center;
@@ -287,7 +268,6 @@
             letter-spacing: 0.2px;
         }
 
-        /* Pagination Dots */
         .pagination-track {
             display: flex;
             align-items: center;
@@ -308,126 +288,127 @@
             background: #ffffff;
         }
 
-        /* Quick Access Control Centre Bento Grid */
-        .bento-section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            padding-left: 2px;
-            margin-bottom: -6px;
-        }
-
-        .bento-grid {
-            display: grid;
-            grid-template-columns: 1.1fr 1fr;
-            gap: 12px;
-            width: 100%;
-        }
-
-        /* Bento Squircle Card 1: Mac Host & Uptime (Left Big Card) */
-        .bento-card-tall {
-            background: var(--surface-card);
-            border: 1px solid var(--border);
+        /* UNCLUTTERED VOLUME SLIDER CARD (Reference Image 2 Slider Style) */
+        .volume-card {
+            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.22) 0%, var(--surface-card) 75%);
+            border: 1px solid rgba(59, 130, 246, 0.28);
             border-radius: 26px;
-            padding: 18px 16px;
+            padding: 16px 20px;
             display: flex;
             flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+        }
+
+        .volume-header {
+            display: flex;
             justify-content: space-between;
-            min-height: 185px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+            align-items: center;
         }
 
-        .bento-card-tall::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-        }
-
-        .bento-title {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .bento-metric-large {
-            font-family: 'Space Mono', monospace;
-            font-size: 28px;
+        .volume-label {
+            font-size: 13px;
             font-weight: 700;
             color: #ffffff;
-            margin-top: 6px;
-        }
-
-        .bento-unit-tag {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-left: 4px;
-        }
-
-        .dotted-slider-track {
-            width: 100%;
-            height: 8px;
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-top: 12px;
+            gap: 7px;
         }
 
-        .dot-segment {
-            flex: 1;
-            height: 3px;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.12);
+        .volume-percent {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--cyan-core);
         }
 
-        .dot-segment.filled {
-            background: var(--cyan-core);
-            box-shadow: 0 0 6px var(--cyan-core);
-        }
-
-        /* Right Column Bento Stack */
-        .bento-right-stack {
+        /* Custom Modern Slider Track & Thumb */
+        .slider-row {
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 12px;
+            width: 100%;
         }
 
-        /* Toggle Card (Matching "Training" card with toggle in Reference Image 2) */
-        .bento-card-toggle {
-            background: radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.22) 0%, var(--surface-card) 60%);
-            border: 1px solid rgba(59, 130, 246, 0.3);
+        .vol-icon {
+            font-size: 14px;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        .custom-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.12);
+            outline: none;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid var(--cyan-core);
+            box-shadow: 0 0 12px var(--cyan-core);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .custom-slider::-webkit-slider-thumb:active {
+            transform: scale(1.18);
+        }
+
+        /* Streamlined 2-Tile Row */
+        .controls-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .tile-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
             border-radius: 22px;
-            padding: 14px 16px;
+            padding: 15px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-height: 82px;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+            min-height: 72px;
             cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .toggle-label-box {
+        .tile-card:active {
+            transform: scale(0.96);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tile-info {
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
 
-        .toggle-name {
-            font-size: 12.5px;
+        .tile-title {
+            font-size: 13px;
             font-weight: 700;
             color: #ffffff;
         }
 
-        .toggle-sub {
-            font-size: 10.5px;
-            color: #94a3b8;
+        .tile-subtitle {
+            font-size: 11px;
+            color: #8b9bb4;
         }
 
-        /* Native iOS Style Switch */
+        /* iOS Switch */
         .ios-switch {
             width: 44px;
             height: 26px;
@@ -440,7 +421,7 @@
 
         .ios-switch.active {
             background: #2563eb;
-            box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.6);
         }
 
         .switch-knob {
@@ -459,69 +440,7 @@
             transform: translateX(18px);
         }
 
-        /* Sleep Display Bento Card (Matching Sunset orange/red "Breath Volume" Card in Reference Image 2) */
-        .bento-card-sleep {
-            background: radial-gradient(circle at 50% 120%, rgba(239, 68, 68, 0.38) 0%, rgba(249, 115, 22, 0.25) 40%, var(--surface-card) 85%);
-            border: 1px solid rgba(239, 68, 68, 0.35);
-            border-radius: 22px;
-            padding: 14px 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 90px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .bento-card-sleep:active {
-            transform: scale(0.96);
-            border-color: #ef4444;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
-        }
-
-        .sleep-header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .sleep-label {
-            font-size: 12.5px;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .sleep-status-tag {
-            font-family: 'Space Mono', monospace;
-            font-size: 10px;
-            color: #fca5a5;
-            background: rgba(239, 68, 68, 0.15);
-            padding: 2px 7px;
-            border-radius: 10px;
-        }
-
-        .sleep-readout-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-top: 4px;
-        }
-
-        .sleep-val {
-            font-family: 'Space Mono', monospace;
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .sleep-icon {
-            font-size: 18px;
-        }
-
-        /* 4-Tile Tactical Action Strip */
+        /* 4 Quick Pills Strip */
         .action-strip {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -560,20 +479,19 @@
             text-align: center;
         }
 
-        /* ALWAYS VISIBLE LIVE NEURAL CHAT STREAM (User Requested) */
+        /* ALWAYS VISIBLE LIVE NEURAL CHAT STREAM */
         .neural-stream-box {
             width: 100%;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 4px;
         }
 
         .stream-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 4px;
+            padding: 0 2px;
         }
 
         .stream-title {
@@ -581,7 +499,7 @@
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1.2px;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -604,15 +522,15 @@
         .stream-messages-card {
             background: var(--surface-card);
             border: 1px solid var(--border);
-            border-radius: 26px;
+            border-radius: 24px;
             padding: 16px;
-            min-height: 200px;
-            max-height: 380px;
+            min-height: 190px;
+            max-height: 360px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
             -webkit-overflow-scrolling: touch;
         }
 
@@ -626,6 +544,8 @@
             word-break: break-word;
         }
 
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
         .msg-bubble.user {
             align-self: flex-end;
             background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
@@ -636,7 +556,7 @@
 
         .msg-bubble.jarvis {
             align-self: flex-start;
-            background: #181b28;
+            background: #171b28;
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: #f1f5f9;
             border-radius: 18px 18px 18px 4px;
@@ -648,14 +568,11 @@
             width: 100%;
             background: var(--surface-card);
             border: 1px solid var(--cyan-core);
-            border-radius: 22px;
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 0 25px var(--cyan-glow);
             animation: fadeIn 0.25s ease-out;
-            margin-top: 6px;
         }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
         .snapshot-header {
             padding: 8px 14px;
@@ -689,7 +606,7 @@
             display: block;
         }
 
-        /* ALWAYS VISIBLE FLOATING DOCK WITH PROMPT CHAT BOX & VOICE MIC (User Requested) */
+        /* ALWAYS VISIBLE FLOATING PROMPT DOCK */
         .floating-prompt-dock {
             position: fixed;
             bottom: max(14px, env(safe-area-inset-bottom));
@@ -697,8 +614,8 @@
             transform: translateX(-50%);
             width: calc(100% - 24px);
             max-width: 440px;
-            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.35) 0%, rgba(15, 18, 30, 0.95) 75%);
-            border: 1px solid rgba(59, 130, 246, 0.35);
+            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.32) 0%, rgba(15, 18, 30, 0.96) 75%);
+            border: 1px solid rgba(59, 130, 246, 0.32);
             border-radius: 36px;
             padding: 8px 10px 8px 12px;
             display: flex;
@@ -706,12 +623,11 @@
             gap: 8px;
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.18);
             z-index: 50;
         }
 
-        /* 1. Quick Sleep Icon Button */
-        .dock-sleep-icon-btn {
+        .dock-sleep-btn {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -727,13 +643,12 @@
             flex-shrink: 0;
         }
 
-        .dock-sleep-icon-btn:active {
+        .dock-sleep-btn:active {
             transform: scale(0.9);
             background: rgba(239, 68, 68, 0.25);
             border-color: #ef4444;
         }
 
-        /* 2. Prominent Chat Input Box for Instant Prompting */
         .dock-input-wrapper {
             flex: 1;
             display: flex;
@@ -756,7 +671,6 @@
             color: #64748b;
         }
 
-        /* 3. Glowing Voice Mic Button (User Requested) */
         .dock-voice-btn {
             width: 40px;
             height: 40px;
@@ -790,7 +704,6 @@
             100% { transform: scale(0.95); }
         }
 
-        /* 4. Send Button */
         .dock-send-btn {
             width: 38px;
             height: 38px;
@@ -815,9 +728,7 @@
     </style>
 </head>
 <body>
-    <!-- Atmospheric Ambient Glows -->
     <div class="ambient-glow-top"></div>
-    <div class="ambient-glow-bottom"></div>
 
     <div class="app-shell">
         <!-- Top Navigation -->
@@ -830,10 +741,10 @@
             </button>
 
             <div class="nav-title-group">
-                <span class="nav-title">Control Centre</span>
+                <span class="nav-title">J.A.R.V.I.S.</span>
                 <span class="nav-subtitle">
                     <div class="pulsing-indicator"></div>
-                    STARK OS // ONLINE
+                    SYSTEM ONLINE
                 </span>
             </div>
 
@@ -845,21 +756,20 @@
         <!-- Hero Squircle Carousel with Peek Edges (Reference Image 2) -->
         <div class="carousel-container">
             <div class="carousel-viewport" id="cardViewport">
-                <!-- Card 1: Battery & Reactor Output (Luminous Violet/Magenta) -->
-                <div class="luminous-card card-reactor">
+                <!-- Card 1: Battery Level -->
+                <div class="luminous-card card-battery">
                     <div class="card-header-bar">
-                        <span class="card-tag">Stark Arc Reactor</span>
+                        <span class="card-tag">Battery Level</span>
                         <div class="info-circle">ⓘ</div>
                     </div>
 
                     <div class="card-body-telemetry">
                         <div class="dot-matrix-display" id="mainBatteryVal">46%</div>
-                        <span class="telemetry-unit">Battery Level</span>
+                        <span class="telemetry-unit">Power Level</span>
                     </div>
 
                     <div class="orbital-wave-box">
                         <svg class="orbital-svg" viewBox="0 0 240 40">
-                            <!-- Dotted orbital concentric waves like Reference Image 2 -->
                             <ellipse cx="120" cy="35" rx="85" ry="24" fill="none" stroke="rgba(255,255,255,0.22)" stroke-dasharray="3,4" stroke-width="1.2"/>
                             <ellipse cx="120" cy="35" rx="55" ry="16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-dasharray="2,3" stroke-width="1.2"/>
                             <circle cx="95" cy="18" r="2.5" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)"/>
@@ -871,7 +781,7 @@
                     <span class="sub-metric-label">Power Source: Battery • Optimal</span>
                 </div>
 
-                <!-- Card 2: Workstation Diagnostics (Luminous Cyan/Blue) -->
+                <!-- Card 2: Workstation Diagnostics -->
                 <div class="luminous-card card-diagnostics">
                     <div class="card-header-bar">
                         <span class="card-tag">Workstation Health</span>
@@ -893,7 +803,7 @@
                         </svg>
                     </div>
 
-                    <span class="sub-metric-label">MacBook Air • macOS 15 Active</span>
+                    <span class="sub-metric-label">MacBook Air • Neural Link Active</span>
                 </div>
             </div>
 
@@ -903,56 +813,44 @@
             </div>
         </div>
 
-        <!-- Quick Access Control Centre Bento Grid -->
-        <span class="bento-section-title">Quick Access Bento</span>
-        <div class="bento-grid">
-            <!-- Left Tall Card: System Uptime & Status (Reference Image 2 Daily Streak card) -->
-            <div class="bento-card-tall">
-                <div>
-                    <span class="bento-title">System Status</span>
-                    <div class="bento-metric-large" id="hostStatus">ONLINE<span class="bento-unit-tag">Mac</span></div>
-                </div>
-
-                <div>
-                    <span style="font-size: 11px; color: #94a3b8; font-weight: 600;">Neural Link: Active</span>
-                    <div class="dotted-slider-track">
-                        <div class="dot-segment filled"></div>
-                        <div class="dot-segment filled"></div>
-                        <div class="dot-segment filled"></div>
-                        <div class="dot-segment filled"></div>
-                        <div class="dot-segment"></div>
-                    </div>
-                </div>
+        <!-- UNCLUTTERED VOLUME SLIDER CARD (Reference Image 2 Slider) -->
+        <div class="volume-card">
+            <div class="volume-header">
+                <span class="volume-label">
+                    <span>🔊</span>
+                    <span>Master Volume</span>
+                </span>
+                <span class="volume-percent" id="volDisplay">50%</span>
             </div>
-
-            <!-- Right Column Stack -->
-            <div class="bento-right-stack">
-                <!-- Training / Sentry Toggle Card (Reference Image 2) -->
-                <div class="bento-card-toggle" onclick="toggleSentry()">
-                    <div class="toggle-label-box">
-                        <span class="toggle-name">Desk Sentry</span>
-                        <span class="toggle-sub" id="sentrySubText">Face Vision</span>
-                    </div>
-                    <div class="ios-switch active" id="sentrySwitch">
-                        <div class="switch-knob"></div>
-                    </div>
-                </div>
-
-                <!-- SLEEP WORKSTATION CARD (Reference Image 2 Orange/Red Breath Volume Card) -->
-                <div class="bento-card-sleep" onclick="triggerSleepMac()">
-                    <div class="sleep-header-row">
-                        <span class="sleep-label">Sleep Workstation</span>
-                        <span class="sleep-status-tag" id="sleepTag">AWAKE</span>
-                    </div>
-                    <div class="sleep-readout-row">
-                        <span class="sleep-val" id="sleepVal">STANDBY</span>
-                        <span class="sleep-icon">🌙</span>
-                    </div>
-                </div>
+            <div class="slider-row">
+                <span class="vol-icon">🔈</span>
+                <input type="range" min="0" max="100" value="50" class="custom-slider" id="volSlider" oninput="updateVolume(this.value)">
+                <span class="vol-icon">🔊</span>
             </div>
         </div>
 
-        <!-- Tactical Action Strip -->
+        <!-- Streamlined 2-Tile Controls Row -->
+        <div class="controls-row">
+            <div class="tile-card" onclick="toggleSentry()">
+                <div class="tile-info">
+                    <span class="tile-title">Desk Sentry</span>
+                    <span class="tile-subtitle" id="sentrySubText">Face Vision</span>
+                </div>
+                <div class="ios-switch active" id="sentrySwitch">
+                    <div class="switch-knob"></div>
+                </div>
+            </div>
+
+            <div class="tile-card" onclick="sendCommand('lock workstation')">
+                <div class="tile-info">
+                    <span class="tile-title">Lock Mac</span>
+                    <span class="tile-subtitle">Workstation</span>
+                </div>
+                <span style="font-size: 18px;">🔒</span>
+            </div>
+        </div>
+
+        <!-- 4 Quick Action Pills -->
         <div class="action-strip">
             <div class="strip-card" onclick="sendCommand('screenshot')">
                 <div class="strip-icon">📸</div>
@@ -962,9 +860,9 @@
                 <div class="strip-icon">👁️</div>
                 <span class="strip-label">Sentry</span>
             </div>
-            <div class="strip-card" onclick="sendCommand('lock workstation')">
-                <div class="strip-icon">🔒</div>
-                <span class="strip-label">Lock</span>
+            <div class="strip-card" onclick="triggerSleepMac()">
+                <div class="strip-icon">🌙</div>
+                <span class="strip-label">Sleep</span>
             </div>
             <div class="strip-card" onclick="sendCommand('play music')">
                 <div class="strip-icon">🎵</div>
@@ -981,31 +879,30 @@
             <img id="snapshotImg" class="snapshot-img" src="" alt="Snapshot">
         </div>
 
-        <!-- ALWAYS VISIBLE NEURAL CHAT STREAM (User Requested) -->
+        <!-- ALWAYS VISIBLE LIVE NEURAL CHAT STREAM -->
         <div class="neural-stream-box">
             <div class="stream-header">
                 <div class="stream-title">
                     <span class="stream-pulse-dot"></span>
-                    <span>Neural Stream // Real-Time</span>
+                    <span>Neural Stream</span>
                 </div>
-                <span class="stream-status-sub" id="streamStatusSub">ARMED</span>
+                <span class="stream-status-sub" id="streamStatusSub">READY</span>
             </div>
 
             <div class="stream-messages-card" id="mainStreamMessages">
                 <div class="msg-bubble jarvis">
-                    Pocket J.A.R.V.I.S. online, Sir. Quick access control centre active. You can type or tap the microphone below anytime.
+                    Good evening, Sir. System ready. Type a prompt below or tap the microphone anytime.
                 </div>
             </div>
         </div>
 
-        <!-- Extra spacing for bottom fixed floating dock -->
         <div style="height: 85px;"></div>
     </div>
 
-    <!-- ALWAYS VISIBLE FLOATING PROMPT DOCK (User Requested: Chat Box + Voice Mic) -->
+    <!-- ALWAYS VISIBLE FLOATING PROMPT DOCK -->
     <div class="floating-prompt-dock">
-        <!-- 1. Sleep Mac Shortcut -->
-        <button class="dock-sleep-icon-btn" id="dockSleepBtn" onclick="triggerSleepMac()" title="Sleep / Wake Workstation">
+        <!-- 1. Sleep Mac Button -->
+        <button class="dock-sleep-btn" id="dockSleepBtn" onclick="triggerSleepMac()" title="Sleep / Wake Workstation">
             🌙
         </button>
 
@@ -1014,7 +911,7 @@
             <input type="text" id="mainPromptInput" class="dock-input" placeholder="Ask or command J.A.R.V.I.S..." onkeydown="if(event.key==='Enter') sendPromptText()">
         </div>
 
-        <!-- 3. Prominent Glowing Voice Mic Button -->
+        <!-- 3. Glowing Voice Mic Button -->
         <button class="dock-voice-btn" id="dockVoiceBtn" onclick="toggleSpeech()" title="Tap to Speak">
             🎙️
         </button>
@@ -1031,8 +928,8 @@
 
         const mainBatteryVal = document.getElementById("mainBatteryVal");
         const cpuLoadVal = document.getElementById("cpuLoadVal");
-        const sleepTag = document.getElementById("sleepTag");
-        const sleepVal = document.getElementById("sleepVal");
+        const volSlider = document.getElementById("volSlider");
+        const volDisplay = document.getElementById("volDisplay");
         const dockSleepBtn = document.getElementById("dockSleepBtn");
         const snapshotViewer = document.getElementById("snapshotViewer");
         const snapshotImg = document.getElementById("snapshotImg");
@@ -1044,6 +941,7 @@
         const sentrySwitch = document.getElementById("sentrySwitch");
 
         let isSleeping = false;
+        let volDebounce = null;
 
         function triggerHaptic() {
             if (navigator.vibrate) navigator.vibrate(15);
@@ -1063,6 +961,16 @@
             }
         }
 
+        // Live Volume Slider Control
+        function updateVolume(val) {
+            volDisplay.innerText = val + "%";
+            clearTimeout(volDebounce);
+            volDebounce = setTimeout(() => {
+                triggerHaptic();
+                sendCommand("vol " + val);
+            }, 300);
+        }
+
         function sendPromptText() {
             const text = mainPromptInput.value.trim();
             if (!text) return;
@@ -1078,24 +986,18 @@
             mainStreamMessages.scrollTop = mainStreamMessages.scrollHeight;
         }
 
-        // SLEEP WORKSTATION ACTION (User Request)
+        // Sleep / Wake Workstation
         function triggerSleepMac() {
             triggerHaptic();
             if (!isSleeping) {
                 isSleeping = true;
                 sendCommand("sleep display");
-                sleepTag.innerText = "SLEEPING";
-                sleepTag.style.color = "#ef4444";
-                sleepVal.innerText = "STANDBY";
                 dockSleepBtn.style.background = "rgba(239, 68, 68, 0.3)";
                 dockSleepBtn.style.borderColor = "#ef4444";
                 streamStatusSub.innerText = "SLEEPING";
             } else {
                 isSleeping = false;
                 sendCommand("wake up");
-                sleepTag.innerText = "AWAKE";
-                sleepTag.style.color = "#10b981";
-                sleepVal.innerText = "ACTIVE";
                 dockSleepBtn.style.background = "";
                 dockSleepBtn.style.borderColor = "";
                 streamStatusSub.innerText = "ONLINE";
@@ -1117,7 +1019,7 @@
             snapshotViewer.style.display = "none";
         }
 
-        // Carousel Scroll Tracker for Pagination Dots
+        // Carousel Scroll Tracker
         const cardViewport = document.getElementById("cardViewport");
         const dot0 = document.getElementById("dot0");
         const dot1 = document.getElementById("dot1");

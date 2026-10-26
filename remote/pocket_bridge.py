@@ -174,6 +174,15 @@ def handle_remote_command(command_text: str):
         send_phone_reply("Online and operational on your Mac, Sir.", title="Systems Active", tags="zap")
         return
 
+    # 5b. Master Volume Control
+    m_vol = re.search(r'(?:vol|volume)\s*(?:to\s*|set\s*)?(\d+)', lower)
+    if m_vol:
+        val = int(m_vol.group(1))
+        from tools.system_tools import set_mac_volume
+        set_mac_volume(val)
+        send_phone_reply(f"Master volume adjusted to {val}%, Sir.", title="Volume", tags="sound")
+        return
+
     # 6. Fast Action Dispatch
     matched, fast_reply = dispatch_fast_action(clean)
     if matched and fast_reply:
