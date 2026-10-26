@@ -775,12 +775,22 @@
                 }, isFinal ? 700 : 1400);
             };
 
-            recognition.onerror = (event) => {};
+            recognition.onerror = (event) => {
+                console.warn("[SpeechRecognition Error]", event.error);
+                if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+                    micStatus.innerText = "MIC PERMISSION REQUIRED — CLICK SPHERE";
+                    liveTranscriptText.innerText = "⚠️ CLICK SPHERE TO ENABLE MICROPHONE";
+                    micBadge.innerText = "MIC BLOCKED";
+                    micBadge.style.color = "#ff2255";
+                }
+            };
 
             recognition.onend = () => {
                 isListening = false;
-                if (!isProcessing) {
-                    try { recognition.start(); } catch(e) {}
+                if (!isProcessing && !isSpeaking && !isStandby) {
+                    setTimeout(() => {
+                        try { recognition.start(); } catch(e) {}
+                    }, 200);
                 }
             };
 
