@@ -14,6 +14,49 @@ from brain.fast_engine import dispatch_fast_action
 NTFY_CMD_TOPIC = os.getenv("NTFY_REMOTE_CMD", "jk_jarvis_cmd")
 NTFY_REPLY_TOPIC = os.getenv("NTFY_REMOTE_REPLY", "jk_jarvis_reply")
 
+def ensure_cloudflared_tunnel(local_port=8080):
+    """Starts cloudflared quick tunnel to expose the web HUD via a secure HTTPS link."""
+    # Check if cloudflared is already running
+    try:
+        out = subprocess.run(["pgrep", "-f", "cloudflared tunnel"], capture_output=True, text=True)
+        if out.returncode == 0:
+            if os.path.exists("/tmp/jarvis_remote_url.txt"):
+                with open("/tmp/jarvis_remote_url.txt") as f:
+                    url = f.read().strip()
+                if url:
+                    print(f"\033[96m[Pocket JARVIS HTTPS Web Remote] {url}/remote\033[0m")
+                    return url
+    except Exception:
+        pass
+
+    try:
+        import shutil
+        cloudflared_path = shutil.which("cloudflared")
+        if not cloudflared_path:
+            return None
+        
+        log_file = open("/tmp/cloudflared.log", "w")
+        proc = subprocess.Popen(
+            [cloudflared_path, "tunnel", "--url", f"http://127.0.0.1:{local_port}"],
+            stdout=log_file,
+            stderr=subprocess.STREQ if hasattr(subprocess, "STREQ") else subprocess.STDOUT
+        )
+        time.sleep(3)
+        # Search log for trycloudflare URL
+        if os.path.exists("/tmp/cloudflared.log"):
+            with open("/tmp/cloudflared.log") as f:
+                content = f.read()
+            m = re.search(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
+            if m:
+                url = m.group(0)
+                with open("/tmp/jarvis_remote_url.txt", "w") as f:
+                    f.write(url)
+                print(f"\033[96m[Pocket JARVIS HTTPS Web Remote] {url}/remote\033[0m")
+                return url
+    except Exception as e:
+        print(f"[Pocket JARVIS Tunnel] {e}")
+    return None
+
 def _get_ssl_context():
     try:
         import certifi
@@ -147,6 +190,10 @@ def handle_remote_command(command_text: str):
 def run_pocket_bridge():
     """Continuously listens for commands sent from the user's phone via ntfy.sh."""
     print(f"\033[95m[Pocket JARVIS Bridge Active]\033[0m Listening on https://ntfy.sh/{NTFY_CMD_TOPIC}...")
+    
+    # Expose secure worldwide HTTPS endpoint for mobile web HUD
+    ensure_cloudflared_tunnel()
+
     ctx = _get_ssl_context()
     url = f"https://ntfy.sh/{NTFY_CMD_TOPIC}/raw"
 
