@@ -60,13 +60,15 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         
         let config = WKWebViewConfiguration()
         config.userContentController.add(self, name: "widget")
+        config.websiteDataStore = WKWebsiteDataStore.nonPersistent()
         
         webView = WKWebView(frame: NSRect(x: 0, y: 0, width: width, height: height), configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
         window.contentView = webView
         
-        if let url = URL(string: "http://127.0.0.1:8080/widget") {
-            webView.load(URLRequest(url: url))
+        if let url = URL(string: "http://127.0.0.1:8080/widget?t=\(Date().timeIntervalSince1970)") {
+            let req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10)
+            webView.load(req)
         }
         
         window.makeKeyAndOrderFront(nil)

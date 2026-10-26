@@ -161,7 +161,12 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
 
             self.send_response(200)
             self.send_header("Content-Type", mime_type)
-            self.send_header("Cache-Control", "public, max-age=3600")
+            if file_path.endswith(".html"):
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+                self.send_header("Pragma", "no-cache")
+                self.send_header("Expires", "0")
+            else:
+                self.send_header("Cache-Control", "public, max-age=3600")
             self.end_headers()
             with open(file_path, "rb") as f:
                 self.wfile.write(f.read())
