@@ -186,6 +186,12 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 except Exception:
                     pass
                 time.sleep(0.5)
+                # Unload any launchd plist so macOS launchd does not resurrect a duplicate instance
+                try:
+                    plist = os.path.expanduser("~/Library/LaunchAgents/com.jk.jarvis.daemon.plist")
+                    subprocess.run(["launchctl", "unload", plist], capture_output=True)
+                except Exception:
+                    pass
                 os._exit(0)
             threading.Thread(target=_exit, daemon=True).start()
         else:
