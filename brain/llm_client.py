@@ -87,6 +87,21 @@ class JarvisBrain:
             return random.choice(LOCAL_FAREWELLS)
 
         # FAST LOCAL INTENT ROUTING (0ms latency, 100% reliability, no API lag)
+        # Instant Time & Date
+        if any(k in clean for k in ["what time", "what's the time", "current time", "tell me the time", "time is it"]):
+            import datetime
+            now_time = datetime.datetime.now().strftime("%I:%M %p")
+            return f"It is currently {now_time}, Sir."
+
+        if any(k in clean for k in ["what date", "today's date", "what day", "what's today"]):
+            import datetime
+            today = datetime.datetime.now().strftime("%A, %B %d, %Y")
+            return f"Today is {today}, Sir."
+
+        if any(k in clean for k in ["where am i", "current location", "what city"]):
+            res = self.execute_tool("get_current_location", {})
+            return res.get("detail", "You are currently in Hyderabad, India, Sir.")
+
         # Coding problem solve & auto-paste
         if any(k in clean for k in ["solve this", "solve problem", "solve the code", "solve coding", "solve question", "paste the answer", "paste code"]):
             res = self.execute_tool("solve_and_paste_code", {"auto_paste": True})

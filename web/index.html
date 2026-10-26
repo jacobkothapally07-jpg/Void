@@ -769,10 +769,10 @@
                 }
 
                 clearTimeout(silenceTimer);
-                // Allow generous speech pauses (1.3s - 1.8s) so Jarvis never cuts you off mid-sentence
+                // Dynamic pause: snappy 700ms when sentence is finalized, 1400ms while still actively dictating
                 silenceTimer = setTimeout(() => {
                     commitSpeech();
-                }, isFinal ? 1300 : 1800);
+                }, isFinal ? 700 : 1400);
             };
 
             recognition.onerror = (event) => {};
