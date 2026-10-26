@@ -317,11 +317,14 @@
         eventSource.onmessage = function(event) {
             try {
                 const data = JSON.parse(event.data);
-                if (data.event === "message" && data.message) {
-                    addMessage(data.message, false);
+                if (data.event === "message") {
                     if (data.attachment && data.attachment.url) {
                         previewImg.src = data.attachment.url;
                         previewBox.style.display = "block";
+                        previewBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                    if (data.message && !data.message.startsWith("You received a file:")) {
+                        addMessage(data.message, false);
                     }
                 }
             } catch(e) {}

@@ -6,6 +6,8 @@ import AppKit
 class SentryEye: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     let session = AVCaptureSession()
     let videoOutput = AVCaptureVideoDataOutput()
+    var frameCount = 0
+    let framesToWarmUp = 12
     var frameCaptured = false
     var completion: ((Int, String?) -> Void)?
     var outputPath: String = "/tmp/jarvis_sentry_capture.jpg"
@@ -44,6 +46,10 @@ class SentryEye: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        frameCount += 1
+        if frameCount < framesToWarmUp {
+            return
+        }
         guard !frameCaptured else { return }
         frameCaptured = true
         session.stopRunning()
@@ -97,7 +103,7 @@ sentry.captureAndAnalyze(outputFile: targetPath) { faces, path in
 }
 
 let startTime = Date()
-while !finished && Date().timeIntervalSince(startTime) < 3.0 {
+while !finished && Date().timeIntervalSince(startTime) < 4.0 {
     RunLoop.current.run(until: Date().addingTimeInterval(0.05))
 }
 

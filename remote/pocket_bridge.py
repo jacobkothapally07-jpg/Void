@@ -139,6 +139,7 @@ def handle_remote_command(command_text: str):
         if os.path.exists(sentry_bin):
             subprocess.run([sentry_bin, cam_path], check=False)
             if os.path.exists(cam_path):
+                subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "70", "-Z", "1280", cam_path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 send_phone_photo(cam_path, title="Workstation Desk View", filename="desk.jpg")
                 send_phone_reply("Here is the live camera feed of your desk, Sir.", title="Desk Vision", tags="camera")
                 return
