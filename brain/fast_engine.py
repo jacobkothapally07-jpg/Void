@@ -110,9 +110,90 @@ def dispatch_fast_action(user_input: str):
     if lower in ["wake up", "wake up jarvis", "ping jarvis", "ping", "open jarvis", "hey jarvis", "jarvis", "hello jarvis", "hi jarvis"]:
         from voice_listener import set_jarvis_sleeping
         from hud import set_widget_state
+        from voice.sound_effects import play_repulsor_wake
+        play_repulsor_wake()
         set_jarvis_sleeping(False)
         set_widget_state("idle", "JARVIS // ONLINE")
         return True, "Online and operational, Sir. At your service."
+
+    # 6. Mark VII Daily Sitrep & Morning Protocol
+    if any(k in lower for k in ["morning sitrep", "daily briefing", "sitrep", "good morning jarvis", "give me a sitrep", "morning brief"]):
+        from tools.sitrep_tools import get_morning_sitrep
+        res = get_morning_sitrep(auto_setup=False)
+        return True, res.get("detail", "Sitrep protocol complete, Sir.")
+
+    # 7. Personalized Neural Memory Vault (<1ms Zero-Latency Execution)
+    if any(k in lower for k in ["who am i", "what is my name", "what's my name"]):
+        from tools.memory_tools import recall_memory
+        name_info = recall_memory("name")
+        return True, f"You are {name_info.get('fact', 'Jacob Kothapally')}, founder of JK Industries."
+
+    if any(k in lower for k in ["what do you know about me", "tell me about myself", "my preferences", "what are my preferences", "list my memories"]):
+        from brain.memory import get_all_memories_summary
+        summary = get_all_memories_summary()
+        return True, f"Here is what is currently logged in your neural vault, Sir:\n{summary}"
+
+    if lower.startswith("remember that ") or lower.startswith("remember my "):
+        from tools.memory_tools import remember_fact
+        content = re.sub(r"^remember (that |my )?", "", clean, flags=re.IGNORECASE).strip()
+        if " is " in content:
+            parts = content.split(" is ", 1)
+            topic, fact = parts[0].strip(), parts[1].strip()
+        elif " are " in content:
+            parts = content.split(" are ", 1)
+            topic, fact = parts[0].strip(), parts[1].strip()
+        else:
+            topic, fact = "user preference", content
+        res = remember_fact(topic, fact, "preference")
+        return True, res.get("detail", f"Logged in neural memory vault, Sir: {topic} is {fact}.")
+
+    if lower.startswith("forget that ") or lower.startswith("delete memory of ") or lower.startswith("forget my "):
+        from tools.memory_tools import forget_memory
+        target = re.sub(r"^(forget that |delete memory of |forget my )", "", clean, flags=re.IGNORECASE).strip()
+        res = forget_memory(target)
+        return True, res.get("detail", res.get("message", "Memory updated, Sir."))
+
+    # 8. Autonomous UI & Mouse Pilot (Hands-Free Mac Control)
+    if "youtube" in lower and any(w in lower for w in ["play", "search"]):
+        from tools.autopilot_tools import pilot_youtube_search
+        # Extract query
+        q = re.sub(r"(?:search\s+youtube\s+for|play|on\s+youtube|and\s+play\s+the\s+top\s+result|and\s+play)", "", clean, flags=re.IGNORECASE).strip()
+        res = pilot_youtube_search(q)
+        return True, res.get("detail", f"Playing {q} on YouTube, Sir.")
+
+    if any(k in lower for k in ["summarize my screen to notes", "summarize screen to notes", "summarize this to notes", "summarize screen"]):
+        from tools.autopilot_tools import pilot_summarize_screen_to_notes
+        res = pilot_summarize_screen_to_notes()
+        return True, res.get("detail", "Screen analyzed and summarized into Apple Notes, Sir.")
+
+    if any(k in lower for k in ["commit my changes", "git commit", "commit all changes", "commit changes"]):
+        from tools.autopilot_tools import pilot_git_commit
+        m_msg = re.search(r"with (?:message|a message) [\"']?([^\"']+)[\"']?", clean, re.IGNORECASE)
+        custom_m = m_msg.group(1) if m_msg else ""
+        res = pilot_git_commit(custom_message=custom_m, push=("push" in lower))
+        return True, res.get("detail", "Workspace changes committed, Sir.")
+
+    # 9. Sentry Mode & Face Detection
+    if any(k in lower for k in ["sentry mode", "activate sentry", "watch my desk", "guard desk"]):
+        from tools.sentry_tools import activate_sentry_mode
+        res = activate_sentry_mode()
+        return True, res.get("detail", "Sentry mode engaged, Sir.")
+
+    # 10. Marvel Mark VII Protocols
+    if any(k in lower for k in ["protocol clean slate", "clean slate protocol"]):
+        from tools.protocol_tools import initiate_protocol
+        res = initiate_protocol("clean slate")
+        return True, res.get("detail", "Protocol Clean Slate initiated, Sir.")
+
+    if any(k in lower for k in ["house party protocol"]):
+        from tools.protocol_tools import initiate_protocol
+        res = initiate_protocol("house party")
+        return True, res.get("detail", "House Party Protocol engaged, Sir.")
+
+    if any(k in lower for k in ["veronika protocol", "hulkbuster protocol", "veronika standby"]):
+        from tools.protocol_tools import initiate_protocol
+        res = initiate_protocol("veronika")
+        return True, res.get("detail", "Veronika deployment confirmed, Sir.")
 
     # 5. Time, Date, Day
     if any(k in lower for k in ["what time", "what's the time", "current time", "tell me the time", "time is it"]):

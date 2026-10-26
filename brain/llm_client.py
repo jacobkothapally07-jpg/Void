@@ -6,7 +6,7 @@ import ssl
 import re
 import random
 from config import GEMINI_API_KEY, LLM_PROVIDER
-from brain.persona import SYSTEM_PROMPT
+from brain.persona import get_system_prompt
 from tools import TOOL_DEFINITIONS, TOOL_REGISTRY
 
 def get_ssl_context():
@@ -38,7 +38,7 @@ class JarvisBrain:
     def __init__(self):
         self.provider = LLM_PROVIDER
         self.messages = [
-            {"role": "system", "content": SYSTEM_PROMPT}
+            {"role": "system", "content": get_system_prompt()}
         ]
         self.model_pool = [
             "gemini-flash-lite-latest",
@@ -152,7 +152,7 @@ class JarvisBrain:
         }]
 
         payload = {
-            "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+            "system_instruction": {"parts": [{"text": get_system_prompt()}]},
             "contents": contents,
             "tools": gemini_tools,
             "generationConfig": {"temperature": 0.4}

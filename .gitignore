@@ -20,3 +20,4 @@ __pycache__/
 /tmp/
 .jarvis_chrome_app_profile/
 native_hud/JarvisPill
+native_hud/SentryEye

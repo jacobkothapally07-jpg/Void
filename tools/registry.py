@@ -9,7 +9,7 @@ from tools.calendar_tools import create_reminder, get_today_schedule
 from tools.productivity_tools import create_apple_note, manage_clipboard, schedule_calendar_event
 from tools.terminal_tools import run_terminal_command
 from tools.live_data_tools import get_live_weather, get_stock_price
-from tools.security_tools import activate_sentry_mode, trigger_sentry_scan
+from tools.sentry_tools import activate_sentry_mode, capture_sentry_frame as trigger_sentry_scan
 from tools.email_tools import get_unread_emails, draft_email_reply
 from tools.meeting_tools import generate_meeting_summary, save_to_apple_notes
 from tools.file_tools import organize_folder, find_files_by_keyword
@@ -24,6 +24,9 @@ from tools.window_tools import arrange_window, type_into_active_app
 from tools.meeting_copilot_tools import start_meeting_copilot, stop_meeting_copilot, record_meeting_point
 from tools.dictation_tools import dictate_and_insert
 from tools.screen_recording_tools import start_screen_recording, stop_screen_recording
+from tools.memory_tools import remember_fact, recall_memory, forget_memory
+from tools.sitrep_tools import get_morning_sitrep
+from tools.autopilot_tools import pilot_youtube_search, pilot_summarize_screen_to_notes, pilot_git_commit
 
 TOOL_REGISTRY = {
     "get_system_health": get_system_health,
@@ -51,6 +54,13 @@ TOOL_REGISTRY = {
     "dictate_and_insert": dictate_and_insert,
     "start_screen_recording": start_screen_recording,
     "stop_screen_recording": stop_screen_recording,
+    "remember_fact": remember_fact,
+    "recall_memory": recall_memory,
+    "forget_memory": forget_memory,
+    "get_morning_sitrep": get_morning_sitrep,
+    "pilot_youtube_search": pilot_youtube_search,
+    "pilot_summarize_screen_to_notes": pilot_summarize_screen_to_notes,
+    "pilot_git_commit": pilot_git_commit,
     "make_phone_call": make_phone_call,
     "play_media_on_internet": play_media_on_internet,
     "analyze_screen": analyze_screen,
@@ -423,6 +433,86 @@ TOOL_DEFINITIONS = [
         "parameters": {
             "type": "object",
             "properties": {},
+            "required": []
+        }
+    },
+    {
+        "name": "remember_fact",
+        "description": "Logs a personal user preference, habit, fact, project, or instruction permanently into the Neural Memory Vault.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "Subject or topic to remember, e.g. favorite drink, pet name, primary coding language."},
+                "fact": {"type": "string", "description": "The exact fact or preference to remember."},
+                "category": {"type": "string", "description": "Category: profile, preference, project, or general."}
+            },
+            "required": ["topic", "fact"]
+        }
+    },
+    {
+        "name": "recall_memory",
+        "description": "Searches the Neural Memory Vault for stored facts, preferences, or personal background information.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "Subject or keyword to recall."}
+            },
+            "required": ["topic"]
+        }
+    },
+    {
+        "name": "forget_memory",
+        "description": "Permanently deletes a previously remembered personal fact or preference from the Neural Memory Vault.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "topic": {"type": "string", "description": "Topic or keyword of the memory to remove."}
+            },
+            "required": ["topic"]
+        }
+    },
+    {
+        "name": "get_morning_sitrep",
+        "description": "Executes the Mark VII Daily Sitrep protocol: greets Jacob, delivers live weather, battery, headlines, and workspace prep.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "auto_setup": {"type": "boolean", "description": "Whether to automatically open browser and work music."}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "pilot_youtube_search",
+        "description": "Hands-free Mac pilot: searches YouTube for any query/song and autoplays the top video result in the browser.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Song name, artist, or video topic to search and play."}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "pilot_summarize_screen_to_notes",
+        "description": "Hands-free Mac pilot: captures the active screen/document, summarizes it with executive bullets, and saves to Apple Notes.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "custom_title": {"type": "string", "description": "Optional custom title for the Apple Note."}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "pilot_git_commit",
+        "description": "Hands-free Mac pilot: stages workspace changes, generates a clean git commit message, and commits.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "custom_message": {"type": "string", "description": "Optional custom git commit message."},
+                "push": {"type": "boolean", "description": "Whether to git push to remote origin main."}
+            },
             "required": []
         }
     }

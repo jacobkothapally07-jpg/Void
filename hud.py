@@ -97,12 +97,16 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             return
         elif clean_path == "/api/toggle_watch_screen":
             from tools.coding_solver_tools import toggle_watch_screen, get_watch_screen_status
+            from voice.sound_effects import play_hud_chirp
+            play_hud_chirp()
             new_state = not get_watch_screen_status()
             res = toggle_watch_screen(new_state)
             self._send_json(res)
             return
         elif clean_path == "/api/solve_screen":
             from tools.coding_solver_tools import solve_and_paste_code
+            from voice.sound_effects import play_target_lock
+            play_target_lock()
             res = solve_and_paste_code(auto_paste=True)
             self._send_json(res)
             return
@@ -125,6 +129,8 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             return
         elif clean_path == "/api/wake":
             from voice_listener import set_jarvis_sleeping
+            from voice.sound_effects import play_repulsor_wake
+            play_repulsor_wake()
             set_jarvis_sleeping(False)
             set_widget_state("idle", "JARVIS // ONLINE")
             speak("Online and operational, Sir. At your service.", async_mode=True)
@@ -189,6 +195,8 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 body = json.loads(post_data.decode("utf-8"))
                 user_msg = body.get("message", "")
                 print(f"\n\033[92m[User Query] {user_msg}\033[0m")
+                from voice.sound_effects import play_hud_chirp
+                play_hud_chirp()
                 set_widget_state("thinking", f"Executing: {user_msg}")
                 
                 # 1. Fast Native Dispatch (< 1ms, Atticus-Mac style, zero cloud lag)

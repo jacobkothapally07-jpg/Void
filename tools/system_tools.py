@@ -119,7 +119,7 @@ def control_mac_settings(action: str, value: str = "") -> dict:
             return {"status": "success", "detail": "Light mode enabled, Sir."}
             
         elif act == "empty_trash":
-            subprocess.run(["osascript", "-e", "tell application \"Finder\" to empty trash"], check=False)
+            subprocess.run(["osascript", "-e", "tell application \"Finder\" to empty trash without warnings"], check=False)
             return {"status": "success", "detail": "Trash emptied, Sir."}
             
         elif act == "sleep_display":
