@@ -143,12 +143,17 @@ def _speak_neural_sync(clean_text: str):
         except Exception:
             played_audio = False
 
-    # 2. Secondary Fail-Safe: Google British Neural TTS (Unlimited & Free)
+    # 2. Secondary Fail-Safe: Edge-TTS British RyanNeural (Authentic Bettany tone, Free & Unlimited)
     if not played_audio:
         try:
-            from gtts import gTTS
-            tts = gTTS(text=clean_text, lang="en", tld="co.uk")
-            tts.save(temp_audio)
+            import edge_tts
+            import asyncio
+            
+            async def _gen_edge():
+                communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural", pitch="-2Hz", rate="+3%")
+                await communicate.save(temp_audio)
+                
+            asyncio.run(asyncio.wait_for(_gen_edge(), timeout=4.0))
             if os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
                 if len(clean_text) < 140:
                     try:
