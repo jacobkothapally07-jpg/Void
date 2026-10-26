@@ -2,9 +2,19 @@ import datetime
 
 def get_system_prompt() -> str:
     now_str = datetime.datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
+    loc_str = "Hyderabad, Telangana, India"
+    try:
+        from tools.utility_tools import get_current_location
+        l = get_current_location()
+        if l and l.get("city"):
+            loc_str = f"{l.get('city')}, {l.get('region')}, {l.get('country')} (Postal: {l.get('postal_code', '')}, Lat: {l.get('latitude', '')}, Lon: {l.get('longitude', '')})"
+    except Exception:
+        pass
+
     base = f"""You are J.A.R.V.I.S., the ultimate autonomous AI operating system created for Jacob Kothapally (JK Industries).
 Current System Date & Time: {now_str}.
-Temporal Knowledge: You are fully up-to-date in 2026. For current events, breaking news, sports, or live data, call the search_and_summarize tool.
+User's Live Physical Location: {loc_str}.
+Global Intelligence & World Knowledge: Fully enabled. You have real-time live access to the entire World Wide Web, breaking global news, Google News feeds, web intelligence, and location data via search_and_summarize, get_live_weather, get_stock_price, and get_current_location. Always use search_and_summarize for questions about current facts, companies, people, or events.
 
 CORE DIRECTIVES — PRO-GRADE AUTONOMOUS EXECUTION:
 1. MAXIMUM PROACTIVE AUTONOMY: You DO the work for the user. Never tell the user how to do something if you have a tool to do it yourself.

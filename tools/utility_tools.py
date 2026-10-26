@@ -9,26 +9,36 @@ _cached_location = None
 
 def get_current_location() -> dict:
     """
-    Detects the user exact real-time physical geographic location, city, region, country, and coordinates.
+    Detects the user's real-time geographic location, city, region, country, postal code, and GPS coordinates.
     """
     global _cached_location
     if _cached_location:
         return _cached_location
 
     try:
-        req = urllib.request.Request("http://ip-api.com/json/", headers={"User-Agent": "Mozilla/5.0 (JARVIS-Core)"})
-        with urllib.request.urlopen(req, timeout=3.5) as res:
+        req = urllib.request.Request("http://ip-api.com/json/", headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
+        with urllib.request.urlopen(req, timeout=4) as res:
             data = json.loads(res.read().decode("utf-8"))
             if data.get("status") == "success":
+                city = data.get("city", "Hyderabad")
+                region = data.get("regionName", "Telangana")
+                country = data.get("country", "India")
+                zip_code = data.get("zip", "")
+                lat = data.get("lat")
+                lon = data.get("lon")
+                isp = data.get("isp", "")
+                
                 loc = {
                     "status": "success",
-                    "city": data.get("city", "Hyderabad"),
-                    "region": data.get("regionName", "Telangana"),
-                    "country": data.get("country", "India"),
+                    "city": city,
+                    "region": region,
+                    "country": country,
+                    "postal_code": zip_code,
+                    "latitude": lat,
+                    "longitude": lon,
+                    "isp": isp,
                     "timezone": data.get("timezone", "Asia/Kolkata"),
-                    "lat": data.get("lat"),
-                    "lon": data.get("lon"),
-                    "detail": f"You are currently in {data.get('city')}, {data.get('regionName')}, {data.get('country')}, Sir."
+                    "detail": f"You are currently in {city}, {region}, {country} (Postal: {zip_code}, Coordinates: {lat}, {lon}), Sir."
                 }
                 _cached_location = loc
                 return loc
@@ -40,6 +50,9 @@ def get_current_location() -> dict:
         "city": "Hyderabad",
         "region": "Telangana",
         "country": "India",
+        "postal_code": "500061",
+        "latitude": 17.3843,
+        "longitude": 78.4583,
         "timezone": "Asia/Kolkata",
         "detail": "Location identified as Hyderabad, Telangana, India, Sir."
     }

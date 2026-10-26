@@ -123,8 +123,10 @@ def dispatch_fast_action(user_input: str):
         today = datetime.datetime.now().strftime("%A, %B %d, %Y")
         return True, f"Today is {today}, Sir."
 
-    if any(k in lower for k in ["where am i", "current location", "what city"]):
-        return True, "You are currently in Hyderabad, Telangana, India, Sir."
+    if any(k in lower for k in ["where am i", "current location", "what city", "what country", "where are we", "my location", "my coordinates"]):
+        from tools.utility_tools import get_current_location
+        loc = get_current_location()
+        return True, loc.get("detail", f"You are currently in {loc.get('city')}, {loc.get('region')}, {loc.get('country')}, Sir.")
 
     # 6. Active Window & Screen Info
     if lower in ["what app is open", "what am i using", "front app", "active app"]:

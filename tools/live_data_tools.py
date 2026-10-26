@@ -16,6 +16,14 @@ def _get_ssl_ctx():
 def get_live_weather(city: str = 'Hyderabad') -> dict:
     try:
         clean_city = city.strip()
+        if clean_city.lower() in ["current_location", "current", "here", "auto", "my location", ""]:
+            try:
+                from tools.utility_tools import get_current_location
+                loc_info = get_current_location()
+                clean_city = loc_info.get("city", "Hyderabad")
+            except Exception:
+                clean_city = "Hyderabad"
+
         geo_url = 'https://geocoding-api.open-meteo.com/v1/search?name=' + urllib.parse.quote(clean_city) + '&count=1&language=en&format=json'
         req = urllib.request.Request(geo_url, headers={'User-Agent': 'JARVIS/1.0'})
         with urllib.request.urlopen(req, timeout=8, context=_get_ssl_ctx()) as res:
