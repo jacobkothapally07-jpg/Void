@@ -147,8 +147,15 @@ if __name__ == "__main__":
     # Greet user immediately with ElevenLabs neural voice on app startup
     speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
 
-    # Launch Floating Arc Reactor Widget in dedicated compact app window
-    launch_chrome_app(f"http://127.0.0.1:{actual_port}/widget", widget_mode=True)
+    # Start 24/7 Native Background Voice Listener (sounddevice + Google Neural STT)
+    from voice_listener import run_voice_listener
+    t_voice = threading.Thread(target=run_voice_listener, daemon=True)
+    t_voice.start()
+
+    # Launch Native Borderless Floating Holographic Arc Reactor (NO Chrome Box!)
+    widget_binary = os.path.join(os.path.dirname(os.path.abspath(__file__)), "native_hud", "JarvisWidget")
+    if os.path.exists(widget_binary):
+        subprocess.Popen([widget_binary])
 
     # Keep server running persistently on main thread
     try:

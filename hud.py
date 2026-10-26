@@ -1,4 +1,9 @@
 _last_hud_wakeup = 0
+_widget_state = {"state": "idle", "text": "JARVIS // ONLINE"}
+
+def set_widget_state(state, text=""):
+    global _widget_state
+    _widget_state = {"state": state, "text": text}
 import subprocess
 
 def launch_hud_window(port=8080):
@@ -104,6 +109,10 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
         elif clean_path == "/api/speaking_status":
             self._send_json({"is_speaking": get_is_speaking()})
             return
+        elif clean_path == "/api/widget_state":
+            global _widget_state
+            self._send_json(_widget_state)
+            return
         elif clean_path == "/api/stats":
             stats = get_system_health()
             self._send_json(stats)
@@ -146,12 +155,18 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 body = json.loads(post_data.decode("utf-8"))
                 user_msg = body.get("message", "")
                 print(f"\n\033[92m[User Query] {user_msg}\033[0m")
+                set_widget_state("thinking", f"Executing: {user_msg}")
                 
                 # 1. Fast Native Dispatch (< 1ms, Atticus-Mac style, zero cloud lag)
                 matched, fast_reply = dispatch_fast_action(user_msg)
                 if matched and fast_reply:
+                    set_widget_state("speaking", fast_reply)
                     speak(fast_reply, async_mode=True)
                     self._send_json({"response": fast_reply, "status": "success", "fast_path": True})
+                    def reset_later():
+                        time.sleep(3.5)
+                        set_widget_state("idle", "JARVIS // ONLINE")
+                    threading.Thread(target=reset_later, daemon=True).start()
                     return
 
                 # 2. Deep Intelligence (Gemini + Multi-Tool reasoning)
@@ -159,8 +174,12 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 if not response:
                     response = "Operation completed successfully, Sir."
                 
-                # Speak asynchronously in background so HTTP response returns in 0ms!
+                set_widget_state("speaking", response)
                 speak(response, async_mode=True)
+                def reset_deep():
+                    time.sleep(5.0)
+                    set_widget_state("idle", "JARVIS // ONLINE")
+                threading.Thread(target=reset_deep, daemon=True).start()
                 
                 # Return JSON response immediately
                 self._send_json({"response": response, "status": "success"})

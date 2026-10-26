@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. Floating Core Widget</title>
+    <title>J.A.R.V.I.S. Holographic Core</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,7 +12,7 @@
             --gold-glow: rgba(255, 150, 0, 0.7);
             --gold-dim: rgba(255, 140, 0, 0.2);
             --cyan: #00f0ff;
-            --bg-glass: rgba(10, 14, 22, 0.88);
+            --cyan-glow: rgba(0, 240, 255, 0.6);
             --font-display: "Orbitron", sans-serif;
             --font-mono: "Share Tech Mono", monospace;
             --font-ui: "Rajdhani", sans-serif;
@@ -30,16 +30,16 @@
             align-items: center;
             justify-content: center;
             font-family: var(--font-ui);
-            -webkit-app-region: drag; /* Makes the entire widget draggable on desktop */
+            -webkit-app-region: drag; /* Draggable anywhere on desktop */
         }
 
         .widget-container {
-            width: 320px;
+            width: 330px;
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
-            padding: 10px;
+            padding: 8px;
         }
 
         /* Top HUD Telemetry Pill */
@@ -49,8 +49,8 @@
             align-items: center;
             width: 250px;
             padding: 4px 12px;
-            background: rgba(14, 18, 26, 0.75);
-            backdrop-filter: blur(16px);
+            background: rgba(8, 12, 18, 0.85);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--gold-dim);
             border-radius: 14px;
             font-family: var(--font-display);
@@ -58,7 +58,7 @@
             letter-spacing: 1.5px;
             color: var(--gold);
             margin-bottom: 6px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 10px rgba(255,150,0,0.2);
             transition: all 0.2s ease;
         }
 
@@ -75,22 +75,44 @@
         /* Circular Arc Reactor Housing */
         .reactor-box {
             position: relative;
-            width: 230px;
-            height: 230px;
+            width: 240px;
+            height: 240px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            -webkit-app-region: no-drag; /* Allows clicking the core without moving */
+            -webkit-app-region: no-drag;
         }
 
-        /* Outer HUD Rotating Tech Ring */
+        /* Audio Visualizer Wave Ring (24 radiating bars) */
+        .visualizer-ring {
+            position: absolute;
+            width: 236px;
+            height: 236px;
+            border-radius: 50%;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-bar {
+            position: absolute;
+            width: 2px;
+            height: 6px;
+            background: rgba(255, 170, 0, 0.45);
+            border-radius: 2px;
+            transform-origin: bottom center;
+            transition: height 0.08s ease, background 0.15s ease;
+        }
+
+        /* Outer HUD Rotating Tech Rings */
         .tech-ring {
             position: absolute;
             width: 226px;
             height: 226px;
             border-radius: 50%;
-            border: 1.5px dashed rgba(255, 160, 0, 0.4);
+            border: 1.5px dashed rgba(255, 160, 0, 0.45);
             animation: rotateCounter 28s linear infinite;
             pointer-events: none;
         }
@@ -101,8 +123,8 @@
             height: 216px;
             border-radius: 50%;
             border: 1px solid rgba(255, 140, 0, 0.25);
-            border-top-color: var(--gold);
-            border-bottom-color: var(--gold);
+            border-top-color: var(--gold-bright);
+            border-bottom-color: var(--gold-bright);
             animation: rotateClock 16s linear infinite;
             pointer-events: none;
         }
@@ -114,8 +136,8 @@
             border-radius: 50%;
             background: url('/reactor_core.webp') center center no-repeat;
             background-size: cover;
-            filter: drop-shadow(0 0 20px var(--gold-glow));
-            animation: rotateClock 40s linear infinite;
+            filter: drop-shadow(0 0 24px var(--gold-glow));
+            animation: rotateClock 42s linear infinite;
             transition: all 0.3s ease;
             position: relative;
         }
@@ -123,38 +145,38 @@
         /* Central Glowing Energy Flare */
         .energy-flare {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
-            background: radial-gradient(circle, #ffffff 10%, #ffaa00 50%, transparent 80%);
-            box-shadow: 0 0 35px var(--gold), 0 0 70px rgba(255, 150, 0, 0.8);
-            opacity: 0.85;
+            background: radial-gradient(circle, #ffffff 15%, #ffaa00 55%, transparent 80%);
+            box-shadow: 0 0 40px var(--gold), 0 0 80px rgba(255, 150, 0, 0.85);
+            opacity: 0.88;
             animation: pulseEnergy 2.5s ease-in-out infinite;
             pointer-events: none;
         }
 
-        /* Interactive Animation States */
+        /* Dynamic Interactive States */
         .reactor-box.listening .core-image {
-            filter: drop-shadow(0 0 35px rgba(255, 50, 20, 0.95)) brightness(1.2);
-            animation: rotateClock 8s linear infinite;
+            filter: drop-shadow(0 0 45px rgba(255, 60, 20, 0.95)) brightness(1.25);
+            animation: rotateClock 7s linear infinite;
         }
         .reactor-box.listening .energy-flare {
-            background: radial-gradient(circle, #ffffff 15%, #ff3b30 55%, transparent 80%);
-            box-shadow: 0 0 50px #ff3b30, 0 0 90px rgba(255, 50, 20, 0.9);
-            animation: pulseEnergy 1.0s ease-in-out infinite;
+            background: radial-gradient(circle, #ffffff 20%, #ff3b30 60%, transparent 80%);
+            box-shadow: 0 0 60px #ff3b30, 0 0 100px rgba(255, 60, 20, 0.9);
+            animation: pulseEnergy 0.9s ease-in-out infinite;
         }
 
         .reactor-box.thinking .core-image {
-            filter: drop-shadow(0 0 40px #00f0ff) brightness(1.3);
-            animation: rotateClock 4s linear infinite;
+            filter: drop-shadow(0 0 45px #00f0ff) brightness(1.35);
+            animation: rotateClock 3.5s linear infinite;
         }
 
         .reactor-box.speaking .core-image {
-            filter: drop-shadow(0 0 35px var(--gold-glow)) brightness(1.25);
-            animation: rotateClock 12s linear infinite;
+            filter: drop-shadow(0 0 42px var(--gold-glow)) brightness(1.3);
+            animation: rotateClock 10s linear infinite;
         }
         .reactor-box.speaking .energy-flare {
-            animation: pulseEnergy 0.8s ease-in-out infinite;
+            animation: pulseEnergy 0.75s ease-in-out infinite;
         }
 
         @keyframes rotateClock {
@@ -168,26 +190,27 @@
         }
 
         @keyframes pulseEnergy {
-            0% { transform: scale(0.92); opacity: 0.75; }
-            50% { transform: scale(1.15); opacity: 1.0; }
-            100% { transform: scale(0.92); opacity: 0.75; }
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1.0; }
+            100% { transform: scale(0.9); opacity: 0.7; }
         }
 
         /* Floating Subtitle / Transcript Pill */
         .subtitles {
             width: 290px;
-            background: rgba(10, 14, 22, 0.92);
+            background: rgba(8, 12, 18, 0.92);
             backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 160, 0, 0.35);
+            border: 1px solid rgba(255, 160, 0, 0.4);
             border-radius: 16px;
             padding: 8px 14px;
             margin-top: 8px;
             font-family: var(--font-ui);
-            font-size: 12.5px;
+            font-size: 13px;
+            font-weight: 600;
             color: #ffeedd;
-            line-height: 1.4;
+            line-height: 1.45;
             text-align: center;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.8), 0 0 15px rgba(255,160,0,0.15);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.85), 0 0 18px rgba(255,150,0,0.2);
             opacity: 0;
             transform: translateY(8px);
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -201,20 +224,21 @@
             transform: translateY(0);
         }
 
-        /* Bottom Control Buttons */
+        /* Bottom Quick Action Bar */
         .btn-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-top: 6px;
             -webkit-app-region: no-drag;
         }
 
         .pill-btn {
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 160, 0, 0.25);
             color: var(--gold);
             font-family: var(--font-mono);
             font-size: 10px;
+            font-weight: 600;
             padding: 3px 8px;
             border-radius: 10px;
             cursor: pointer;
@@ -231,11 +255,11 @@
             width: 280px;
             display: none;
             margin-top: 8px;
-            background: rgba(12, 16, 24, 0.95);
+            background: rgba(12, 16, 24, 0.96);
             border: 1px solid var(--gold);
             border-radius: 18px;
             padding: 6px 14px;
-            box-shadow: 0 0 20px rgba(255, 160, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 160, 0, 0.35);
             -webkit-app-region: no-drag;
         }
         .input-bar input {
@@ -246,7 +270,7 @@
             color: #ffffff;
             font-family: var(--font-ui);
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
         }
         .input-bar input::placeholder {
             color: rgba(255, 255, 255, 0.35);
@@ -262,7 +286,8 @@
         </div>
 
         <!-- Arc Reactor Glowing Orb Core -->
-        <div class="reactor-box" id="reactorBox" onclick="toggleMic()" title="Click to speak or drag widget anywhere">
+        <div class="reactor-box" id="reactorBox" onclick="toggleInput()" title="Click to type or drag widget anywhere">
+            <div class="visualizer-ring" id="visRing"></div>
             <div class="tech-ring"></div>
             <div class="tech-ring-2"></div>
             <div class="core-image"></div>
@@ -282,7 +307,7 @@
             <button class="pill-btn" onclick="toggleInput()">⌨️ TYPE</button>
             <button class="pill-btn" onclick="askQuick('what time is it')">⏱️ TIME</button>
             <button class="pill-btn" onclick="askQuick('solve the coding problem on screen and paste it')">⚡ CODE</button>
-            <button class="pill-btn" onclick="openFullHUD()">🖥️ FULL</button>
+            <button class="pill-btn" onclick="askQuick('what is on my screen right now')">👁️ SCREEN</button>
         </div>
     </div>
 
@@ -294,10 +319,24 @@
         const telemetry = document.getElementById("telemetry");
         const inputBar = document.getElementById("inputBar");
         const cmdInput = document.getElementById("cmdInput");
+        const visRing = document.getElementById("visRing");
 
-        let isListening = false;
-        let isSpeaking = false;
-        let recognition = null;
+        // Build 28 radiating audio visualizer bars around the arc reactor
+        const barCount = 28;
+        const radius = 112;
+        const bars = [];
+        for (let i = 0; i < barCount; i++) {
+            const bar = document.createElement("div");
+            bar.className = "audio-bar";
+            const angle = (i / barCount) * (Math.PI * 2);
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            const deg = (angle * 180 / Math.PI) + 90;
+            bar.style.transform = `translate(${x}px, ${y}px) rotate(${deg}deg)`;
+            visRing.appendChild(bar);
+            bars.push(bar);
+        }
+
         let subtitleTimeout = null;
 
         function showSubtitle(text, duration = 4500) {
@@ -311,7 +350,7 @@
             }
         }
 
-        function setStatus(state, label) {
+        function setVisualState(state, label) {
             reactor.className = "reactor-box " + state;
             statusText.innerText = label;
             if (state === "listening") {
@@ -329,72 +368,64 @@
             }
         }
 
-        let speechTimeout = null;
-
-        // Web Speech Recognition for Chrome
-        function initSpeech() {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) {
-                showSubtitle("Speech recognition active via system mic.", 3000);
-                return;
+        // Animate audio bars when speaking or listening
+        function animateVisualizer(active, isSpeaking) {
+            for (let i = 0; i < bars.length; i++) {
+                if (active) {
+                    const h = isSpeaking ? (8 + Math.random() * 16) : (6 + Math.random() * 10);
+                    bars[i].style.height = h + "px";
+                    bars[i].style.background = isSpeaking ? "#ffaa00" : "#ff3b30";
+                } else {
+                    bars[i].style.height = "5px";
+                    bars[i].style.background = "rgba(255, 170, 0, 0.4)";
+                }
             }
-            recognition = new SpeechRec();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = "en-US";
-
-            recognition.onstart = () => {
-                isListening = true;
-                setStatus("listening", "LISTENING...");
-                showSubtitle("🎙️ Listening... speak anytime", 0);
-            };
-
-            recognition.onresult = (e) => {
-                if (isSpeaking) return;
-                let text = "";
-                let isFinal = false;
-                for (let i = e.resultIndex; i < e.results.length; i++) {
-                    text += e.results[i][0].transcript;
-                    if (e.results[i].isFinal) isFinal = true;
-                }
-                text = text.trim();
-                if (text) {
-                    showSubtitle(text, 0);
-                    clearTimeout(speechTimeout);
-                    speechTimeout = setTimeout(() => {
-                        handleCommand(text);
-                    }, isFinal ? 650 : 1200);
-                }
-            };
-
-            recognition.onerror = () => {
-                setStatus("idle", "JARVIS // ONLINE");
-            };
-
-            recognition.onend = () => {
-                isListening = false;
-                if (!isSpeaking) {
-                    setStatus("idle", "JARVIS // ONLINE");
-                    setTimeout(() => {
-                        try { recognition.start(); } catch(e) {}
-                    }, 300);
-                }
-            };
         }
 
-        function toggleMic() {
-            if (!recognition) initSpeech();
-            if (!recognition) return;
-            if (isListening) {
-                try { recognition.stop(); } catch(e) {}
-                setStatus("idle", "JARVIS // ONLINE");
+        let currentActiveState = "idle";
+        setInterval(() => {
+            if (currentActiveState === "speaking" || currentActiveState === "listening") {
+                animateVisualizer(true, currentActiveState === "speaking");
             } else {
-                try { recognition.start(); } catch(e) {}
+                animateVisualizer(false, false);
             }
+        }, 90);
+
+        // Poll Python backend for live speech & state
+        let lastState = "";
+        let lastText = "";
+        async function syncState() {
+            try {
+                const res = await fetch("/api/widget_state");
+                const data = await res.json();
+                if (data) {
+                    const state = data.state || "idle";
+                    const text = data.text || "";
+                    currentActiveState = state;
+
+                    if (state !== lastState || text !== lastText) {
+                        lastState = state;
+                        lastText = text;
+                        if (state === "listening") {
+                            setVisualState("listening", "LISTENING...");
+                            showSubtitle(text || "🎙️ Listening... speak anytime", 0);
+                        } else if (state === "thinking") {
+                            setVisualState("thinking", "THINKING...");
+                            showSubtitle(text || "⚡ Executing command...", 0);
+                        } else if (state === "speaking") {
+                            setVisualState("speaking", "SPEAKING...");
+                            showSubtitle(text, 6000);
+                        } else {
+                            setVisualState("idle", "JARVIS // ONLINE");
+                        }
+                    }
+                }
+            } catch(e) {}
         }
+        setInterval(syncState, 200);
 
         async function handleCommand(query) {
-            setStatus("thinking", "THINKING...");
+            setVisualState("thinking", "THINKING...");
             showSubtitle("⚡ Executing: " + query, 0);
 
             try {
@@ -406,28 +437,10 @@
                 const data = await res.json();
                 const reply = (data && data.response) ? data.response : "Done, Sir.";
 
-                setStatus("speaking", "SPEAKING...");
+                setVisualState("speaking", "SPEAKING...");
                 showSubtitle(reply, 6000);
-
-                // Wait for speech to complete (with 20s safety timeout)
-                isSpeaking = true;
-                const waitStart = Date.now();
-                while (Date.now() - waitStart < 20000) {
-                    await new Promise(r => setTimeout(r, 300));
-                    try {
-                        const s = await fetch("/api/speaking_status");
-                        const sData = await s.json();
-                        if (!sData.is_speaking) break;
-                    } catch(e) { break; }
-                }
-                isSpeaking = false;
-                setStatus("idle", "JARVIS // ONLINE");
-                if (recognition) {
-                    try { recognition.start(); } catch(e) {}
-                }
             } catch (err) {
-                setStatus("idle", "JARVIS // ONLINE");
-                showSubtitle("Reconnected to local core, Sir.", 3000);
+                setVisualState("idle", "JARVIS // ONLINE");
             }
         }
 
@@ -455,11 +468,6 @@
             handleCommand(text);
         }
 
-        function openFullHUD() {
-            fetch("/api/wakeup");
-            showSubtitle("Opening Full Screen HUD, Sir...", 2500);
-        }
-
         // Live telemetry updates
         async function updateStats() {
             try {
@@ -475,11 +483,8 @@
         setInterval(updateStats, 4000);
         updateStats();
 
-        // Initialize speech on load
         window.addEventListener("DOMContentLoaded", () => {
-            initSpeech();
-            try { recognition.start(); } catch(e) {}
-            showSubtitle("J.A.R.V.I.S. Core Floating Widget Active", 3500);
+            showSubtitle("J.A.R.V.I.S. Holographic Matrix Online", 3500);
         });
     </script>
 </body>
