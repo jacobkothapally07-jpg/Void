@@ -135,6 +135,9 @@ def start_daemon_server():
     httpd.serve_forever()
 
 if __name__ == "__main__":
+    # Greet user immediately with ElevenLabs neural voice on app startup
+    speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
+
     if "--gui" in sys.argv:
         try:
             import urllib.request
