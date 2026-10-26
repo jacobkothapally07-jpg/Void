@@ -11,8 +11,8 @@ import re
 from tools.system_tools import get_system_health, control_mac_settings
 from brain.fast_engine import dispatch_fast_action
 
-NTFY_CMD_TOPIC = os.getenv("NTFY_REMOTE_CMD", "jk_jarvis_cmd")
-NTFY_REPLY_TOPIC = os.getenv("NTFY_REMOTE_REPLY", "jk_jarvis_reply")
+NTFY_CMD_TOPIC = os.getenv("NTFY_REMOTE_CMD", "jk_cmd_529d6dbeda151fd6ff6b2146f3c593d4")
+NTFY_REPLY_TOPIC = os.getenv("NTFY_REMOTE_REPLY", "jk_reply_c20c924a97e53fc63041ff3d391f2a38")
 
 def ensure_cloudflared_tunnel(local_port=8080):
     """Starts cloudflared quick tunnel to expose the web HUD via a secure HTTPS link."""
