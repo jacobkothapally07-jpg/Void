@@ -23,10 +23,23 @@ MAX_SPEECH_SECONDS = 15.0
 MIN_SPEECH_SECONDS = 0.30
 
 _is_jarvis_sleeping = False
+_active_stream = None
 
 def set_jarvis_sleeping(sleeping: bool):
-    global _is_jarvis_sleeping
+    global _is_jarvis_sleeping, _active_stream
     _is_jarvis_sleeping = sleeping
+    if _active_stream is not None:
+        try:
+            if sleeping and _active_stream.active:
+                _active_stream.stop()
+                set_widget_state("sleep", "MIC OFF // SLEEPING")
+                print("\033[93m[CoreAudio Hardware] Microphone stream stopped (Orange dot OFF).\033[0m")
+            elif not sleeping and not _active_stream.active:
+                _active_stream.start()
+                set_widget_state("idle", "JARVIS // ONLINE")
+                print("\033[92m[CoreAudio Hardware] Microphone stream restarted (Orange dot ON).\033[0m")
+        except Exception as e:
+            print(f"[CoreAudio Power Error] {e}")
 
 def get_jarvis_sleeping() -> bool:
     global _is_jarvis_sleeping
@@ -52,6 +65,7 @@ def run_voice_listener():
     def audio_callback(indata, frames, time_info, status):
         audio_queue.put(indata.flatten().copy())
 
+    global _active_stream
     stream = sd.InputStream(
         samplerate=SAMPLE_RATE,
         channels=1,
@@ -59,6 +73,7 @@ def run_voice_listener():
         blocksize=BLOCK_SIZE,
         callback=audio_callback
     )
+    _active_stream = stream
     stream.start()
 
     ambient_floor = 0.016
