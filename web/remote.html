@@ -48,7 +48,7 @@
             align-items: center;
             overflow-x: hidden;
             position: relative;
-            padding: max(12px, env(safe-area-inset-top)) 0 max(20px, env(safe-area-inset-bottom));
+            padding: max(12px, env(safe-area-inset-top)) 0 max(16px, env(safe-area-inset-bottom));
         }
 
         /* Subtle atmospheric ambient glow matching reference */
@@ -83,7 +83,7 @@
             max-width: 440px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
             z-index: 1;
             padding: 0 16px;
         }
@@ -93,12 +93,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 4px 8px;
+            padding: 6px 4px 4px;
         }
 
         .nav-round-btn {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.09);
@@ -124,14 +124,14 @@
         }
 
         .nav-title {
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 700;
             letter-spacing: -0.3px;
             color: #ffffff;
         }
 
         .nav-subtitle {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 600;
             color: var(--cyan-core);
             text-transform: uppercase;
@@ -155,13 +155,13 @@
             50% { opacity: 0.35; transform: scale(0.8); }
         }
 
-        /* Hero Squircle Carousel with Peek Cards (Exact match to Reference Image 2) */
+        /* Hero Squircle Carousel with Peek Cards (Reference Image 2) */
         .carousel-container {
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             position: relative;
         }
 
@@ -170,7 +170,7 @@
             overflow-x: auto;
             display: flex;
             gap: 14px;
-            padding: 4px 6px 12px;
+            padding: 4px 6px 8px;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
         }
@@ -183,9 +183,9 @@
         .luminous-card {
             flex: 0 0 calc(100% - 24px);
             max-width: 380px;
-            height: 270px;
-            border-radius: 38px;
-            padding: 24px 22px;
+            height: 240px;
+            border-radius: 34px;
+            padding: 20px 20px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -221,21 +221,21 @@
         }
 
         .card-tag {
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 600;
             color: #e2e8f0;
             letter-spacing: -0.2px;
         }
 
         .info-circle {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
         }
 
@@ -244,22 +244,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            margin-top: 4px;
+            gap: 2px;
         }
 
         .dot-matrix-display {
             font-family: 'Space Mono', monospace;
-            font-size: 58px;
+            font-size: 52px;
             font-weight: 700;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             color: #ffffff;
             line-height: 1;
-            text-shadow: 0 0 25px rgba(255, 255, 255, 0.45);
+            text-shadow: 0 0 22px rgba(255, 255, 255, 0.45);
         }
 
         .telemetry-unit {
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-secondary);
             margin-top: 2px;
@@ -268,7 +267,7 @@
         /* Graphic Orbital Dotted Wave at Bottom (Reference Image 2) */
         .orbital-wave-box {
             width: 100%;
-            height: 52px;
+            height: 44px;
             position: relative;
             display: flex;
             align-items: center;
@@ -282,11 +281,10 @@
         }
 
         .sub-metric-label {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #cbd5e1;
             letter-spacing: 0.2px;
-            margin-top: 2px;
         }
 
         /* Pagination Dots */
@@ -305,19 +303,19 @@
         }
 
         .page-dot.active {
-            width: 18px;
+            width: 16px;
             border-radius: 4px;
             background: #ffffff;
         }
 
         /* Quick Access Control Centre Bento Grid */
         .bento-section-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1.2px;
-            padding-left: 4px;
+            padding-left: 2px;
             margin-bottom: -6px;
         }
 
@@ -332,12 +330,12 @@
         .bento-card-tall {
             background: var(--surface-card);
             border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 20px 18px;
+            border-radius: 26px;
+            padding: 18px 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 195px;
+            min-height: 185px;
             position: relative;
             overflow: hidden;
             box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
@@ -351,21 +349,21 @@
         }
 
         .bento-title {
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 600;
             color: #e2e8f0;
         }
 
         .bento-metric-large {
             font-family: 'Space Mono', monospace;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             color: #ffffff;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .bento-unit-tag {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
             margin-left: 4px;
         }
@@ -376,7 +374,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            margin-top: 14px;
+            margin-top: 12px;
         }
 
         .dot-segment {
@@ -402,12 +400,12 @@
         .bento-card-toggle {
             background: radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.22) 0%, var(--surface-card) 60%);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 24px;
-            padding: 16px 18px;
+            border-radius: 22px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-height: 85px;
+            min-height: 82px;
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
             cursor: pointer;
         }
@@ -419,20 +417,20 @@
         }
 
         .toggle-name {
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 700;
             color: #ffffff;
         }
 
         .toggle-sub {
-            font-size: 11px;
+            font-size: 10.5px;
             color: #94a3b8;
         }
 
         /* Native iOS Style Switch */
         .ios-switch {
-            width: 48px;
-            height: 28px;
+            width: 44px;
+            height: 26px;
             background: rgba(255, 255, 255, 0.15);
             border-radius: 20px;
             position: relative;
@@ -446,8 +444,8 @@
         }
 
         .switch-knob {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             background: #ffffff;
             border-radius: 50%;
             position: absolute;
@@ -458,19 +456,19 @@
         }
 
         .ios-switch.active .switch-knob {
-            transform: translateX(20px);
+            transform: translateX(18px);
         }
 
         /* Sleep Display Bento Card (Matching Sunset orange/red "Breath Volume" Card in Reference Image 2) */
         .bento-card-sleep {
             background: radial-gradient(circle at 50% 120%, rgba(239, 68, 68, 0.38) 0%, rgba(249, 115, 22, 0.25) 40%, var(--surface-card) 85%);
             border: 1px solid rgba(239, 68, 68, 0.35);
-            border-radius: 24px;
-            padding: 16px 18px;
+            border-radius: 22px;
+            padding: 14px 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 98px;
+            min-height: 90px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
@@ -491,17 +489,17 @@
         }
 
         .sleep-label {
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 700;
             color: #ffffff;
         }
 
         .sleep-status-tag {
             font-family: 'Space Mono', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: #fca5a5;
             background: rgba(239, 68, 68, 0.15);
-            padding: 2px 8px;
+            padding: 2px 7px;
             border-radius: 10px;
         }
 
@@ -509,18 +507,18 @@
             display: flex;
             align-items: baseline;
             justify-content: space-between;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .sleep-val {
             font-family: 'Space Mono', monospace;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: #ffffff;
         }
 
         .sleep-icon {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         /* 4-Tile Tactical Action Strip */
@@ -534,13 +532,13 @@
         .strip-card {
             background: var(--surface-card);
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 14px 8px;
+            border-radius: 18px;
+            padding: 12px 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -552,14 +550,96 @@
         }
 
         .strip-icon {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .strip-label {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
             color: #e2e8f0;
             text-align: center;
+        }
+
+        /* ALWAYS VISIBLE LIVE NEURAL CHAT STREAM (User Requested) */
+        .neural-stream-box {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .stream-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .stream-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stream-pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan-core);
+            box-shadow: 0 0 6px var(--cyan-core);
+        }
+
+        .stream-status-sub {
+            font-size: 11px;
+            font-family: 'Space Mono', monospace;
+            color: #64748b;
+        }
+
+        .stream-messages-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 26px;
+            padding: 16px;
+            min-height: 200px;
+            max-height: 380px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .msg-bubble {
+            max-width: 86%;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            position: relative;
+            animation: fadeIn 0.2s ease-out;
+            word-break: break-word;
+        }
+
+        .msg-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            color: #ffffff;
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.25);
+        }
+
+        .msg-bubble.jarvis {
+            align-self: flex-start;
+            background: #181b28;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #f1f5f9;
+            border-radius: 18px 18px 18px 4px;
         }
 
         /* Live Snapshot Modal View */
@@ -568,16 +648,17 @@
             width: 100%;
             background: var(--surface-card);
             border: 1px solid var(--cyan-core);
-            border-radius: 24px;
+            border-radius: 22px;
             overflow: hidden;
-            box-shadow: 0 0 30px var(--cyan-glow);
+            box-shadow: 0 0 25px var(--cyan-glow);
             animation: fadeIn 0.25s ease-out;
+            margin-top: 6px;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
         .snapshot-header {
-            padding: 10px 16px;
+            padding: 8px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -586,7 +667,7 @@
         }
 
         .snapshot-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--cyan-core);
             letter-spacing: 0.5px;
@@ -596,9 +677,9 @@
             background: none;
             border: none;
             color: #94a3b8;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            padding: 2px 8px;
+            padding: 2px 6px;
         }
 
         .snapshot-img {
@@ -608,201 +689,128 @@
             display: block;
         }
 
-        /* Bottom Command Deck (Exact match to Reference Image 2, Right Screen) */
-        .bottom-controller-deck {
+        /* ALWAYS VISIBLE FLOATING DOCK WITH PROMPT CHAT BOX & VOICE MIC (User Requested) */
+        .floating-prompt-dock {
             position: fixed;
-            bottom: max(16px, env(safe-area-inset-bottom));
+            bottom: max(14px, env(safe-area-inset-bottom));
             left: 50%;
             transform: translateX(-50%);
-            width: calc(100% - 32px);
+            width: calc(100% - 24px);
             max-width: 440px;
-            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.35) 0%, rgba(18, 21, 34, 0.95) 75%);
+            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.35) 0%, rgba(15, 18, 30, 0.95) 75%);
             border: 1px solid rgba(59, 130, 246, 0.35);
-            border-radius: 34px;
-            padding: 16px 20px 14px;
+            border-radius: 36px;
+            padding: 8px 10px 8px 12px;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            align-items: center;
+            gap: 8px;
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             z-index: 50;
         }
 
-        .controller-status-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #94a3b8;
-            font-weight: 500;
-        }
-
-        .controller-status-center {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 12.5px;
-        }
-
-        .controller-buttons-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .deck-round-btn {
-            width: 48px;
-            height: 48px;
+        /* 1. Quick Sleep Icon Button */
+        .dock-sleep-icon-btn {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            font-size: 17px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            font-size: 18px;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             flex-shrink: 0;
         }
 
-        .deck-round-btn:active {
+        .dock-sleep-icon-btn:active {
             transform: scale(0.9);
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
         }
 
-        /* Giant Center Action Pill: SLEEP MAC (User Request) */
-        .deck-primary-pill {
+        /* 2. Prominent Chat Input Box for Instant Prompting */
+        .dock-input-wrapper {
             flex: 1;
-            height: 48px;
-            border-radius: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dock-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14.5px;
+            font-weight: 500;
+            outline: none;
+            user-select: text;
+        }
+
+        .dock-input::placeholder {
+            color: #64748b;
+        }
+
+        /* 3. Glowing Voice Mic Button (User Requested) */
+        .dock-voice-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border: none;
+            color: #ffffff;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(236, 72, 153, 0.55);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+        }
+
+        .dock-voice-btn:active {
+            transform: scale(0.9);
+        }
+
+        .dock-voice-btn.listening {
+            animation: pulse-mic 1.2s infinite;
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            box-shadow: 0 0 24px rgba(239, 68, 68, 0.8);
+        }
+
+        @keyframes pulse-mic {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(0.95); }
+        }
+
+        /* 4. Send Button */
+        .dock-send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
             background: #ffffff;
             border: none;
             color: #030408;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 14.5px;
+            font-size: 16px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 18px rgba(255, 255, 255, 0.3);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.15s ease;
+            flex-shrink: 0;
         }
 
-        .deck-primary-pill:active {
-            transform: scale(0.96);
+        .dock-send-btn:active {
+            transform: scale(0.9);
             background: #f1f5f9;
-        }
-
-        /* Slide-over Fullscreen Drawer for Chat & Voice */
-        .drawer-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .drawer-sheet {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            height: 90vh;
-            background: #090b12;
-            border-radius: 32px 32px 0 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            flex-direction: column;
-            transform: translateY(100%);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 101;
-            padding: 16px 18px max(20px, env(safe-area-inset-bottom));
-        }
-
-        .drawer-handle {
-            width: 40px;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.25);
-            align-self: center;
-            margin-bottom: 12px;
-        }
-
-        .drawer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .drawer-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .drawer-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .msg-bubble {
-            max-width: 84%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            line-height: 1.45;
-        }
-
-        .msg-bubble.user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
-            color: #ffffff;
-            border-radius: 20px 20px 4px 20px;
-        }
-
-        .msg-bubble.jarvis {
-            align-self: flex-start;
-            background: #151824;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #f1f5f9;
-            border-radius: 20px 20px 20px 4px;
-        }
-
-        .drawer-input-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 28px;
-            padding: 6px 6px 6px 16px;
-        }
-
-        .drawer-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-size: 15px;
-            outline: none;
-            user-select: text;
         }
     </style>
 </head>
@@ -812,10 +820,10 @@
     <div class="ambient-glow-bottom"></div>
 
     <div class="app-shell">
-        <!-- Top Navigation (Matching Reference Image 2) -->
+        <!-- Top Navigation -->
         <div class="top-nav">
             <button class="nav-round-btn" onclick="sendCommand('battery health')" title="Refresh Sitrep">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
@@ -829,12 +837,8 @@
                 </span>
             </div>
 
-            <button class="nav-round-btn" onclick="openChatDrawer()" title="Open Neural Chat">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
+            <button class="nav-round-btn" onclick="triggerSleepMac()" title="Sleep Workstation">
+                🌙
             </button>
         </div>
 
@@ -977,64 +981,48 @@
             <img id="snapshotImg" class="snapshot-img" src="" alt="Snapshot">
         </div>
 
-        <!-- Spacing for bottom floating deck -->
-        <div style="height: 95px;"></div>
+        <!-- ALWAYS VISIBLE NEURAL CHAT STREAM (User Requested) -->
+        <div class="neural-stream-box">
+            <div class="stream-header">
+                <div class="stream-title">
+                    <span class="stream-pulse-dot"></span>
+                    <span>Neural Stream // Real-Time</span>
+                </div>
+                <span class="stream-status-sub" id="streamStatusSub">ARMED</span>
+            </div>
+
+            <div class="stream-messages-card" id="mainStreamMessages">
+                <div class="msg-bubble jarvis">
+                    Pocket J.A.R.V.I.S. online, Sir. Quick access control centre active. You can type or tap the microphone below anytime.
+                </div>
+            </div>
+        </div>
+
+        <!-- Extra spacing for bottom fixed floating dock -->
+        <div style="height: 85px;"></div>
     </div>
 
-    <!-- Bottom Command Deck (Exact Match to Reference Image 2, Right Screen) -->
-    <div class="bottom-controller-deck">
-        <div class="controller-status-row">
-            <span>Core: 100%</span>
-            <div class="controller-status-center">
-                <span>✦</span>
-                <span id="deckStatusText">J.A.R.V.I.S. Ready</span>
-            </div>
-            <span id="deckBattText">46%</span>
+    <!-- ALWAYS VISIBLE FLOATING PROMPT DOCK (User Requested: Chat Box + Voice Mic) -->
+    <div class="floating-prompt-dock">
+        <!-- 1. Sleep Mac Shortcut -->
+        <button class="dock-sleep-icon-btn" id="dockSleepBtn" onclick="triggerSleepMac()" title="Sleep / Wake Workstation">
+            🌙
+        </button>
+
+        <!-- 2. Visible Chat Box for Effortless Prompting -->
+        <div class="dock-input-wrapper">
+            <input type="text" id="mainPromptInput" class="dock-input" placeholder="Ask or command J.A.R.V.I.S..." onkeydown="if(event.key==='Enter') sendPromptText()">
         </div>
 
-        <div class="controller-buttons-row">
-            <!-- Reset / Repeat Button -->
-            <button class="deck-round-btn" onclick="sendCommand('battery health')" title="Refresh Sitrep">
-                ⟲
-            </button>
+        <!-- 3. Prominent Glowing Voice Mic Button -->
+        <button class="dock-voice-btn" id="dockVoiceBtn" onclick="toggleSpeech()" title="Tap to Speak">
+            🎙️
+        </button>
 
-            <!-- Giant Primary Action Pill: SLEEP MAC (User Requested) -->
-            <button class="deck-primary-pill" onclick="triggerSleepMac()">
-                <span>🌙</span>
-                <span id="sleepBtnLabel">SLEEP MAC</span>
-            </button>
-
-            <!-- Mic / Speech Button -->
-            <button class="deck-round-btn" id="deckMicBtn" onclick="toggleSpeech()" title="Voice Dictation">
-                🎙️
-            </button>
-        </div>
-    </div>
-
-    <!-- Slide-over Fullscreen Drawer for Chat -->
-    <div class="drawer-overlay" id="drawerOverlay" onclick="closeChatDrawer()"></div>
-    <div class="drawer-sheet" id="drawerSheet">
-        <div class="drawer-handle"></div>
-        <div class="drawer-header">
-            <div class="drawer-title">
-                <span style="color: var(--cyan-core);">✦</span>
-                <span>J.A.R.V.I.S. Neural Stream</span>
-            </div>
-            <button class="nav-round-btn" style="width: 34px; height: 34px;" onclick="closeChatDrawer()">✕</button>
-        </div>
-
-        <div class="drawer-messages" id="drawerMessages">
-            <div class="msg-bubble jarvis">
-                Pocket J.A.R.V.I.S. online, Sir. Quick access control centre active. What are your orders?
-            </div>
-        </div>
-
-        <div class="drawer-input-row">
-            <input type="text" id="drawerInput" class="drawer-input" placeholder="Type a command or order..." onkeydown="if(event.key==='Enter') sendDrawerText()">
-            <button class="nav-round-btn" style="width: 36px; height: 36px; background: #ffffff; color: #000;" onclick="sendDrawerText()">
-                ↑
-            </button>
-        </div>
+        <!-- 4. Send Button -->
+        <button class="dock-send-btn" onclick="sendPromptText()" title="Send">
+            ↑
+        </button>
     </div>
 
     <script>
@@ -1043,19 +1031,16 @@
 
         const mainBatteryVal = document.getElementById("mainBatteryVal");
         const cpuLoadVal = document.getElementById("cpuLoadVal");
-        const deckBattText = document.getElementById("deckBattText");
         const sleepTag = document.getElementById("sleepTag");
         const sleepVal = document.getElementById("sleepVal");
-        const sleepBtnLabel = document.getElementById("sleepBtnLabel");
-        const deckStatusText = document.getElementById("deckStatusText");
+        const dockSleepBtn = document.getElementById("dockSleepBtn");
         const snapshotViewer = document.getElementById("snapshotViewer");
         const snapshotImg = document.getElementById("snapshotImg");
         const snapshotTitle = document.getElementById("snapshotTitle");
-        const drawerOverlay = document.getElementById("drawerOverlay");
-        const drawerSheet = document.getElementById("drawerSheet");
-        const drawerMessages = document.getElementById("drawerMessages");
-        const drawerInput = document.getElementById("drawerInput");
-        const deckMicBtn = document.getElementById("deckMicBtn");
+        const mainStreamMessages = document.getElementById("mainStreamMessages");
+        const mainPromptInput = document.getElementById("mainPromptInput");
+        const dockVoiceBtn = document.getElementById("dockVoiceBtn");
+        const streamStatusSub = document.getElementById("streamStatusSub");
         const sentrySwitch = document.getElementById("sentrySwitch");
 
         let isSleeping = false;
@@ -1066,16 +1051,31 @@
 
         async function sendCommand(cmd) {
             triggerHaptic();
-            addDrawerMessage(cmd, true);
-            deckStatusText.innerText = "Transmitting...";
+            addStreamMessage(cmd, true);
+            streamStatusSub.innerText = "Transmitting...";
             try {
                 await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
                     method: "POST",
                     body: cmd
                 });
             } catch(e) {
-                deckStatusText.innerText = "Error: " + e.message;
+                streamStatusSub.innerText = "Error: " + e.message;
             }
+        }
+
+        function sendPromptText() {
+            const text = mainPromptInput.value.trim();
+            if (!text) return;
+            mainPromptInput.value = "";
+            sendCommand(text);
+        }
+
+        function addStreamMessage(text, isUser = false) {
+            const div = document.createElement("div");
+            div.className = "msg-bubble " + (isUser ? "user" : "jarvis");
+            div.innerText = text;
+            mainStreamMessages.appendChild(div);
+            mainStreamMessages.scrollTop = mainStreamMessages.scrollHeight;
         }
 
         // SLEEP WORKSTATION ACTION (User Request)
@@ -1087,16 +1087,18 @@
                 sleepTag.innerText = "SLEEPING";
                 sleepTag.style.color = "#ef4444";
                 sleepVal.innerText = "STANDBY";
-                sleepBtnLabel.innerText = "WAKE MAC";
-                deckStatusText.innerText = "Workstation Asleep";
+                dockSleepBtn.style.background = "rgba(239, 68, 68, 0.3)";
+                dockSleepBtn.style.borderColor = "#ef4444";
+                streamStatusSub.innerText = "SLEEPING";
             } else {
                 isSleeping = false;
                 sendCommand("wake up");
                 sleepTag.innerText = "AWAKE";
                 sleepTag.style.color = "#10b981";
                 sleepVal.innerText = "ACTIVE";
-                sleepBtnLabel.innerText = "SLEEP MAC";
-                deckStatusText.innerText = "Systems Active";
+                dockSleepBtn.style.background = "";
+                dockSleepBtn.style.borderColor = "";
+                streamStatusSub.innerText = "ONLINE";
             }
         }
 
@@ -1105,47 +1107,14 @@
             sentrySwitch.classList.toggle("active");
             if (sentrySwitch.classList.contains("active")) {
                 sendCommand("camera");
-                deckStatusText.innerText = "Sentry Scanning...";
+                streamStatusSub.innerText = "SENTRY ACTIVE";
             } else {
-                deckStatusText.innerText = "Sentry Standby";
+                streamStatusSub.innerText = "SENTRY OFF";
             }
         }
 
         function closeSnapshot() {
             snapshotViewer.style.display = "none";
-        }
-
-        // Drawer Controls
-        function openChatDrawer() {
-            triggerHaptic();
-            drawerOverlay.style.display = "block";
-            setTimeout(() => {
-                drawerOverlay.style.opacity = "1";
-                drawerSheet.style.transform = "translateY(0)";
-            }, 10);
-        }
-
-        function closeChatDrawer() {
-            drawerOverlay.style.opacity = "0";
-            drawerSheet.style.transform = "translateY(100%)";
-            setTimeout(() => {
-                drawerOverlay.style.display = "none";
-            }, 300);
-        }
-
-        function addDrawerMessage(text, isUser = false) {
-            const div = document.createElement("div");
-            div.className = "msg-bubble " + (isUser ? "user" : "jarvis");
-            div.innerText = text;
-            drawerMessages.appendChild(div);
-            drawerMessages.scrollTop = drawerMessages.scrollHeight;
-        }
-
-        function sendDrawerText() {
-            const text = drawerInput.value.trim();
-            if (!text) return;
-            drawerInput.value = "";
-            sendCommand(text);
         }
 
         // Carousel Scroll Tracker for Pagination Dots
@@ -1183,15 +1152,14 @@
 
                     // Handle Text Reply
                     if (data.message && !data.message.startsWith("You received a file:")) {
-                        addDrawerMessage(data.message, false);
-                        deckStatusText.innerText = data.message.length > 25 ? (data.message.substring(0, 24) + "...") : data.message;
+                        addStreamMessage(data.message, false);
+                        streamStatusSub.innerText = "REPLY RECEIVED";
 
                         // Parse Battery
                         if (data.message.includes("Battery:")) {
                             const match = data.message.match(/Battery:\s*(\d+%)/);
                             if (match) {
                                 mainBatteryVal.innerText = match[1];
-                                deckBattText.innerText = match[1];
                             }
                         }
 
@@ -1220,27 +1188,27 @@
 
             recognition.onstart = function() {
                 isListening = true;
-                deckMicBtn.style.background = "linear-gradient(135deg, #a855f7, #ec4899)";
-                deckStatusText.innerText = "Listening...";
+                dockVoiceBtn.classList.add("listening");
+                mainPromptInput.placeholder = "Listening to your voice...";
                 triggerHaptic();
             };
 
             recognition.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
-                deckStatusText.innerText = `"${transcript}"`;
-                sendCommand(transcript);
+                mainPromptInput.value = transcript;
+                sendPromptText();
             };
 
             recognition.onerror = function() {
                 isListening = false;
-                deckMicBtn.style.background = "";
-                deckStatusText.innerText = "J.A.R.V.I.S. Ready";
+                dockVoiceBtn.classList.remove("listening");
+                mainPromptInput.placeholder = "Ask or command J.A.R.V.I.S...";
             };
 
             recognition.onend = function() {
                 isListening = false;
-                deckMicBtn.style.background = "";
-                deckStatusText.innerText = "J.A.R.V.I.S. Ready";
+                dockVoiceBtn.classList.remove("listening");
+                mainPromptInput.placeholder = "Ask or command J.A.R.V.I.S...";
             };
         }
 
