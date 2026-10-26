@@ -16,9 +16,9 @@ from voice import speak
 from tools.notification_tools import send_desktop_notification
 
 brain = JarvisBrain()
-SAMPLE_RATE = 16000
-CHUNK_DURATION = 4.0 # 4 second audio chunk
-SILENCE_THRESHOLD = 0.015 # RMS volume threshold
+SAMPLE_RATE = 44100
+CHUNK_DURATION = 3.5 # 3.5 second audio chunk
+SILENCE_THRESHOLD = 0.012 # RMS volume threshold
 
 def play_chime():
     """Plays subtle macOS tech chime on wake."""
