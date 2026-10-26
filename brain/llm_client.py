@@ -100,18 +100,22 @@ class JarvisBrain:
             stop_speaking()
             return "Muted, Sir."
 
-        # Standalone wake/ping
-        if clean in ["wake up", "wake up jarvis", "ping jarvis", "ping", "open jarvis", "hey jarvis", "jarvis"]:
-            return random.choice(LOCAL_GREETINGS)
-
-        if any(w in clean for w in ["goodbye", "bye jarvis", "bye", "standby mode", "go to sleep", "shut down", "stop listening", "that will be all"]):
-            return random.choice(LOCAL_FAREWELLS)
-
         # FAST DETERMINISTIC ATTICUS ENGINE (0ms, 100% reliable, zero cloud lag)
         from brain.fast_engine import dispatch_fast_action
         matched, fast_reply = dispatch_fast_action(clean)
         if matched and fast_reply:
             return fast_reply
+
+        # Standalone wake/ping
+        if clean in ["wake up", "wake up jarvis", "ping jarvis", "ping", "open jarvis", "hey jarvis", "jarvis"]:
+            return random.choice(LOCAL_GREETINGS)
+
+        if any(w in clean for w in ["goodbye", "bye jarvis", "bye", "standby mode", "go to sleep", "shut down", "stop listening", "that will be all"]):
+            from voice_listener import set_jarvis_sleeping
+            from hud import set_widget_state
+            set_widget_state("sleep", "Entering sleep mode...")
+            set_jarvis_sleeping(True)
+            return "Entering sleep mode, Sir. Wake me via shortcut or menu icon whenever you need me."
 
         return None
 

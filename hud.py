@@ -117,6 +117,19 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             stats = get_system_health()
             self._send_json(stats)
             return
+        elif clean_path == "/api/sleep":
+            from voice_listener import set_jarvis_sleeping
+            set_jarvis_sleeping(True)
+            set_widget_state("sleep", "Entering sleep mode...")
+            self._send_json({"status": "success", "mode": "sleep"})
+            return
+        elif clean_path == "/api/wake":
+            from voice_listener import set_jarvis_sleeping
+            set_jarvis_sleeping(False)
+            set_widget_state("idle", "JARVIS // ONLINE")
+            speak("Online and operational, Sir. At your service.", async_mode=True)
+            self._send_json({"status": "success", "mode": "awake"})
+            return
         elif clean_path == "/api/shutdown":
             self._send_json({"status": "success", "message": "shutting down"})
             def _exit_get():

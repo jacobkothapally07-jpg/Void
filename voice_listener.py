@@ -21,6 +21,16 @@ SAMPLE_RATE = 16000
 CHUNK_DURATION = 1.8 # Snappy chunk duration for instant interruption (< 2s latency)
 SILENCE_THRESHOLD = 0.0035 # Noise gate RMS calibrated for MacBook Air microphone
 
+_is_jarvis_sleeping = False
+
+def set_jarvis_sleeping(sleeping: bool):
+    global _is_jarvis_sleeping
+    _is_jarvis_sleeping = sleeping
+
+def get_jarvis_sleeping() -> bool:
+    global _is_jarvis_sleeping
+    return _is_jarvis_sleeping
+
 def is_echo_of_jarvis(user_text: str, jarvis_text: str) -> bool:
     """
     Determines if transcribed microphone input is simply speaker audio leaking from Jarvis's own voice,
@@ -60,6 +70,10 @@ def run_voice_listener():
 
     while True:
         try:
+            if _is_jarvis_sleeping:
+                time.sleep(0.4)
+                continue
+
             # Continually record audio from default microphone (NEVER sleep or block when speaking!)
             audio_data = sd.rec(int(CHUNK_DURATION * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype="float32")
             sd.wait()

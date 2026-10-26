@@ -92,14 +92,26 @@ def dispatch_fast_action(user_input: str):
         res = toggle_watch_screen(False)
         return True, res.get("detail", "Watch My Screen mode deactivated, Sir.")
 
-    # 3. Instant Mute & Standby (Only for standalone stop/quiet/mute commands)
+    # 3. Sleep / Shutdown / Standby Command
+    if any(k in lower for k in ["go to sleep", "sleep mode", "enter sleep", "sleep jarvis", "shutdown", "shut down", "standby mode", "close app"]):
+        from voice_listener import set_jarvis_sleeping
+        from hud import set_widget_state
+        set_widget_state("sleep", "Entering sleep mode...")
+        set_jarvis_sleeping(True)
+        return True, "Entering sleep mode, Sir. Wake me via shortcut or menu icon whenever you need me."
+
+    # 4. Instant Mute & Standby (Only for standalone stop/quiet/mute commands)
     if lower in ["stop", "shut up", "be quiet", "quiet", "hush", "mute", "silence", "stop talking", "jarvis stop", "quiet please"]:
         from voice.tts import stop_speaking
         stop_speaking()
         return True, "Muted, Sir."
 
-    # 4. Basic Greetings / Pings
+    # 5. Basic Greetings / Pings
     if lower in ["wake up", "wake up jarvis", "ping jarvis", "ping", "open jarvis", "hey jarvis", "jarvis", "hello jarvis", "hi jarvis"]:
+        from voice_listener import set_jarvis_sleeping
+        from hud import set_widget_state
+        set_jarvis_sleeping(False)
+        set_widget_state("idle", "JARVIS // ONLINE")
         return True, "Online and operational, Sir. At your service."
 
     # 5. Time, Date, Day

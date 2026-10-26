@@ -144,6 +144,10 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
                 origin.y -= CGFloat(dy)
                 self.window.setFrameOrigin(origin)
             }
+        } else if action == "sleep" || action == "close" {
+            DispatchQueue.main.async {
+                self.window.orderOut(nil)
+            }
         } else if action == "shutdown" {
             DispatchQueue.main.async {
                 self.window.orderOut(nil)
@@ -163,12 +167,18 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     }
     
     @objc func toggleWidget() {
-        if window.isVisible && window.isKeyWindow {
+        if window.isVisible {
             window.orderOut(nil)
+            if let url = URL(string: "http://127.0.0.1:8080/api/sleep") {
+                URLSession.shared.dataTask(with: url).resume()
+            }
         } else {
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             webView.evaluateJavaScript("focusInput()", completionHandler: nil)
+            if let url = URL(string: "http://127.0.0.1:8080/api/wake") {
+                URLSession.shared.dataTask(with: url).resume()
+            }
         }
     }
 }
