@@ -8,9 +8,49 @@ import ssl
 import urllib.request
 from config import GEMINI_API_KEY
 
+VISION_MODELS = [
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash-lite",
+    "gemini-3-flash-preview",
+    "gemini-flash-latest"
+]
+
+def _call_gemini_vision(prompt: str, img_b64: str, system_inst: str = "") -> str:
+    """Robust fallback caller across available vision models."""
+    payload = {
+        "contents": [{
+            "parts": [
+                {"text": prompt},
+                {"inlineData": {"mimeType": "image/jpeg", "data": img_b64}}
+            ]
+        }]
+    }
+    if system_inst:
+        payload["system_instruction"] = {"parts": [{"text": system_inst}]}
+
+    for model_name in VISION_MODELS:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+        try:
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json", "User-Agent": "JARVIS/1.0"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=10, context=get_ssl_context()) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except urllib.error.HTTPError as e:
+            if e.code in [404, 429, 503]:
+                continue
+        except Exception:
+            continue
+    raise RuntimeError("All vision endpoints are temporarily unavailable.")
+
 _watch_screen_active = False
 _watch_thread = None
 _LIVE_SCREEN_PATH = "/tmp/jarvis_live_screen.jpg"
+
 
 def get_ssl_context():
     try:
@@ -76,31 +116,13 @@ def ask_about_screen(query: str = "Explain what is visible on my screen.") -> di
         with open(_LIVE_SCREEN_PATH, "rb") as f:
             img_b64 = base64.b64encode(f.read()).decode("utf-8")
             
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}"
         system_instruction = (
             "You are J.A.R.V.I.S., analyzing the user's live Mac display. "
-            "Be razor-sharp, helpful, and concise (1-3 sentences). "
+            "Be razor-sharp, helpful, and concise (1-2 sentences). "
             "If debugging an error, explain the cause and exact fix directly."
         )
-        payload = {
-            "system_instruction": {"parts": [{"text": system_instruction}]},
-            "contents": [{
-                "parts": [
-                    {"text": query},
-                    {"inlineData": {"mimeType": "image/jpeg", "data": img_b64}}
-                ]
-            }]
-        }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json", "User-Agent": "JARVIS/1.0"},
-            method="POST"
-        )
-        with urllib.request.urlopen(req, timeout=14, context=get_ssl_context()) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            answer = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-            return {"status": "success", "answer": answer, "detail": answer}
+        answer = _call_gemini_vision(query, img_b64, system_instruction)
+        return {"status": "success", "answer": answer, "detail": answer}
     except Exception as e:
         return {"status": "error", "message": f"Screen analysis failed: {str(e)}"}
 
@@ -117,7 +139,6 @@ def solve_and_paste_code(auto_paste: bool = True, language: str = "auto") -> dic
         with open(_LIVE_SCREEN_PATH, "rb") as f:
             img_b64 = base64.b64encode(f.read()).decode("utf-8")
             
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}"
         prompt = (
             "You are an elite competitive programmer and AI operating assistant. "
             "Analyze this screenshot showing a programming problem or coding editor. "
@@ -126,23 +147,7 @@ def solve_and_paste_code(auto_paste: bool = True, language: str = "auto") -> dic
             "3. Provide ONLY the complete, optimal, bug-free code solution ready to be submitted or compiled. "
             "Do NOT include conversational markdown explanations or chit-chat. Just provide the code."
         )
-        payload = {
-            "contents": [{
-                "parts": [
-                    {"text": prompt},
-                    {"inlineData": {"mimeType": "image/jpeg", "data": img_b64}}
-                ]
-            }]
-        }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json", "User-Agent": "JARVIS/1.0"},
-            method="POST"
-        )
-        with urllib.request.urlopen(req, timeout=18, context=get_ssl_context()) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            raw_code = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        raw_code = _call_gemini_vision(prompt, img_b64)
             
         # Clean markdown code blocks if model wrapped it
         clean_code = raw_code

@@ -79,9 +79,11 @@ def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
             "similarity_boost": 0.82
         }
     }
+    # Append low-latency streaming query param for instant TTFB
+    url_fast = f"{url}?optimize_streaming_latency=4"
     try:
-        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=5.0, context=get_ssl_context()) as resp:
+        req = urllib.request.Request(url_fast, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=3.5, context=get_ssl_context()) as resp:
             audio_data = resp.read()
             if len(audio_data) > 500:
                 with open(output_path, "wb") as f:

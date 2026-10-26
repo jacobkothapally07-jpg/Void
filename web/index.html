@@ -769,9 +769,10 @@
                 }
 
                 clearTimeout(silenceTimer);
+                // Allow generous speech pauses (1.3s - 1.8s) so Jarvis never cuts you off mid-sentence
                 silenceTimer = setTimeout(() => {
                     commitSpeech();
-                }, isFinal ? 200 : 450);
+                }, isFinal ? 1300 : 1800);
             };
 
             recognition.onerror = (event) => {};
