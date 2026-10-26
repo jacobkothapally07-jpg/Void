@@ -152,8 +152,10 @@ if __name__ == "__main__":
     t_voice = threading.Thread(target=run_voice_listener, daemon=True)
     t_voice.start()
 
-    # Launch Native Borderless Floating Holographic Arc Reactor (NO Chrome Box!)
+    # Launch Native Borderless Floating Holographic Arc Reactor (Single Instance Enforced)
     widget_binary = os.path.join(os.path.dirname(os.path.abspath(__file__)), "native_hud", "JarvisWidget")
+    subprocess.run(["pkill", "-9", "-f", "JarvisWidget"], check=False)
+    time.sleep(0.2)
     if os.path.exists(widget_binary):
         subprocess.Popen([widget_binary])
 

@@ -24,6 +24,18 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     let configFile = NSString(string: "~/.jarvis_hotkey.json").expandingTildeInPath
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        let lockPath = "/tmp/jarvis_widget.lock"
+        let myPid = ProcessInfo.processInfo.processIdentifier
+        if let existingPidStr = try? String(contentsOfFile: lockPath, encoding: .utf8),
+           let existingPid = Int32(existingPidStr.trimmingCharacters(in: .whitespacesAndNewlines)),
+           existingPid != myPid {
+            if kill(existingPid, 0) == 0 {
+                // Terminate any old instance so only ONE instance ever runs
+                kill(existingPid, SIGKILL)
+            }
+        }
+        try? "\(myPid)".write(toFile: lockPath, atomically: true, encoding: .utf8)
+
         JarvisWidgetController.shared = self
         NSApp.setActivationPolicy(.accessory)
         setupStatusItem()
