@@ -61,6 +61,8 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
         clean_path = self.path.split("?")[0]
         if clean_path in ["/", "/index.html"]:
             clean_path = "/index.html"
+        elif clean_path in ["/widget", "/widget.html"]:
+            clean_path = "/widget.html"
             
         if clean_path in ["/api/wakeup", "/api/initiate"]:
             global _last_hud_wakeup
@@ -114,6 +116,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             if not mime_type:
                 if file_path.endswith(".js"): mime_type = "application/javascript"
                 elif file_path.endswith(".png"): mime_type = "image/png"
+                elif file_path.endswith(".webp"): mime_type = "image/webp"
                 elif file_path.endswith(".mp3"): mime_type = "audio/mpeg"
                 elif file_path.endswith(".css"): mime_type = "text/css"
                 else: mime_type = "application/octet-stream"
