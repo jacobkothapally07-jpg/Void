@@ -93,6 +93,15 @@ def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
         print(f"[TTS ElevenLabs Notice] {e}")
     return False
 
+def is_short_operational_phrase(text: str) -> bool:
+    """Detects short, immediate system feedback phrases that should play instantly via macOS Daniel (0ms)."""
+    t = text.lower().strip()
+    if len(text) < 45:
+        # Time, date, app opening, volume, timers, acknowledgments
+        if any(w in t for w in ["it is currently", "today is", "opening ", "closed ", "muted", "volume ", "timer set", "window ", "playback", "locked", "trash", "battery is"]):
+            return True
+    return False
+
 def _speak_neural_sync(clean_text: str):
     global current_audio_proc, is_speaking_lock
     is_speaking_lock = True
@@ -111,10 +120,21 @@ def _speak_neural_sync(clean_text: str):
         except Exception:
             pass
 
+    # FAST PATH (HYBRID ENGINE): Short operational confirmations speak INSTANTLY via macOS Daniel (0ms)
+    if is_short_operational_phrase(clean_text):
+        try:
+            current_audio_proc = subprocess.Popen(["say", "-v", "Daniel", "-r", "180", clean_text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            current_audio_proc.wait()
+            is_speaking_lock = False
+            current_audio_proc = None
+            return
+        except Exception:
+            pass
+
     temp_audio = f"/tmp/jarvis_speech_{os.getpid()}_{int(time.time()*1000)}.mp3"
     played_audio = False
 
-    # 1. Primary: ElevenLabs Ultra-Realistic Paul Bettany Voice
+    # 1. Primary for complex queries, screen explanations, and coding: ElevenLabs Paul Bettany Voice
     if TTS_PROVIDER == "elevenlabs" and ELEVENLABS_API_KEY:
         try:
             success = _generate_elevenlabs_audio(clean_text, temp_audio)

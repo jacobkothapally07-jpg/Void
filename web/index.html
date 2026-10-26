@@ -932,8 +932,8 @@
 
         
         async function waitForAudioPlaybackToFinish() {
-            // Give 300ms for audio to begin
-            await new Promise(r => setTimeout(r, 400));
+            // Immediate poll without artificial pre-delay
+            await new Promise(r => setTimeout(r, 100));
             const startTime = Date.now();
             while (Date.now() - startTime < 35000) {
                 try {
@@ -945,10 +945,10 @@
                 } catch(e) {
                     break;
                 }
-                await new Promise(r => setTimeout(r, 250));
+                await new Promise(r => setTimeout(r, 120));
             }
-            // 150ms cooldown for speaker echo to dissipate
-            await new Promise(r => setTimeout(r, 150));
+            // Rapid 80ms release buffer
+            await new Promise(r => setTimeout(r, 80));
         }
 
         async function sendQuery(msg) {
