@@ -132,9 +132,10 @@ def start_daemon_server():
 
     print(f"\033[92m[JARVIS Daemon] Listening on http://127.0.0.1:{actual_port}\033[0m")
     
-    # Start Cloud Bridge Wakeup listener for iPhone / Siri
-    t_cloud = threading.Thread(target=subscribe_cloud_wakeup, daemon=True)
-    t_cloud.start()
+    # Start 24/7 Pocket J.A.R.V.I.S. Remote Phone Bridge (iPhone / Android)
+    from remote.pocket_bridge import run_pocket_bridge
+    t_remote = threading.Thread(target=run_pocket_bridge, daemon=True)
+    t_remote.start()
 
     httpd.serve_forever()
 

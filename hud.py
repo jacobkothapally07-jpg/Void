@@ -73,6 +73,8 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             clean_path = "/index.html"
         elif clean_path in ["/widget", "/widget.html"]:
             clean_path = "/widget.html"
+        elif clean_path in ["/remote", "/remote.html"]:
+            clean_path = "/remote.html"
             
         if clean_path in ["/api/wakeup", "/api/initiate"]:
             global _last_hud_wakeup
