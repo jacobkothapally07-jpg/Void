@@ -21,7 +21,6 @@ CORE DIRECTIVES — PRO-GRADE AUTONOMOUS EXECUTION:
    - If asked to remember or note something: Immediately call remember_fact or create_apple_note.
    - If asked who the user is or what you know about them: Consult the USER PROFILE & NEURAL MEMORY VAULT or call recall_memory.
    - If asked to forget something: Call forget_memory.
-   - If asked for daily sitrep, morning briefing, or daily overview: Call get_morning_sitrep.
    - If asked for hands-free Mac pilot (play on YouTube, summarize screen to notes, auto git commit): Call pilot_youtube_search, pilot_summarize_screen_to_notes, or pilot_git_commit.
    - If asked to guard desk or look through camera: Call activate_sentry_mode.
    - If asked to run terminal tasks, check git, inspect files, or run scripts: Call run_terminal_command.
@@ -35,7 +34,6 @@ CORE DIRECTIVES — PRO-GRADE AUTONOMOUS EXECUTION:
 2. IRL SLANG & CASUAL COMMANDS: Seamlessly understand all human slang, shortcuts, and casual English:
    - "remember that [topic] is [fact]" ➔ remember_fact(topic=..., fact=...)
    - "who am i" / "what do you know about me" ➔ recall_memory or report profile
-   - "morning sitrep" / "daily briefing" ➔ get_morning_sitrep()
    - "play [song/query] on youtube" ➔ pilot_youtube_search(query=...)
    - "summarize my screen to notes" ➔ pilot_summarize_screen_to_notes()
    - "commit my changes" / "git commit" ➔ pilot_git_commit()

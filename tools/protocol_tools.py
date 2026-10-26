@@ -40,12 +40,7 @@ def initiate_protocol(protocol_name: str) -> dict:
             "detail": "Veronika deployment confirmed, Sir. Orbital telemetry locked, auxiliary power cells at full charge."
         }
 
-    # 4. Morning Sitrep Protocol
-    elif any(w in p_name for w in ["sitrep", "good morning", "morning brief", "briefing"]):
-        from tools.sitrep_tools import get_morning_sitrep
-        return get_morning_sitrep(auto_setup=True)
-
-    # 5. Coding Protocol
+    # 4. Coding Protocol
     elif any(w in p_name for w in ["code", "coding", "dev"]):
         set_mac_volume(45)
         open_mac_application("Visual Studio Code")
@@ -99,5 +94,5 @@ def initiate_protocol(protocol_name: str) -> dict:
 
     return {
         "status": "error",
-        "message": f"Protocol {protocol_name} not recognized. Available protocols: Clean Slate, House Party, Veronika, Sitrep, Coding, Study, Meeting, Relax."
+        "message": f"Protocol {protocol_name} not recognized. Available protocols: Clean Slate, House Party, Veronika, Coding, Study, Meeting, Relax."
     }

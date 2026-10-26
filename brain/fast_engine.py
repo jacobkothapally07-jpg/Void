@@ -116,13 +116,7 @@ def dispatch_fast_action(user_input: str):
         set_widget_state("idle", "JARVIS // ONLINE")
         return True, "Online and operational, Sir. At your service."
 
-    # 6. Mark VII Daily Sitrep & Morning Protocol
-    if any(k in lower for k in ["morning sitrep", "daily briefing", "sitrep", "good morning jarvis", "give me a sitrep", "morning brief"]):
-        from tools.sitrep_tools import get_morning_sitrep
-        res = get_morning_sitrep(auto_setup=False)
-        return True, res.get("detail", "Sitrep protocol complete, Sir.")
-
-    # 7. Personalized Neural Memory Vault (<1ms Zero-Latency Execution)
+    # 6. Personalized Neural Memory Vault (<1ms Zero-Latency Execution)
     if any(k in lower for k in ["who am i", "what is my name", "what's my name"]):
         from tools.memory_tools import recall_memory
         name_info = recall_memory("name")

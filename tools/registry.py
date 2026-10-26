@@ -25,7 +25,6 @@ from tools.meeting_copilot_tools import start_meeting_copilot, stop_meeting_copi
 from tools.dictation_tools import dictate_and_insert
 from tools.screen_recording_tools import start_screen_recording, stop_screen_recording
 from tools.memory_tools import remember_fact, recall_memory, forget_memory
-from tools.sitrep_tools import get_morning_sitrep
 from tools.autopilot_tools import pilot_youtube_search, pilot_summarize_screen_to_notes, pilot_git_commit
 
 TOOL_REGISTRY = {
@@ -57,7 +56,6 @@ TOOL_REGISTRY = {
     "remember_fact": remember_fact,
     "recall_memory": recall_memory,
     "forget_memory": forget_memory,
-    "get_morning_sitrep": get_morning_sitrep,
     "pilot_youtube_search": pilot_youtube_search,
     "pilot_summarize_screen_to_notes": pilot_summarize_screen_to_notes,
     "pilot_git_commit": pilot_git_commit,
@@ -469,17 +467,6 @@ TOOL_DEFINITIONS = [
                 "topic": {"type": "string", "description": "Topic or keyword of the memory to remove."}
             },
             "required": ["topic"]
-        }
-    },
-    {
-        "name": "get_morning_sitrep",
-        "description": "Executes the Mark VII Daily Sitrep protocol: greets Jacob, delivers live weather, battery, headlines, and workspace prep.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "auto_setup": {"type": "boolean", "description": "Whether to automatically open browser and work music."}
-            },
-            "required": []
         }
     },
     {
