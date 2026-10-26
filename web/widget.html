@@ -309,7 +309,14 @@
             <button class="pill-btn" onclick="toggleInput()">⌨️ TYPE</button>
             <button class="pill-btn" onclick="askQuick('what time is it')">⏱️ TIME</button>
             <button class="pill-btn" onclick="askQuick('solve the coding problem on screen and paste it')">⚡ CODE</button>
-            <button class="pill-btn" onclick="askQuick('what is on my screen right now')">👁️ SCREEN</button>
+            <button class="pill-btn" onclick="openHotkeyPicker()" id="hkBadge" title="Change hotkey">⌨️ ⌘⇧J</button>
+        </div>
+        
+        <!-- Hotkey Picker Modal -->
+        <div id="hkModal" style="display:none; position:absolute; top:20px; width:290px; background:rgba(12,16,24,0.96); border:1px solid #ffaa00; border-radius:16px; padding:12px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.9); z-index:999; -webkit-app-region:no-drag;">
+            <div style="font-family:var(--font-display); font-size:10px; color:#ffaa00; letter-spacing:1px; margin-bottom:6px;">CUSTOM AWAKENING HOTKEY</div>
+            <div id="hkStatus" style="font-size:12.5px; color:#ffffff; margin-bottom:8px;">Press your new shortcut...<br><span style="font-size:10px; color:#888;">(e.g. Cmd+Shift+J, Ctrl+Space, Option+J)</span></div>
+            <button class="pill-btn" onclick="closeHotkeyPicker()" style="margin-top:4px;">CANCEL</button>
         </div>
     </div>
 
@@ -512,6 +519,71 @@
         function askQuick(text) {
             handleCommand(text);
         }
+
+        // --- CUSTOM HOTKEY PICKER ---
+        const hkBadge = document.getElementById("hkBadge");
+        const hkModal = document.getElementById("hkModal");
+        const hkStatus = document.getElementById("hkStatus");
+        let isRecordingHotkey = false;
+
+        function setHotkeyBadge(label) {
+            if (hkBadge) hkBadge.innerText = "⌨️ " + label;
+        }
+
+        function openHotkeyPicker() {
+            hkModal.style.display = "block";
+            isRecordingHotkey = true;
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                window.webkit.messageHandlers.widget.postMessage({ action: "focus" });
+            }
+        }
+
+        function closeHotkeyPicker() {
+            hkModal.style.display = "none";
+            isRecordingHotkey = false;
+        }
+
+        const CarbonMap = {
+            "KeyA": 0, "KeyS": 1, "KeyD": 2, "KeyF": 3, "KeyH": 4, "KeyG": 5, "KeyZ": 6, "KeyX": 7, "KeyC": 8, "KeyV": 9,
+            "KeyB": 11, "KeyQ": 12, "KeyW": 13, "KeyE": 14, "KeyR": 15, "KeyY": 16, "KeyT": 17,
+            "KeyO": 31, "KeyU": 32, "KeyI": 34, "KeyP": 35, "KeyL": 37, "KeyJ": 38, "KeyK": 40,
+            "Space": 49, "F1": 122, "F2": 120, "F3": 99, "F4": 118, "F5": 96, "F6": 97, "F7": 98, "F8": 100, "F9": 101, "F10": 109, "F11": 103, "F12": 111
+        };
+
+        window.addEventListener("keydown", (e) => {
+            if (!isRecordingHotkey) return;
+            if (["Control", "Shift", "Alt", "Meta"].includes(e.key)) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+
+            let mods = 0;
+            let labelParts = [];
+            if (e.metaKey) { mods |= 256; labelParts.push("⌘"); }
+            if (e.shiftKey) { mods |= 512; labelParts.push("⇧"); }
+            if (e.altKey) { mods |= 2048; labelParts.push("⌥"); }
+            if (e.ctrlKey) { mods |= 4096; labelParts.push("⌃"); }
+
+            let keyName = e.code.replace("Key", "");
+            if (e.code === "Space") keyName = "Space";
+            labelParts.push(keyName);
+
+            const label = labelParts.join("");
+            const code = CarbonMap[e.code] !== undefined ? CarbonMap[e.code] : 38; // Default to J
+
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                window.webkit.messageHandlers.widget.postMessage({
+                    action: "set_custom_hotkey",
+                    label: label,
+                    keyCode: code,
+                    modifiers: mods
+                });
+            }
+
+            setHotkeyBadge(label);
+            closeHotkeyPicker();
+            showSubtitle("Hotkey saved: " + label, 3000);
+        });
 
         // Live telemetry updates
         async function updateStats() {
