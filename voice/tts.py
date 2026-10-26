@@ -67,9 +67,12 @@ def get_ssl_context():
         ctx.verify_mode = ssl.CERT_NONE
         return ctx
 
+_elevenlabs_disabled_until = 0
+
 def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
     """Generates ultra-realistic voice audio via ElevenLabs API."""
-    if not ELEVENLABS_API_KEY:
+    global _elevenlabs_disabled_until
+    if not ELEVENLABS_API_KEY or time.time() < _elevenlabs_disabled_until:
         return False
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
     headers = {
@@ -96,6 +99,9 @@ def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
                     f.write(audio_data)
                 return True
     except Exception as e:
+        if "401" in str(e) or "403" in str(e):
+            # Quota exhausted: disable ElevenLabs for 10 minutes to eliminate latency
+            _elevenlabs_disabled_until = time.time() + 600
         print(f"[TTS ElevenLabs Notice] {e}")
     return False
 

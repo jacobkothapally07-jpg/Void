@@ -144,8 +144,9 @@ if __name__ == "__main__":
     t.start()
     time.sleep(0.5)
 
-    # Greet user immediately with ElevenLabs neural voice on app startup
-    speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
+    # Play authentic Iron Man repulsor wake chime on workstation boot
+    from voice.sound_effects import play_repulsor_wake
+    play_repulsor_wake()
 
     # Start 24/7 Native Background Voice Listener (sounddevice + Google Neural STT)
     from voice_listener import run_voice_listener

@@ -507,6 +507,14 @@
         attachDrag(hudHeaderEl);
         attachDrag(reactor);
 
+        // Click reactor core to instantly silence Jarvis if speaking
+        reactor.addEventListener("click", () => {
+            if (!isDragging) {
+                fetch("/api/stop", { method: "POST" });
+                setVisualState("idle", "JARVIS // ONLINE");
+            }
+        });
+
         window.addEventListener("mousemove", (e) => {
             if (!isDragging) return;
             const dx = e.screenX - startX;

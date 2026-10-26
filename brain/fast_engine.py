@@ -276,8 +276,13 @@ def dispatch_fast_action(user_input: str):
     m_open = re.search(r"\b(?:open|launch|start)\s+([a-zA-Z0-9\.\-\_\s]+)", lower)
     if m_open and not any(k in lower for k in ["file", "camera", "terminal command", "coding", "recording", "screen", "timer", "music", "copilot"]):
         target = m_open.group(1).strip()
+        # Strip trailing filler like "for me", "please", "quickly"
+        clean_target = re.sub(r"\b(for\s+.*|please|quickly|thanks|thank\s+you)\b.*$", "", target, flags=re.IGNORECASE).strip()
+        if clean_target:
+            target = clean_target
         res = open_application_or_site(target)
-        return True, res.get("detail", f"Opening {target}, Sir.")
+        if res.get("status") == "success":
+            return True, res.get("detail", f"Opening {target}, Sir.")
 
     m_close = re.search(r"\b(?:close|quit|kill)\s+([a-zA-Z0-9\.\-\_\s]+)", lower)
     if m_close and not any(k in lower for k in ["tab", "window", "recording", "screen", "music", "copilot"]):
