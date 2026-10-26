@@ -17,6 +17,8 @@ from tools.web_agent_tools import search_and_summarize
 from tools.timer_tools import set_timer
 from tools.spotify_tools import control_spotify
 from tools.imessage_tools import send_imessage
+from tools.math_tools import calculate_expression
+from tools.file_reader_tool import read_workspace_file
 
 TOOL_REGISTRY = {
     "get_system_health": get_system_health,
@@ -31,6 +33,8 @@ TOOL_REGISTRY = {
     "send_text_message": send_text_message,
     "send_imessage": send_imessage,
     "control_spotify": control_spotify,
+    "calculate_expression": calculate_expression,
+    "read_workspace_file": read_workspace_file,
     "make_phone_call": make_phone_call,
     "play_media_on_internet": play_media_on_internet,
     "analyze_screen": analyze_screen,
@@ -283,6 +287,29 @@ TOOL_DEFINITIONS = [
                 "message": {"type": "string", "description": "The exact message content."}
             },
             "required": ["recipient", "message"]
+        }
+    },
+    {
+        "name": "calculate_expression",
+        "description": "Safely evaluates mathematical expressions, math calculations, algebra, square roots, trigonometry, powers, and logarithms.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "expression": {"type": "string", "description": "Mathematical formula to calculate (e.g. 'sqrt(144) + 25 * 4', 'sin(pi/2)')."}
+            },
+            "required": ["expression"]
+        }
+    },
+    {
+        "name": "read_workspace_file",
+        "description": "Safely reads and inspects the contents of any text file, script, code file, or document on the user machine.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "File path to read."},
+                "max_lines": {"type": "integer", "description": "Maximum lines to read (default: 200)."}
+            },
+            "required": ["path"]
         }
     }
 ]
