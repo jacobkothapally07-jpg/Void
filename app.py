@@ -143,10 +143,12 @@ if __name__ == "__main__":
     # Greet user immediately with ElevenLabs neural voice on app startup
     speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
 
-    proc = launch_chrome_app(f"http://127.0.0.1:{actual_port}")
-    if proc:
-        proc.wait()
-    else:
-        # Keep process alive if opened in regular browser
+    # Launch Chrome HUD in dedicated app window
+    launch_chrome_app(f"http://127.0.0.1:{actual_port}")
+
+    # Keep server running persistently on main thread
+    try:
         while True:
             time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        print("\n[JARVIS] Shutting down cleanly...")

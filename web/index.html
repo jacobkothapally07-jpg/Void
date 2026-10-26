@@ -588,10 +588,19 @@
         let ttsSpeakingPollInterval = null;
 
         let clock = new THREE.Clock();
+        let lastRenderTime = 0;
 
-        function animateThree() {
+        function animateThree(currentTime) {
             requestAnimationFrame(animateThree);
             
+            const active = isSpeaking || isListening;
+            // Throttle to 30 FPS when idle, 60 FPS when active (saves 80% CPU/GPU)
+            const minInterval = active ? (1000 / 60) : (1000 / 30);
+            if (currentTime - lastRenderTime < minInterval) {
+                return;
+            }
+            lastRenderTime = currentTime;
+
             if (isStandby) {
                 neuralGroup.rotation.y += 0.004;
                 renderer.render(scene, camera);
