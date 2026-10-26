@@ -93,30 +93,35 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         
         let cfg = loadConfig()
         
+        // 1. Carbon Global Event Dispatcher (works across ALL apps system-wide)
         var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        InstallEventHandler(GetApplicationEventTarget(), { (_, _, _) -> OSStatus in
+        InstallEventHandler(GetEventDispatcherTarget(), { (_, _, _) -> OSStatus in
             DispatchQueue.main.async {
                 JarvisWidgetController.shared?.toggleWidget()
             }
             return noErr
         }, 1, &eventType, nil, nil)
         
-        // 1. Primary custom shortcut (default: Cmd + Shift + J)
+        // Register Command + Shift + J
         var userRef: EventHotKeyRef?
-        if RegisterEventHotKey(cfg.keyCode, cfg.modifiers, EventHotKeyID(signature: OSType(0x4A415256), id: 1), GetApplicationEventTarget(), 0, &userRef) == noErr, let r = userRef {
+        if RegisterEventHotKey(cfg.keyCode, cfg.modifiers, EventHotKeyID(signature: OSType(0x4A415256), id: 1), GetEventDispatcherTarget(), 0, &userRef) == noErr, let r = userRef {
             hotKeyRefs.append(r)
         }
         
-        // 2. Backup shortcut: Ctrl + Space
+        // Also register backup shortcut: Ctrl + Space
         var backup1: EventHotKeyRef?
-        if RegisterEventHotKey(UInt32(kVK_Space), UInt32(controlKey), EventHotKeyID(signature: OSType(0x4A415256), id: 2), GetApplicationEventTarget(), 0, &backup1) == noErr, let r = backup1 {
+        if RegisterEventHotKey(UInt32(kVK_Space), UInt32(controlKey), EventHotKeyID(signature: OSType(0x4A415256), id: 2), GetEventDispatcherTarget(), 0, &backup1) == noErr, let r = backup1 {
             hotKeyRefs.append(r)
         }
         
-        // 3. Backup shortcut: Option + J
-        var backup2: EventHotKeyRef?
-        if RegisterEventHotKey(UInt32(kVK_ANSI_J), UInt32(optionKey), EventHotKeyID(signature: OSType(0x4A415256), id: 3), GetApplicationEventTarget(), 0, &backup2) == noErr, let r = backup2 {
-            hotKeyRefs.append(r)
+        // 2. Cocoa NSEvent Global Key Monitor Fallback
+        NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { event in
+            // Check for Command + Shift + J (keyCode 38)
+            if event.modifierFlags.contains([.command, .shift]) && event.keyCode == 38 {
+                DispatchQueue.main.async {
+                    JarvisWidgetController.shared?.toggleWidget()
+                }
+            }
         }
     }
     
