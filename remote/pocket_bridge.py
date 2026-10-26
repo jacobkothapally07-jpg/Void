@@ -128,6 +128,13 @@ def handle_remote_command(command_text: str):
         subprocess.run(["screencapture", "-x", snap_path], check=False)
         # Fast native compression down to ~200KB for instant mobile delivery
         subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "65", "-Z", "1280", snap_path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        
+        # Auto-archive to user's Pictures folder
+        archive_dir = os.path.expanduser("~/Pictures/JARVIS_Sentry")
+        os.makedirs(archive_dir, exist_ok=True)
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        subprocess.run(["cp", snap_path, os.path.join(archive_dir, f"Screen_{ts}.jpg")], check=False)
+
         send_phone_photo(snap_path, title="Workstation Screen Capture", filename="screen.jpg")
         send_phone_reply("Here is the current live view of your workstation display, Sir.", title="Screen Captured", tags="desktop")
         return
@@ -140,6 +147,13 @@ def handle_remote_command(command_text: str):
             subprocess.run([sentry_bin, cam_path], check=False)
             if os.path.exists(cam_path):
                 subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "70", "-Z", "1280", cam_path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                
+                # Auto-archive to user's Pictures folder
+                archive_dir = os.path.expanduser("~/Pictures/JARVIS_Sentry")
+                os.makedirs(archive_dir, exist_ok=True)
+                ts = time.strftime("%Y%m%d_%H%M%S")
+                subprocess.run(["cp", cam_path, os.path.join(archive_dir, f"Sentry_{ts}.jpg")], check=False)
+
                 send_phone_photo(cam_path, title="Workstation Desk View", filename="desk.jpg")
                 send_phone_reply("Here is the live camera feed of your desk, Sir.", title="Desk Vision", tags="camera")
                 return
