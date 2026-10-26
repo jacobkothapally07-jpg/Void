@@ -23,6 +23,7 @@ from tools.coding_solver_tools import toggle_watch_screen, solve_and_paste_code,
 from tools.window_tools import arrange_window, type_into_active_app
 from tools.meeting_copilot_tools import start_meeting_copilot, stop_meeting_copilot, record_meeting_point
 from tools.dictation_tools import dictate_and_insert
+from tools.screen_recording_tools import start_screen_recording, stop_screen_recording
 
 TOOL_REGISTRY = {
     "get_system_health": get_system_health,
@@ -48,6 +49,8 @@ TOOL_REGISTRY = {
     "stop_meeting_copilot": stop_meeting_copilot,
     "record_meeting_point": record_meeting_point,
     "dictate_and_insert": dictate_and_insert,
+    "start_screen_recording": start_screen_recording,
+    "stop_screen_recording": stop_screen_recording,
     "make_phone_call": make_phone_call,
     "play_media_on_internet": play_media_on_internet,
     "analyze_screen": analyze_screen,
@@ -400,6 +403,26 @@ TOOL_DEFINITIONS = [
             "properties": {
                 "title": {"type": "string", "description": "Title for the saved Apple Note."}
             },
+            "required": []
+        }
+    },
+    {
+        "name": "start_screen_recording",
+        "description": "Starts high-definition screen video recording on macOS and saves directly to the Desktop.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "duration_seconds": {"type": "integer", "description": "Optional recording duration in seconds before auto-stopping."}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "stop_screen_recording",
+        "description": "Stops the active screen recording and reveals the saved video file in Finder.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
             "required": []
         }
     }

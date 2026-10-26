@@ -16,8 +16,8 @@ from brain.fast_engine import dispatch_fast_action
 from voice.tts import speak_detached, get_is_speaking
 
 SAMPLE_RATE = 16000
-CHUNK_DURATION = 3.2 # Audio chunk duration in seconds
-SILENCE_THRESHOLD = 0.014 # Noise gate RMS
+CHUNK_DURATION = 2.8 # Audio chunk duration in seconds
+SILENCE_THRESHOLD = 0.0035 # Noise gate RMS calibrated for MacBook Air microphone
 
 def update_widget(state, text=""):
     try:

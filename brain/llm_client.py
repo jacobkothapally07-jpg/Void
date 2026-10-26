@@ -41,10 +41,9 @@ class JarvisBrain:
             {"role": "system", "content": SYSTEM_PROMPT}
         ]
         self.model_pool = [
-            "gemini-3-flash-preview",
-            "gemini-2.5-flash",
-            "gemini-2.5-pro",
-            "gemini-flash-latest"
+            "gemini-flash-lite-latest",
+            "gemini-3.5-flash",
+            "gemini-3.5-flash-lite"
         ]
 
     def _call_local_ollama(self, prompt: str) -> str:

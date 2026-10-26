@@ -9,10 +9,9 @@ import urllib.request
 from config import GEMINI_API_KEY
 
 VISION_MODELS = [
-    "gemini-3.1-flash-lite",
-    "gemini-3.5-flash-lite",
-    "gemini-3-flash-preview",
-    "gemini-flash-latest"
+    "gemini-flash-lite-latest",
+    "gemini-3.5-flash",
+    "gemini-3.5-flash-lite"
 ]
 
 def _call_gemini_vision(prompt: str, img_b64: str, system_inst: str = "") -> str:

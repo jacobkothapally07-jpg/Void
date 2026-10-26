@@ -11,6 +11,7 @@ from tools.window_tools import arrange_window
 from tools.coding_solver_tools import solve_and_paste_code, ask_about_screen, toggle_watch_screen
 from tools.dictation_tools import dictate_and_insert
 from tools.meeting_copilot_tools import start_meeting_copilot, stop_meeting_copilot
+from tools.screen_recording_tools import start_screen_recording, stop_screen_recording
 from tools.math_tools import calculate_expression
 
 def get_frontmost_app() -> str:
@@ -74,17 +75,34 @@ def dispatch_fast_action(user_input: str):
     clean = user_input.strip()
     lower = clean.lower()
 
-    # 1. Instant Mute & Standby
-    if any(w in lower for w in ["stop", "shut up", "be quiet", "quiet", "hush", "mute", "silence", "stop talking", "jarvis stop"]):
+    # 1. Screen Recording
+    if any(k in lower for k in ["start screen recording", "record screen", "record my screen", "start recording screen", "take a screen recording"]):
+        res = start_screen_recording()
+        return True, res.get("detail", "Screen recording initiated, Sir.")
+
+    if any(k in lower for k in ["stop screen recording", "stop recording", "stop the recording", "end screen recording"]):
+        res = stop_screen_recording()
+        return True, res.get("detail", "Screen recording stopped and saved to your Desktop, Sir.")
+
+    # 2. Watch Screen Mode
+    if "watch my screen" in lower or "keep an eye on my screen" in lower:
+        res = toggle_watch_screen(True)
+        return True, res.get("detail", "Watch My Screen mode active, Sir.")
+    if "stop watching screen" in lower or "stop watching my screen" in lower:
+        res = toggle_watch_screen(False)
+        return True, res.get("detail", "Watch My Screen mode deactivated, Sir.")
+
+    # 3. Instant Mute & Standby (Only for standalone stop/quiet/mute commands)
+    if lower in ["stop", "shut up", "be quiet", "quiet", "hush", "mute", "silence", "stop talking", "jarvis stop", "quiet please"]:
         from voice.tts import stop_speaking
         stop_speaking()
         return True, "Muted, Sir."
 
-    # 2. Basic Greetings / Pings
+    # 4. Basic Greetings / Pings
     if lower in ["wake up", "wake up jarvis", "ping jarvis", "ping", "open jarvis", "hey jarvis", "jarvis", "hello jarvis", "hi jarvis"]:
         return True, "Online and operational, Sir. At your service."
 
-    # 3. Time, Date, Day
+    # 5. Time, Date, Day
     if any(k in lower for k in ["what time", "what's the time", "current time", "tell me the time", "time is it"]):
         now = datetime.datetime.now().strftime("%I:%M %p")
         return True, f"It is currently {now}, Sir."
@@ -96,25 +114,12 @@ def dispatch_fast_action(user_input: str):
     if any(k in lower for k in ["where am i", "current location", "what city"]):
         return True, "You are currently in Hyderabad, Telangana, India, Sir."
 
-    # 4. Active Window & Screen Info
+    # 6. Active Window & Screen Info
     if lower in ["what app is open", "what am i using", "front app", "active app"]:
         app = get_frontmost_app()
         return True, f"You are currently working in {app}, Sir."
 
-    # 5. Open & Close Apps (e.g. "open spotify", "launch terminal", "open youtube.com", "close slack")
-    m_open = re.search(r"\b(?:open|launch|start)\s+([a-zA-Z0-9\.\-\_\s]+)", lower)
-    if m_open and not any(k in lower for k in ["file", "camera", "terminal command", "coding"]):
-        target = m_open.group(1).strip()
-        res = open_application_or_site(target)
-        return True, res.get("detail", f"Opening {target}, Sir.")
-
-    m_close = re.search(r"\b(?:close|quit|kill)\s+([a-zA-Z0-9\.\-\_\s]+)", lower)
-    if m_close and not any(k in lower for k in ["tab", "window"]):
-        target = m_close.group(1).strip()
-        res = close_application(target)
-        return True, res.get("detail", f"Closed {target}, Sir.")
-
-    # 6. Window Management (Snap left/right, maximize, center)
+    # 7. Window Management (Snap left/right, maximize, center)
     if "split" in lower and "left" in lower:
         res = arrange_window("left_half")
         return True, res.get("detail", "Window tiled to the left, Sir.")
@@ -127,14 +132,6 @@ def dispatch_fast_action(user_input: str):
     if "center window" in lower:
         res = arrange_window("center")
         return True, res.get("detail", "Window centered, Sir.")
-
-    # 7. Screen Watch Mode
-    if "watch my screen" in lower or "keep an eye on my screen" in lower:
-        res = toggle_watch_screen(True)
-        return True, res.get("detail", "Watch My Screen mode active, Sir.")
-    if "stop watching screen" in lower or "stop watching my screen" in lower:
-        res = toggle_watch_screen(False)
-        return True, res.get("detail", "Watch My Screen mode deactivated, Sir.")
 
     # 8. Coding Problem Solver & Auto-Paste
     if any(k in lower for k in ["solve this", "solve problem", "solve the code", "solve coding", "solve question", "paste the answer", "paste code"]):
@@ -185,6 +182,19 @@ def dispatch_fast_action(user_input: str):
     if any(k in lower for k in ["how much juice", "battery", "system health", "hardware stats"]):
         h = get_system_health()
         return True, f"Battery is at {h.get('battery_percent', 100)}% ({h.get('power_source', 'plugged in')}), and CPU is at {h.get('cpu_usage_percent', 0)}%, Sir."
+
+    # 13. Open & Close Apps (e.g. "open spotify", "launch terminal", "open youtube.com", "close slack")
+    m_open = re.search(r"\b(?:open|launch|start)\s+([a-zA-Z0-9\.\-\_\s]+)", lower)
+    if m_open and not any(k in lower for k in ["file", "camera", "terminal command", "coding", "recording", "screen", "timer", "music", "copilot"]):
+        target = m_open.group(1).strip()
+        res = open_application_or_site(target)
+        return True, res.get("detail", f"Opening {target}, Sir.")
+
+    m_close = re.search(r"\b(?:close|quit|kill)\s+([a-zA-Z0-9\.\-\_\s]+)", lower)
+    if m_close and not any(k in lower for k in ["tab", "window", "recording", "screen", "music", "copilot"]):
+        target = m_close.group(1).strip()
+        res = close_application(target)
+        return True, res.get("detail", f"Closed {target}, Sir.")
 
     # 13. File Search (e.g. "find my resume", "search file report")
     m_file = re.search(r"(?:find|search for|locate) (?:file|files|document)?\s*(.+)", lower)

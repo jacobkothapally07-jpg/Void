@@ -93,20 +93,11 @@ def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
         print(f"[TTS ElevenLabs Notice] {e}")
     return False
 
-def is_short_operational_phrase(text: str) -> bool:
-    """Detects short, immediate system feedback phrases that should play instantly via macOS Daniel (0ms)."""
-    t = text.lower().strip()
-    if len(text) < 45:
-        # Time, date, app opening, volume, timers, acknowledgments
-        if any(w in t for w in ["it is currently", "today is", "opening ", "closed ", "muted", "volume ", "timer set", "window ", "playback", "locked", "trash", "battery is"]):
-            return True
-    return False
-
 def _speak_neural_sync(clean_text: str):
     global current_audio_proc, is_speaking_lock
     is_speaking_lock = True
     
-    # 0ms Instant Cache Check for common phrases
+    # 0ms Instant Cache Check for previously generated phrases
     text_hash = hashlib.md5(clean_text.encode('utf-8')).hexdigest()
     cached_file = os.path.join(TTS_CACHE_DIR, f"{text_hash}.mp3")
     
@@ -120,31 +111,19 @@ def _speak_neural_sync(clean_text: str):
         except Exception:
             pass
 
-    # FAST PATH (HYBRID ENGINE): Short operational confirmations speak INSTANTLY via macOS Daniel (0ms)
-    if is_short_operational_phrase(clean_text):
-        try:
-            current_audio_proc = subprocess.Popen(["say", "-v", "Daniel", "-r", "180", clean_text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            current_audio_proc.wait()
-            is_speaking_lock = False
-            current_audio_proc = None
-            return
-        except Exception:
-            pass
-
     temp_audio = f"/tmp/jarvis_speech_{os.getpid()}_{int(time.time()*1000)}.mp3"
     played_audio = False
 
-    # 1. Primary for complex queries, screen explanations, and coding: ElevenLabs Paul Bettany Voice
+    # 1. Primary: ElevenLabs Paul Bettany Voice for ALL phrases
     if TTS_PROVIDER == "elevenlabs" and ELEVENLABS_API_KEY:
         try:
             success = _generate_elevenlabs_audio(clean_text, temp_audio)
             if success and os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
-                if len(clean_text) < 140:
-                    try:
-                        import shutil
-                        shutil.copyfile(temp_audio, cached_file)
-                    except Exception:
-                        pass
+                try:
+                    import shutil
+                    shutil.copyfile(temp_audio, cached_file)
+                except Exception:
+                    pass
                 current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 current_audio_proc.wait()
                 played_audio = True
@@ -200,9 +179,6 @@ def speak_detached(text: str):
         subprocess.run(["osascript", "-e", "set volume without output muted"], check=False)
     except Exception:
         pass
-    if is_short_operational_phrase(clean_text):
-        subprocess.Popen(["say", "-v", "Daniel", "-r", "180", clean_text], start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     helper = f"import sys; sys.path.append({repr(repo_dir)}); from voice.tts import _speak_neural_sync; _speak_neural_sync({repr(clean_text)})"
     subprocess.Popen([sys.executable, "-c", helper], start_new_session=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
