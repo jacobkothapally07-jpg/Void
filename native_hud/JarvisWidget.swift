@@ -1,8 +1,13 @@
 import Cocoa
 import WebKit
 
-class JarvisWidgetController: NSObject, NSApplicationDelegate {
-    var window: NSPanel!
+class FloatingWidgetPanel: NSPanel {
+    override var canBecomeKey: Bool { return true }
+    override var canBecomeMain: Bool { return true }
+}
+
+class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHandler {
+    var window: FloatingWidgetPanel!
     var webView: WKWebView!
     var statusItem: NSStatusItem!
     
@@ -25,12 +30,11 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate {
         let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
         let width: CGFloat = 330
         let height: CGFloat = 400
-        // Position at bottom-right corner of screen by default
         let rect = NSRect(x: screen.maxX - width - 20, y: screen.minY + 40, width: width, height: height)
         
-        window = NSPanel(
+        window = FloatingWidgetPanel(
             contentRect: rect,
-            styleMask: [.nonactivatingPanel, .borderless],
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
@@ -41,6 +45,8 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate {
         window.isMovableByWindowBackground = true
         
         let config = WKWebViewConfiguration()
+        config.userContentController.add(self, name: "widget")
+        
         webView = WKWebView(frame: NSRect(x: 0, y: 0, width: width, height: height), configuration: config)
         webView.setValue(false, forKey: "drawsBackground")
         window.contentView = webView
@@ -52,11 +58,22 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
     }
     
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard let dict = message.body as? [String: Any], let action = dict["action"] as? String else { return }
+        if action == "focus" {
+            DispatchQueue.main.async {
+                NSApp.activate(ignoringOtherApps: true)
+                self.window.makeKeyAndOrderFront(nil)
+            }
+        }
+    }
+    
     @objc func toggleWidget() {
         if window.isVisible {
             window.orderOut(nil)
         } else {
             window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
         }
     }
 }

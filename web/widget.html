@@ -449,7 +449,12 @@
                 inputBar.style.display = "none";
             } else {
                 inputBar.style.display = "block";
-                cmdInput.focus();
+                setTimeout(() => {
+                    cmdInput.focus();
+                }, 50);
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                    window.webkit.messageHandlers.widget.postMessage({ action: "focus" });
+                }
             }
         }
 
