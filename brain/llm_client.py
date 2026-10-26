@@ -47,6 +47,27 @@ class JarvisBrain:
             "gemini-flash-latest"
         ]
 
+    def _call_local_ollama(self, prompt: str) -> str:
+        """Runs offline on M3 Apple Silicon GPU/Neural Engine via Ollama (llama3.2:1b)."""
+        url = "http://localhost:11434/api/generate"
+        payload = {
+            "model": "llama3.2:1b",
+            "prompt": f"System: {SYSTEM_PROMPT}\n\nUser: {prompt}\nJarvis:",
+            "stream": False,
+            "options": {"num_predict": 128, "temperature": 0.4}
+        }
+        try:
+            req_data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=req_data, headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                ans = data.get("response", "").strip()
+                if ans:
+                    return ans
+        except Exception as e:
+            print(f"[Ollama Fallback Notice] {e}")
+        return None
+
     def execute_tool(self, tool_name: str, tool_args: dict):
         """Executes a registered tool function and returns the JSON result."""
         if tool_name not in TOOL_REGISTRY:
@@ -197,5 +218,12 @@ class JarvisBrain:
 
             except Exception:
                 continue
+
+        # Fallback to local on-device Ollama LLM (M3 Neural Engine, 0ms network latency)
+        local_ans = self._call_local_ollama(clean)
+        if local_ans:
+            self.messages.append({"role": "user", "content": clean})
+            self.messages.append({"role": "assistant", "content": local_ans})
+            return local_ans
 
         return "Right away, Sir. Processing your request."
