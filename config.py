@@ -19,3 +19,10 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
 NTFY_TOPIC = os.getenv("NTFY_TOPIC", "jarvis_user_updates")
+
+# ElevenLabs High-Fidelity Voice Configuration
+TTS_PROVIDER = os.getenv("TTS_PROVIDER", "elevenlabs").lower()
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
+ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "pQ4XcJDDGDfdaNqBhYfw")
+ELEVENLABS_MODEL_ID = os.getenv("ELEVENLABS_MODEL_ID", "eleven_turbo_v2_5")
+

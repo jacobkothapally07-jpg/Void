@@ -46,6 +46,51 @@ def clean_for_speech(text: str) -> str:
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
+import json
+import urllib.request
+import ssl
+from config import TTS_PROVIDER, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, ELEVENLABS_MODEL_ID
+
+def get_ssl_context():
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+
+def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
+    """Generates ultra-realistic voice audio via ElevenLabs API."""
+    if not ELEVENLABS_API_KEY:
+        return False
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": ELEVENLABS_API_KEY
+    }
+    payload = {
+        "text": clean_text,
+        "model_id": ELEVENLABS_MODEL_ID,
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.82
+        }
+    }
+    try:
+        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=5.0, context=get_ssl_context()) as resp:
+            audio_data = resp.read()
+            if len(audio_data) > 500:
+                with open(output_path, "wb") as f:
+                    f.write(audio_data)
+                return True
+    except Exception as e:
+        print(f"[TTS ElevenLabs Notice] {e}")
+    return False
+
 def _speak_neural_sync(clean_text: str):
     global current_audio_proc, is_speaking_lock
     is_speaking_lock = True
@@ -65,32 +110,51 @@ def _speak_neural_sync(clean_text: str):
             pass
 
     temp_audio = f"/tmp/jarvis_speech_{os.getpid()}_{int(time.time()*1000)}.mp3"
-    played_neural = False
-    try:
-        import edge_tts
-        
-        async def _generate():
-            communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural", rate="+0%", pitch="+0Hz")
-            await communicate.save(temp_audio)
+    played_audio = False
+
+    # 1. Primary: ElevenLabs Ultra-Realistic Paul Bettany Voice
+    if TTS_PROVIDER == "elevenlabs" and ELEVENLABS_API_KEY:
+        try:
+            success = _generate_elevenlabs_audio(clean_text, temp_audio)
+            if success and os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
+                if len(clean_text) < 140:
+                    try:
+                        import shutil
+                        shutil.copyfile(temp_audio, cached_file)
+                    except Exception:
+                        pass
+                current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                current_audio_proc.wait()
+                played_audio = True
+        except Exception:
+            played_audio = False
+
+    # 2. Secondary Fail-Safe: Edge-TTS British RyanNeural
+    if not played_audio:
+        try:
+            import edge_tts
             
-        asyncio.run(asyncio.wait_for(_generate(), timeout=3.2))
-        
-        if os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
-            # Cache short reusable phrases
-            if len(clean_text) < 120:
-                try:
-                    import shutil
-                    shutil.copyfile(temp_audio, cached_file)
-                except Exception:
-                    pass
-            current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            current_audio_proc.wait()
-            played_neural = True
+            async def _generate():
+                communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural", rate="+0%", pitch="+0Hz")
+                await communicate.save(temp_audio)
+                
+            asyncio.run(asyncio.wait_for(_generate(), timeout=3.2))
             
-    except Exception as e:
-        played_neural = False
-        
-    if not played_neural:
+            if os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
+                if len(clean_text) < 120:
+                    try:
+                        import shutil
+                        shutil.copyfile(temp_audio, cached_file)
+                    except Exception:
+                        pass
+                current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                current_audio_proc.wait()
+                played_audio = True
+        except Exception:
+            played_audio = False
+            
+    # 3. Tertiary Offline Fallback: macOS Native Daniel
+    if not played_audio:
         try:
             current_audio_proc = subprocess.Popen(["say", "-v", "Daniel", "-r", "170", clean_text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             current_audio_proc.wait()
