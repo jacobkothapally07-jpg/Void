@@ -16,13 +16,31 @@ def control_spotify(action: str, query: str = "") -> dict:
     clean_action = action.lower().strip()
     
     if clean_action == "pause":
-        cmd = 'tell application "Spotify" to pause'
+        cmd = '''
+        if application "Spotify" is running then
+            tell application "Spotify" to pause
+        end if
+        '''
     elif clean_action == "toggle":
-        cmd = 'tell application "Spotify" to playpause'
+        cmd = '''
+        if application "Spotify" is running then
+            tell application "Spotify" to playpause
+        else
+            tell application "Spotify" to activate
+        end if
+        '''
     elif clean_action == "next":
-        cmd = 'tell application "Spotify" to next track'
+        cmd = '''
+        if application "Spotify" is running then
+            tell application "Spotify" to next track
+        end if
+        '''
     elif clean_action == "previous":
-        cmd = 'tell application "Spotify" to previous track'
+        cmd = '''
+        if application "Spotify" is running then
+            tell application "Spotify" to previous track
+        end if
+        '''
     elif clean_action == "now_playing":
         script = '''
         if application "Spotify" is running then
@@ -33,7 +51,7 @@ def control_spotify(action: str, query: str = "") -> dict:
                 return t_name & " by " & a_name & " from " & alb_name
             end tell
         else
-            return "Spotify is not running."
+            return "Spotify is not running, Sir."
         end if
         '''
         res = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
@@ -41,14 +59,25 @@ def control_spotify(action: str, query: str = "") -> dict:
     elif clean_action == "play":
         if query:
             clean_q = query.strip()
-            # Open Spotify search URI directly
             uri = f"spotify:search:{urllib.parse.quote(clean_q)}"
             subprocess.run(["open", uri], check=False)
             return {"status": "success", "detail": f"Searching and queuing '{clean_q}' on Spotify, Sir."}
         else:
-            cmd = 'tell application "Spotify" to play'
+            cmd = '''
+            if application "Spotify" is running then
+                tell application "Spotify" to play
+            else
+                tell application "Spotify" to activate
+            end if
+            '''
     else:
-        cmd = 'tell application "Spotify" to playpause'
+        cmd = '''
+        if application "Spotify" is running then
+            tell application "Spotify" to playpause
+        else
+            tell application "Spotify" to activate
+        end if
+        '''
 
     res = subprocess.run(["osascript", "-e", cmd], capture_output=True, text=True)
     if res.returncode == 0:

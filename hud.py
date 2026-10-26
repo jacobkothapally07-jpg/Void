@@ -117,6 +117,22 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             stats = get_system_health()
             self._send_json(stats)
             return
+        elif clean_path == "/api/shutdown":
+            self._send_json({"status": "success", "message": "shutting down"})
+            def _exit_get():
+                try:
+                    speak("Powering down auxiliary systems. Have a pleasant evening, Sir.", async_mode=False)
+                except Exception:
+                    pass
+                time.sleep(0.5)
+                try:
+                    subprocess.run(["pkill", "-9", "-f", "JarvisWidget"], check=False)
+                    subprocess.run(["pkill", "-INT", "-f", "screencapture -v"], check=False)
+                except Exception:
+                    pass
+                os._exit(0)
+            threading.Thread(target=_exit_get, daemon=True).start()
+            return
 
         # Serve static assets from WEB_DIR
         file_path = os.path.join(WEB_DIR, clean_path.lstrip("/"))
@@ -216,6 +232,11 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 except Exception:
                     pass
                 time.sleep(0.5)
+                try:
+                    subprocess.run(["pkill", "-9", "-f", "JarvisWidget"], check=False)
+                    subprocess.run(["pkill", "-INT", "-f", "screencapture -v"], check=False)
+                except Exception:
+                    pass
                 # Unload any launchd plist so macOS launchd does not resurrect a duplicate instance
                 try:
                     plist = os.path.expanduser("~/Library/LaunchAgents/com.jk.jarvis.daemon.plist")

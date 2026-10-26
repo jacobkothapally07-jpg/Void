@@ -42,8 +42,8 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     
     func setupWindow() {
         let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
-        let width: CGFloat = 330
-        let height: CGFloat = 410
+        let width: CGFloat = 340
+        let height: CGFloat = 440
         let rect = NSRect(x: screen.maxX - width - 24, y: screen.minY + 40, width: width, height: height)
         
         window = FloatingWidgetPanel(
@@ -139,6 +139,11 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
                 origin.x += CGFloat(dx)
                 origin.y -= CGFloat(dy)
                 self.window.setFrameOrigin(origin)
+            }
+        } else if action == "shutdown" {
+            DispatchQueue.main.async {
+                self.window.orderOut(nil)
+                NSApp.terminate(nil)
             }
         } else if action == "set_custom_hotkey",
                   let label = dict["label"] as? String,

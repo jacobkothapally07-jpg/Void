@@ -47,8 +47,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 250px;
-            padding: 4px 12px;
+            width: 270px;
+            padding: 4px 10px;
             background: rgba(8, 12, 18, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid var(--gold-dim);
@@ -60,6 +60,37 @@
             margin-bottom: 6px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 10px rgba(255,150,0,0.2);
             transition: all 0.2s ease;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .header-power-btn {
+            background: rgba(255, 59, 48, 0.15);
+            border: 1px solid rgba(255, 59, 48, 0.45);
+            color: #ff5544;
+            border-radius: 50%;
+            width: 17px;
+            height: 17px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1;
+            padding: 0;
+            -webkit-app-region: no-drag;
+        }
+        .header-power-btn:hover {
+            background: #ff3b30;
+            color: #ffffff;
+            border-color: #ff3b30;
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.85);
+            transform: scale(1.1);
         }
 
         .status-dot {
@@ -229,7 +260,10 @@
         /* Bottom Quick Action Bar */
         .btn-row {
             display: flex;
-            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            max-width: 320px;
             margin-top: 6px;
             -webkit-app-region: no-drag;
         }
@@ -250,6 +284,31 @@
             background: rgba(255, 160, 0, 0.2);
             border-color: var(--gold);
             box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .shutdown-btn {
+            background: rgba(255, 59, 48, 0.12);
+            border: 1px solid rgba(255, 59, 48, 0.45);
+            color: #ff5544;
+        }
+        .shutdown-btn:hover {
+            background: rgba(255, 59, 48, 0.45);
+            border-color: #ff3b30;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.7);
+        }
+
+        .rec-btn.recording {
+            background: rgba(255, 59, 48, 0.35) !important;
+            border-color: #ff3b30 !important;
+            color: #ffffff !important;
+            animation: pulseRecord 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseRecord {
+            0% { box-shadow: 0 0 4px #ff3b30; }
+            50% { box-shadow: 0 0 14px #ff3b30; }
+            100% { box-shadow: 0 0 4px #ff3b30; }
         }
 
         /* Hidden Input Box */
@@ -284,7 +343,10 @@
         <!-- Telemetry Header -->
         <div class="hud-header">
             <div><span class="status-dot" id="statusDot"></span><span id="statusText">JARVIS // ONLINE</span></div>
-            <div id="telemetry">CPU 0% | 100%⚡</div>
+            <div class="header-actions">
+                <span id="telemetry">CPU 0% | 100%⚡</span>
+                <button class="header-power-btn" onclick="shutdownJarvis()" title="Shut Down J.A.R.V.I.S.">⏻</button>
+            </div>
         </div>
 
         <!-- Arc Reactor Glowing Orb Core -->
@@ -307,9 +369,11 @@
         <!-- Widget Control Bar -->
         <div class="btn-row">
             <button class="pill-btn" onclick="toggleInput()">⌨️ TYPE</button>
-            <button class="pill-btn" onclick="askQuick('what time is it')">⏱️ TIME</button>
-            <button class="pill-btn" onclick="askQuick('solve the coding problem on screen and paste it')">⚡ CODE</button>
+            <button class="pill-btn rec-btn" id="recBtn" onclick="toggleScreenRecording()" title="Start or Stop Screen Recording">🎥 REC</button>
+            <button class="pill-btn" onclick="askQuick('what is on my screen right now')" title="Visual scan and explanation of current screen">👁️ SCAN</button>
+            <button class="pill-btn" onclick="askQuick('solve the coding problem on screen and paste it')" title="Solve coding problem & auto-paste">⚡ CODE</button>
             <button class="pill-btn" onclick="openHotkeyPicker()" id="hkBadge" title="Change hotkey">⌨️ ⌘⇧J</button>
+            <button class="pill-btn shutdown-btn" onclick="shutdownJarvis()" title="Shut Down J.A.R.V.I.S.">⏻ OFF</button>
         </div>
         
         <!-- Hotkey Picker Modal -->
@@ -518,6 +582,42 @@
 
         function askQuick(text) {
             handleCommand(text);
+        }
+
+        // --- SCREEN RECORDING TOGGLE ---
+        let isScreenRecording = false;
+        async function toggleScreenRecording() {
+            const btn = document.getElementById("recBtn");
+            if (!isScreenRecording) {
+                isScreenRecording = true;
+                if (btn) {
+                    btn.innerText = "⏹️ STOP";
+                    btn.classList.add("recording");
+                }
+                handleCommand("start screen recording");
+            } else {
+                isScreenRecording = false;
+                if (btn) {
+                    btn.innerText = "🎥 REC";
+                    btn.classList.remove("recording");
+                }
+                handleCommand("stop screen recording");
+            }
+        }
+
+        // --- CLEAN SHUTDOWN FUNCTION ---
+        async function shutdownJarvis() {
+            if (!confirm("Are you sure you want to shut down J.A.R.V.I.S., Sir?")) return;
+            setVisualState("thinking", "SHUTTING DOWN...");
+            showSubtitle("Powering down auxiliary systems. Have a pleasant evening, Sir.", 4000);
+            try {
+                fetch("/api/shutdown", { method: "POST" });
+            } catch(e) {}
+            setTimeout(() => {
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                    window.webkit.messageHandlers.widget.postMessage({ action: "shutdown" });
+                }
+            }, 600);
         }
 
         // --- CUSTOM HOTKEY PICKER ---
