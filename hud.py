@@ -76,6 +76,15 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
             self._send_json({"status": "success", "message": "J.A.R.V.I.S. initiated"})
             return
+        elif clean_path == "/api/status" or clean_path == "/api/health":
+            self._send_json({
+                "status": "online",
+                "system": "J.A.R.V.I.S.",
+                "owner": "Jacob Kothapally",
+                "version": "2.5-Neural",
+                "time": time.strftime("%Y-%m-%d %H:%M:%S")
+            })
+            return
         elif clean_path == "/api/speaking_status":
             self._send_json({"is_speaking": get_is_speaking()})
             return

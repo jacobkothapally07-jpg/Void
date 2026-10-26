@@ -41,10 +41,11 @@ class JarvisBrain:
             {"role": "system", "content": SYSTEM_PROMPT}
         ]
         self.model_pool = [
-            "gemini-3.1-flash-lite",
-            "gemini-3.6-flash",
-            "gemini-3.5-flash",
-            "gemini-flash-latest"
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-flash-latest",
+            "gemini-flash-lite-latest",
+            "gemini-3-flash-preview"
         ]
 
     def execute_tool(self, tool_name: str, tool_args: dict):
@@ -93,7 +94,9 @@ class JarvisBrain:
         if not clean:
             return "Standing by, Sir."
 
-        # Fast local filter for instant stop/wake
+        # Keep last 12 message turns for coherent conversational memory
+        if len(self.messages) > 13:
+            self.messages = [self.messages[0]] + self.messages[-12:]
         local_ans = self.try_instant_local(clean)
         if local_ans:
             return local_ans

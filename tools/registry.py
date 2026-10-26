@@ -15,6 +15,8 @@ from tools.meeting_tools import generate_meeting_summary, save_to_apple_notes
 from tools.file_tools import organize_folder, find_files_by_keyword
 from tools.web_agent_tools import search_and_summarize
 from tools.timer_tools import set_timer
+from tools.spotify_tools import control_spotify
+from tools.imessage_tools import send_imessage
 
 TOOL_REGISTRY = {
     "get_system_health": get_system_health,
@@ -27,6 +29,8 @@ TOOL_REGISTRY = {
     "get_current_location": get_current_location,
     "open_browser_url": open_browser_url,
     "send_text_message": send_text_message,
+    "send_imessage": send_imessage,
+    "control_spotify": control_spotify,
     "make_phone_call": make_phone_call,
     "play_media_on_internet": play_media_on_internet,
     "analyze_screen": analyze_screen,
@@ -255,6 +259,30 @@ TOOL_DEFINITIONS = [
             "type": "object",
             "properties": {"query": {"type": "string", "description": "Web query or current event to search."}},
             "required": ["query"]
+        }
+    },
+    {
+        "name": "control_spotify",
+        "description": "Controls Spotify playback natively on macOS. Actions: 'play', 'pause', 'toggle', 'next', 'previous', 'now_playing'. Optionally pass query for song search.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["play", "pause", "toggle", "next", "previous", "now_playing"], "description": "Playback control action."},
+                "query": {"type": "string", "description": "Song, artist, or album to search and play if action is play."}
+            },
+            "required": ["action"]
+        }
+    },
+    {
+        "name": "send_imessage",
+        "description": "Sends an iMessage or SMS text to a contact or phone number via macOS Messages.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "recipient": {"type": "string", "description": "Contact name or phone number."},
+                "message": {"type": "string", "description": "The exact message content."}
+            },
+            "required": ["recipient", "message"]
         }
     }
 ]

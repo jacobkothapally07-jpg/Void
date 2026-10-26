@@ -4,9 +4,12 @@ import threading
 import os
 import asyncio
 import time
+import hashlib
 
 current_audio_proc = None
 is_speaking_lock = False
+TTS_CACHE_DIR = "/tmp/jarvis_tts_cache"
+os.makedirs(TTS_CACHE_DIR, exist_ok=True)
 
 def stop_speaking():
     global current_audio_proc, is_speaking_lock
@@ -46,8 +49,22 @@ def clean_for_speech(text: str) -> str:
 def _speak_neural_sync(clean_text: str):
     global current_audio_proc, is_speaking_lock
     is_speaking_lock = True
-    temp_audio = f"/tmp/jarvis_speech_{os.getpid()}_{int(time.time()*1000)}.mp3"
     
+    # 0ms Instant Cache Check for common phrases
+    text_hash = hashlib.md5(clean_text.encode('utf-8')).hexdigest()
+    cached_file = os.path.join(TTS_CACHE_DIR, f"{text_hash}.mp3")
+    
+    if os.path.exists(cached_file) and os.path.getsize(cached_file) > 100:
+        try:
+            current_audio_proc = subprocess.Popen(["afplay", cached_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            current_audio_proc.wait()
+            is_speaking_lock = False
+            current_audio_proc = None
+            return
+        except Exception:
+            pass
+
+    temp_audio = f"/tmp/jarvis_speech_{os.getpid()}_{int(time.time()*1000)}.mp3"
     played_neural = False
     try:
         import edge_tts
@@ -56,9 +73,16 @@ def _speak_neural_sync(clean_text: str):
             communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural", rate="+0%", pitch="+0Hz")
             await communicate.save(temp_audio)
             
-        asyncio.run(asyncio.wait_for(_generate(), timeout=3.5))
+        asyncio.run(asyncio.wait_for(_generate(), timeout=3.2))
         
         if os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
+            # Cache short reusable phrases
+            if len(clean_text) < 120:
+                try:
+                    import shutil
+                    shutil.copyfile(temp_audio, cached_file)
+                except Exception:
+                    pass
             current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             current_audio_proc.wait()
             played_neural = True
