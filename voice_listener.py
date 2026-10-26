@@ -61,7 +61,7 @@ def run_voice_listener():
     )
     stream.start()
 
-    ambient_floor = 0.005
+    ambient_floor = 0.016
     # 400ms pre-speech rolling ring buffer (8 blocks of 50ms)
     pre_speech_ring = collections.deque(maxlen=8)
 
@@ -70,13 +70,38 @@ def run_voice_listener():
     while not audio_queue.empty():
         audio_queue.get_nowait()
 
+    was_speaking_prev = False
+
     while True:
         try:
             if _is_jarvis_sleeping:
                 time.sleep(0.3)
-                # Drain queue while sleeping so audio doesn't accumulate
                 while not audio_queue.empty():
                     audio_queue.get_nowait()
+                continue
+
+            currently_speaking = get_is_speaking()
+
+            # 1. WHILE JARVIS IS SPEAKING: Cleanly mute mic input so laptop speakers never loop back
+            if currently_speaking:
+                was_speaking_prev = True
+                while not audio_queue.empty():
+                    try:
+                        audio_queue.get_nowait()
+                    except Exception:
+                        break
+                time.sleep(0.05)
+                continue
+
+            # 2. ECHO DISSIPATION: If Jarvis just finished speaking, clear room reverberation
+            if was_speaking_prev and not currently_speaking:
+                was_speaking_prev = False
+                time.sleep(0.25)
+                while not audio_queue.empty():
+                    try:
+                        audio_queue.get_nowait()
+                    except Exception:
+                        break
                 continue
 
             try:
@@ -85,32 +110,18 @@ def run_voice_listener():
                 continue
 
             rms = float(np.sqrt(np.mean(block**2)))
-            currently_speaking = get_is_speaking()
 
-            # Dynamic calibrated thresholds:
-            speech_threshold = max(0.012, ambient_floor * 2.2)
-            # Intentional barge-in threshold (avoids laptop speaker loopback)
-            barge_in_threshold = 0.16
+            # Dynamic calibrated thresholds for MacBook Air mic:
+            # Ambient room noise is ~0.015 - 0.018. User speech is 0.150 - 0.400.
+            speech_threshold = max(0.035, ambient_floor * 2.2)
 
-            # 1. WHILE JARVIS IS SPEAKING: Suppress speaker echo, but allow intentional loud barge-in interruption
-            if currently_speaking:
-                if rms > barge_in_threshold:
-                    print(f"\n\033[91m[Instant Barge-In!]\033[0m Voice detected ({rms:.4f}) -> Silencing Jarvis immediately.")
-                    stop_speaking()
-                    currently_speaking = False
-                    while not audio_queue.empty():
-                        audio_queue.get_nowait()
-                else:
-                    # Ignore speaker bleed
-                    continue
-
-            # 2. SILENCE / NOISE GATE
+            # 3. SILENCE / NOISE GATE
             if rms < speech_threshold:
                 ambient_floor = 0.97 * ambient_floor + 0.03 * rms
                 pre_speech_ring.append(block)
                 continue
 
-            # 3. USER SPEECH ONSET DETECTED
+            # 4. USER SPEECH ONSET DETECTED
             print(f"\n\033[93m[Speech Detected]\033[0m Energy: {rms:.4f} (Threshold: {speech_threshold:.4f}) -> Buffering sentence...")
             set_widget_state("listening", "Listening to you...")
 
@@ -120,9 +131,9 @@ def run_voice_listener():
 
             silence_start = None
             recording_start = time.time()
-            # Hysteresis offset threshold so ambient fluctuations don't stall completion
-            silence_threshold = max(0.016, speech_threshold * 1.35)
-            silence_timeout = 0.75
+            # Silence threshold: when audio drops back below 0.026, user has paused
+            silence_threshold = max(0.026, ambient_floor * 1.6)
+            silence_timeout = 0.70
 
             while True:
                 try:
