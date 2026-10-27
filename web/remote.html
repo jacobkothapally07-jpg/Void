@@ -1114,15 +1114,49 @@
             if (!isSilent) addStreamMessage(cmd, true);
             streamStatusSub.innerText = "TRANSMITTING...";
             setHologramState("thinking");
+
+            // 1. Direct High-Speed Dispatch (Cloudflare Tunnel, Local Wi-Fi, or Custom Tunnel URL)
+            const isLocalOrTunnel = window.location.hostname.includes("trycloudflare.com") || 
+                                    window.location.hostname.includes("192.168.") || 
+                                    window.location.hostname === "127.0.0.1" || 
+                                    window.location.hostname === "localhost";
+            const customTunnel = localStorage.getItem("void_tunnel_url");
+            const targetBase = isLocalOrTunnel ? "" : (customTunnel ? customTunnel.replace(/\/+$/, "") : "");
+
+            if (isLocalOrTunnel || customTunnel) {
+                try {
+                    const res = await fetch(`${targetBase}/api/chat`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: cmd })
+                    });
+                    const data = await res.json();
+                    streamStatusSub.innerText = "ONLINE";
+                    setHologramState("idle");
+                    if (data && data.response) {
+                        addStreamMessage(data.response, false);
+                    }
+                    return;
+                } catch(err) {
+                    console.warn("Direct link error, attempting secondary channel...", err);
+                }
+            }
+
+            // 2. Secondary Channel via NTFY
             try {
-                await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
+                const resp = await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
                     method: "POST",
                     body: cmd
                 });
+                if (resp.status === 429) {
+                    streamStatusSub.innerText = "OPEN CLOUDFLARE LINK ON MAC";
+                } else {
+                    streamStatusSub.innerText = "SENT TO MAC";
+                }
             } catch(e) {
                 streamStatusSub.innerText = "Error: " + e.message;
-                setHologramState("idle");
             }
+            setTimeout(() => setHologramState("idle"), 1500);
         }
 
         function refreshApp() {

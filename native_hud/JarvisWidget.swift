@@ -169,6 +169,7 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
             self?.processAudioBuffer(buffer: buffer, srcFormat: srcFormat, dstFormat: dstFormat)
         }
         
+        audioEngine.prepare()
         do {
             try audioEngine.start()
             isAudioRecording = true
@@ -294,7 +295,7 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         
         // 1. Carbon Global Event Dispatcher (works across ALL apps system-wide)
         var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        InstallEventHandler(GetEventDispatcherTarget(), { (_, _, _) -> OSStatus in
+        InstallEventHandler(GetApplicationEventTarget(), { (_, _, _) -> OSStatus in
             DispatchQueue.main.async {
                 JarvisWidgetController.shared?.toggleWidget()
             }
@@ -303,13 +304,13 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         
         // Register Command + Shift + V
         var userRef: EventHotKeyRef?
-        if RegisterEventHotKey(cfg.keyCode, cfg.modifiers, EventHotKeyID(signature: OSType(0x564F4944), id: 1), GetEventDispatcherTarget(), 0, &userRef) == noErr, let r = userRef {
+        if RegisterEventHotKey(cfg.keyCode, cfg.modifiers, EventHotKeyID(signature: OSType(0x564F4944), id: 1), GetApplicationEventTarget(), 0, &userRef) == noErr, let r = userRef {
             hotKeyRefs.append(r)
         }
         
         // Also register backup shortcut: Ctrl + Space
         var backup1: EventHotKeyRef?
-        if RegisterEventHotKey(UInt32(kVK_Space), UInt32(controlKey), EventHotKeyID(signature: OSType(0x564F4944), id: 2), GetEventDispatcherTarget(), 0, &backup1) == noErr, let r = backup1 {
+        if RegisterEventHotKey(UInt32(kVK_Space), UInt32(controlKey), EventHotKeyID(signature: OSType(0x564F4944), id: 2), GetApplicationEventTarget(), 0, &backup1) == noErr, let r = backup1 {
             hotKeyRefs.append(r)
         }
         

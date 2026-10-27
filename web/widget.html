@@ -33,7 +33,7 @@
             align-items: center;
             justify-content: center;
             font-family: var(--font-ui);
-            -webkit-app-region: no-drag;
+            user-select: none;
         }
 
         .widget-container {
@@ -43,6 +43,10 @@
             align-items: center;
             position: relative;
             padding: 6px;
+            cursor: grab;
+        }
+        .widget-container:active {
+            cursor: grabbing;
         }
 
         /* Top HUD Telemetry Pill */
@@ -651,12 +655,14 @@
             handleCommand(text);
         }
 
-        // Desktop window drag handler via HUD Header
+        // Desktop window drag handler: Click and drag anywhere on Void to move it across your screen!
         let isWindowDragging = false;
         let winStartX = 0;
         let winStartY = 0;
 
-        hudHeader.addEventListener("mousedown", (e) => {
+        window.addEventListener("mousedown", (e) => {
+            // Ignore if clicking buttons, text inputs, action pills, or inside the interactive canvas
+            if (e.target.closest("button, input, textarea, canvas, .action-btn, #queryInput, .pill-btn")) return;
             isWindowDragging = true;
             winStartX = e.screenX;
             winStartY = e.screenY;
