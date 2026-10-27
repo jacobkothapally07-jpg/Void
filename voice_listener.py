@@ -41,20 +41,14 @@ def trigger_active_listen():
             print(f"[CoreAudio Error] {e}")
 
 def set_jarvis_sleeping(sleeping: bool):
-    global _is_jarvis_sleeping, _active_stream
+    global _is_jarvis_sleeping
     _is_jarvis_sleeping = sleeping
-    if _active_stream is not None:
-        try:
-            if sleeping and _active_stream.active:
-                _active_stream.stop()
-                set_widget_state("sleep", "MIC OFF // VOID SLEEPING")
-                print("\033[93m[CoreAudio Hardware] Microphone stream stopped (Orange dot OFF).\033[0m")
-            elif not sleeping and not _active_stream.active:
-                _active_stream.start()
-                set_widget_state("idle", "VOID // ONLINE")
-                print("\033[92m[CoreAudio Hardware] Microphone stream restarted (Orange dot ON).\033[0m")
-        except Exception as e:
-            print(f"[CoreAudio Power Error] {e}")
+    if sleeping:
+        set_widget_state("sleep", "STANDBY // SPEAK ANYTIME")
+        print("\033[93m[Void Power State] Entering standby. Microphone remains active for wake words.\033[0m")
+    else:
+        set_widget_state("listening", "🎙️ Listening... speak anytime")
+        print("\033[92m[Void Power State] Void awake and listening.\033[0m")
 
 def get_jarvis_sleeping() -> bool:
     global _is_jarvis_sleeping
@@ -138,13 +132,7 @@ def run_voice_listener():
                 except Exception as e:
                     time.sleep(0.8)
                     continue
-            if _is_jarvis_sleeping:
-                time.sleep(0.3)
-                while not audio_queue.empty():
-                    audio_queue.get_nowait()
-                continue
-
-            currently_speaking = get_is_speaking()
+            currently_speaking = get_is_speaking() or os.path.exists("/tmp/void_speaking.lock")
 
             # 1. WHILE JARVIS IS SPEAKING: Cleanly mute mic input so laptop speakers never loop back
             if currently_speaking:
@@ -275,39 +263,27 @@ def run_voice_listener():
                 set_widget_state("idle", "VOID // ONLINE")
                 continue
 
-            # If triggered via Hotkey / Tap, execute whatever user spoke directly (no wake word needed!)
-            if was_hotkey_listen:
-                processed_query = clean_speech_query(raw_text)
-                if not processed_query:
-                    processed_query = raw_text
-                req = urllib.request.Request(
-                    "http://127.0.0.1:8080/api/chat",
-                    data=json.dumps({"message": processed_query}).encode("utf-8"),
-                    headers={"Content-Type": "application/json"}
-                )
-                try:
-                    with urllib.request.urlopen(req, timeout=20) as resp:
-                        res = json.loads(resp.read().decode("utf-8"))
-                        reply = res.get("response", "At your service, Sir.")
-                        print(f"\033[96m[Void Replied]\033[0m {reply}")
-                except Exception as e:
-                    pass
+            # 5. WAKE WORD & STANDBY ROUTING
+            wake_phrases = ["void", "hey void", "hello void", "hi void", "okay void", "ok void", "hoid", "hey hoid", "boyd", "hey boyd", "boid", "lloyd", "ford", "jarvis", "hey jarvis", "hello jarvis", "hi jarvis", "okay jarvis", "ok jarvis"]
+            has_wake_word = any(w in lower for w in ["void", "hoid", "boyd", "boid", "lloyd", "ford", "jarvis"])
+            
+            if _is_jarvis_sleeping and not has_wake_word and not was_hotkey_listen:
+                # Discard non-addressed ambient conversation during standby
                 continue
 
-            # Standalone wake/ping (including phonetic variants of void)
-            wake_phrases = ["void", "hey void", "hello void", "hi void", "okay void", "ok void", "hoid", "hey hoid", "boyd", "hey boyd", "boid", "lloyd", "ford", "jarvis", "hey jarvis", "hello jarvis", "hi jarvis", "okay jarvis", "ok jarvis"]
-            if lower in wake_phrases or (clean_speech_query(raw_text) == "" and any(w in lower for w in ["void", "hoid", "boyd", "jarvis"])):
+            # Wake up Void & bring HUD window to front
+            _is_jarvis_sleeping = False
+            from hud import show_hud_window
+            show_hud_window()
+
+            # If user spoke a wake word alone: play repulsor chime, greet immediately, and start listening
+            if lower in wake_phrases or (clean_speech_query(raw_text) == "" and has_wake_word):
                 from voice.sound_effects import play_repulsor_wake
+                from voice import speak
                 play_repulsor_wake()
-                req = urllib.request.Request(
-                    "http://127.0.0.1:8080/api/chat",
-                    data=json.dumps({"message": "hey void"}).encode("utf-8"),
-                    headers={"Content-Type": "application/json"}
-                )
-                try:
-                    urllib.request.urlopen(req, timeout=5)
-                except Exception:
-                    pass
+                set_widget_state("listening", "🎙️ Listening... speak anytime")
+                speak("At your service, Sir.", async_mode=True)
+                trigger_active_listen()
                 continue
 
             processed_query = clean_speech_query(raw_text)

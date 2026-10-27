@@ -6,6 +6,22 @@ def set_widget_state(state, text=""):
     _widget_state = {"state": state, "text": text}
 import subprocess
 
+def show_hud_window():
+    """Brings Void holographic floating HUD window to front via distributed notification."""
+    try:
+        from Foundation import NSDistributedNotificationCenter
+        NSDistributedNotificationCenter.defaultCenter().postNotificationName_object_("com.jk.void.show", None)
+    except Exception:
+        pass
+
+def hide_hud_window():
+    """Hides Void holographic floating HUD window to standby."""
+    try:
+        from Foundation import NSDistributedNotificationCenter
+        NSDistributedNotificationCenter.defaultCenter().postNotificationName_object_("com.jk.void.hide", None)
+    except Exception:
+        pass
+
 def launch_hud_window(port=8080):
     chrome_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     profile_dir = os.path.expanduser("~/.jarvis_chrome_app_profile")
@@ -131,11 +147,13 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             stats = get_system_health()
             self._send_json(stats)
             return
-        elif clean_path == "/api/sleep":
+        elif clean_path in ["/api/sleep", "/api/dismiss"]:
             from voice_listener import set_jarvis_sleeping
             stop_speaking()
             set_jarvis_sleeping(True)
-            set_widget_state("sleep", "MIC OFF // STANDBY")
+            hide_hud_window()
+            set_widget_state("sleep", "STANDBY // SPEAK ANYTIME")
+            speak("Standing by, Sir.", async_mode=True)
             self._send_json({"status": "success", "mode": "sleep"})
             return
         elif clean_path in ["/api/wake_and_listen", "/api/listen", "/api/wake"]:
@@ -143,9 +161,11 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             from voice.sound_effects import play_repulsor_wake
             stop_speaking()
             set_jarvis_sleeping(False)
+            show_hud_window()
             play_repulsor_wake()
-            trigger_active_listen()
             set_widget_state("listening", "🎙️ Listening... speak anytime")
+            speak("Online and ready, Sir.", async_mode=True)
+            trigger_active_listen()
             self._send_json({"status": "success", "mode": "listening"})
             return
         elif clean_path == "/api/shutdown":
@@ -207,6 +227,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 body = json.loads(post_data.decode("utf-8"))
                 user_msg = body.get("message", "")
                 print(f"\n\033[92m[User Query] {user_msg}\033[0m")
+                show_hud_window()
                 from voice.sound_effects import play_hud_chirp
                 play_hud_chirp()
                 set_widget_state("thinking", f"Executing: {user_msg}")
