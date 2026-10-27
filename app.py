@@ -1,5 +1,11 @@
 import os
 import sys
+
+# Ensure full Unix and Homebrew PATH are available across all macOS execution modes
+for p in ["/opt/homebrew/bin", "/usr/local/bin"]:
+    if p not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = p + ":" + os.environ.get("PATH", "")
+
 import subprocess
 import threading
 import socketserver

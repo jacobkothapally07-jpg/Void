@@ -62,7 +62,11 @@ def run_voice_listener():
 
     audio_queue = queue.Queue()
 
+    last_audio_rx_time = time.time()
+
     def audio_callback(indata, frames, time_info, status):
+        nonlocal last_audio_rx_time
+        last_audio_rx_time = time.time()
         audio_queue.put(indata.flatten().copy())
 
     global _active_stream
@@ -89,6 +93,29 @@ def run_voice_listener():
 
     while True:
         try:
+            # CoreAudio Sleep/Wake Watchdog: if Mac woke up and audio stream went stale, recreate it!
+            if not _is_jarvis_sleeping and (time.time() - last_audio_rx_time > 4.5):
+                print("\033[93m[CoreAudio Watchdog] Audio stream stalled (Mac lid wake / sleep cycle). Auto-reconnecting...\033[0m")
+                try:
+                    stream.stop()
+                    stream.close()
+                except Exception:
+                    pass
+                try:
+                    stream = sd.InputStream(
+                        samplerate=SAMPLE_RATE,
+                        channels=1,
+                        dtype="float32",
+                        blocksize=BLOCK_SIZE,
+                        callback=audio_callback
+                    )
+                    _active_stream = stream
+                    stream.start()
+                    last_audio_rx_time = time.time()
+                    print("\033[92m[CoreAudio Watchdog] Microphone stream successfully resurrected.\033[0m")
+                except Exception as e:
+                    time.sleep(0.8)
+                    continue
             if _is_jarvis_sleeping:
                 time.sleep(0.3)
                 while not audio_queue.empty():

@@ -16,6 +16,10 @@ NTFY_REPLY_TOPIC = os.getenv("NTFY_REMOTE_REPLY", "jk_reply_c20c924a97e53fc63041
 
 def ensure_cloudflared_tunnel(local_port=8080):
     """Starts cloudflared quick tunnel to expose the web HUD via a secure HTTPS link."""
+    for p in ["/opt/homebrew/bin", "/usr/local/bin"]:
+        if p not in os.environ.get("PATH", ""):
+            os.environ["PATH"] = p + ":" + os.environ.get("PATH", "")
+
     # Check if cloudflared is already running
     try:
         out = subprocess.run(["pgrep", "-f", "cloudflared tunnel"], capture_output=True, text=True)
@@ -31,28 +35,30 @@ def ensure_cloudflared_tunnel(local_port=8080):
 
     try:
         import shutil
-        cloudflared_path = shutil.which("cloudflared")
-        if not cloudflared_path:
+        cloudflared_path = shutil.which("cloudflared") or "/opt/homebrew/bin/cloudflared"
+        if not os.path.exists(cloudflared_path):
             return None
         
         log_file = open("/tmp/cloudflared.log", "w")
         proc = subprocess.Popen(
             [cloudflared_path, "tunnel", "--url", f"http://127.0.0.1:{local_port}"],
             stdout=log_file,
-            stderr=subprocess.STREQ if hasattr(subprocess, "STREQ") else subprocess.STDOUT
+            stderr=subprocess.STDOUT
         )
-        time.sleep(3)
-        # Search log for trycloudflare URL
-        if os.path.exists("/tmp/cloudflared.log"):
-            with open("/tmp/cloudflared.log") as f:
-                content = f.read()
-            m = re.search(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
-            if m:
-                url = m.group(0)
-                with open("/tmp/jarvis_remote_url.txt", "w") as f:
-                    f.write(url)
-                print(f"\033[96m[Pocket JARVIS HTTPS Web Remote] {url}/remote\033[0m")
-                return url
+        url = None
+        for _ in range(16):
+            time.sleep(0.5)
+            if os.path.exists("/tmp/cloudflared.log"):
+                with open("/tmp/cloudflared.log") as f:
+                    content = f.read()
+                m = re.search(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
+                if m:
+                    url = m.group(0)
+                    with open("/tmp/jarvis_remote_url.txt", "w") as f:
+                        f.write(url)
+                    print(f"\033[96m[Pocket JARVIS HTTPS Web Remote] {url}/remote\033[0m")
+                    print(f"\033[92m[Permanent GitHub Pages URL] https://jacobkothapally07-jpg.github.io/jarvis/\033[0m")
+                    return url
     except Exception as e:
         print(f"[Pocket JARVIS Tunnel] {e}")
     return None
