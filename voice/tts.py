@@ -181,30 +181,17 @@ def _speak_neural_sync(clean_text: str):
         except Exception:
             played_audio = False
 
-    # 2. Main Consistent Engine: British Neural Ryan (Paul Bettany tone, Free, Unlimited & Identical Every Time)
+    # 2. Main Consistent Engine: British Neural Ryan (Authentic Paul Bettany British Gentleman Tone)
     if not played_audio:
         try:
             import edge_tts
             
             async def _gen_edge():
-                communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural", pitch="-2Hz", rate="+3%")
+                communicate = edge_tts.Communicate(clean_text, "en-GB-RyanNeural")
                 await communicate.save(temp_audio)
                 
             asyncio.run(asyncio.wait_for(_gen_edge(), timeout=12.0))
             if os.path.exists(temp_audio) and os.path.getsize(temp_audio) > 100:
-                # Studio acoustic mastering filter to match ElevenLabs clarity and presence
-                filtered_audio = temp_audio.replace(".mp3", "_studio.mp3")
-                try:
-                    subprocess.run(
-                        ["ffmpeg", "-y", "-i", temp_audio, "-af",
-                         "equalizer=f=3200:t=q:w=1.2:g=2.5,equalizer=f=220:t=q:w=1:g=1.5,acompressor=threshold=-16dB:ratio=2.5:attack=15:release=120",
-                         filtered_audio],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False
-                    )
-                    if os.path.exists(filtered_audio) and os.path.getsize(filtered_audio) > 100:
-                        os.replace(filtered_audio, temp_audio)
-                except Exception:
-                    pass
                 try:
                     import shutil
                     shutil.copyfile(temp_audio, cached_file)

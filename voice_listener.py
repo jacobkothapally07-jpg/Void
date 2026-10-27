@@ -96,9 +96,9 @@ def run_voice_listener():
     except Exception:
         pass
 
-    ambient_floor = 0.010
-    # 600ms pre-speech rolling ring buffer (12 blocks of 50ms) to ensure no initial consonants are clipped
-    pre_speech_ring = collections.deque(maxlen=12)
+    ambient_floor = 0.18
+    # 350ms pre-speech rolling ring buffer (7 blocks of 50ms) to ensure no initial consonants are clipped
+    pre_speech_ring = collections.deque(maxlen=7)
 
     # Let startup sounds complete cleanly and flush initial buffer
     time.sleep(0.8)
@@ -170,11 +170,12 @@ def run_voice_listener():
             rms = float(np.sqrt(np.mean(block**2)))
 
             # Calibrated speech detection thresholds for clear far-field sensitivity
-            speech_threshold = max(0.007, ambient_floor * 1.15) if _active_listen_mode else max(0.009, ambient_floor * 1.35)
+            speech_threshold = max(0.20, ambient_floor * 1.25 + 0.02) if _active_listen_mode else max(0.25, ambient_floor * 1.38 + 0.03)
 
             # 3. SILENCE / NOISE GATE
             if rms < speech_threshold:
-                ambient_floor = 0.98 * ambient_floor + 0.02 * rms
+                # Bound ambient floor to realistic room noise bounds (0.05 - 0.25)
+                ambient_floor = min(0.25, max(0.08, 0.96 * ambient_floor + 0.04 * rms))
                 pre_speech_ring.append(block)
                 continue
 
@@ -188,8 +189,8 @@ def run_voice_listener():
 
             silence_start = None
             recording_start = time.time()
-            silence_threshold = max(0.007, ambient_floor * 1.15)
-            silence_timeout = 1.05  # Natural conversational breathing window
+            silence_threshold = max(0.18, ambient_floor * 1.15 + 0.015)
+            silence_timeout = 0.55  # Snappy conversational pause window (550ms)
 
             while True:
                 try:
@@ -207,12 +208,12 @@ def run_voice_listener():
                     if silence_start is None:
                         silence_start = now
                     elif now - silence_start >= silence_timeout:
-                        # User has paused naturally for 1.05s -> Sentence complete!
+                        # User has paused naturally for 550ms -> Sentence complete!
                         break
                 else:
                     silence_start = None
 
-                if total_duration >= 12.0:
+                if total_duration >= 6.5:
                     break
 
             total_speech_len = len(speech_blocks) * (BLOCK_SIZE / float(SAMPLE_RATE))
@@ -223,9 +224,9 @@ def run_voice_listener():
             # 4. AUDIO NORMALIZATION (Auto-Gain) & IN-MEMORY AUDIO
             full_audio = np.concatenate(speech_blocks)
             max_peak = float(np.max(np.abs(full_audio)))
-            if max_peak > 0.003:
-                # Normalize peak to 95% full scale for crystal clear voice transcription
-                full_audio = full_audio / max_peak * 0.95
+            if max_peak > 0.01:
+                # Normalize peak to 90% full scale for crystal clear voice transcription
+                full_audio = full_audio / max_peak * 0.90
             
             pcm_bytes = (full_audio * 32767.0).astype(np.int16).tobytes()
             audio_data = sr.AudioData(pcm_bytes, SAMPLE_RATE, 2)
