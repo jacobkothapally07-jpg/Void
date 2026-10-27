@@ -575,12 +575,7 @@
                         lastText = text;
                         if (state === "sleep" || state === "shutdown") {
                             setVisualState("sleep", "STANDBY");
-                            showSubtitle("Entering standby mode, Sir.", 2500);
-                            setTimeout(() => {
-                                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
-                                    window.webkit.messageHandlers.widget.postMessage({ action: "sleep" });
-                                }
-                            }, 400);
+                            showSubtitle("Void on standby // Speak anytime", 0);
                         } else if (state === "listening") {
                             setVisualState("listening", "LISTENING...");
                             showSubtitle(text || "🎙️ Listening... speak anytime", 0);

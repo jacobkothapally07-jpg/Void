@@ -124,6 +124,8 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         window.backgroundColor = .clear
         window.hasShadow = false
         window.isMovableByWindowBackground = true
+        window.hidesOnDeactivate = false
+        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         
         let config = WKWebViewConfiguration()
         config.userContentController.add(self, name: "widget")
