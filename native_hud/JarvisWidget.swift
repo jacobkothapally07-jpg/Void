@@ -91,8 +91,8 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
            let cfg = try? JSONDecoder().decode(HotKeyConfig.self, from: data) {
             return cfg
         }
-        // Default to Cmd + Shift + J (keyCode 38 for J, cmdKey | shiftKey)
-        return HotKeyConfig(label: "⌘⇧J", keyCode: UInt32(kVK_ANSI_J), modifiers: UInt32(cmdKey | shiftKey))
+        // Default to Cmd + Shift + V (keyCode 9 for V, cmdKey | shiftKey)
+        return HotKeyConfig(label: "⌘⇧V", keyCode: UInt32(kVK_ANSI_V), modifiers: UInt32(cmdKey | shiftKey))
     }
     
     func saveConfig(_ cfg: HotKeyConfig) {

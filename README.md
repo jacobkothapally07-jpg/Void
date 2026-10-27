@@ -1,48 +1,64 @@
-# 🛡️ J.A.R.V.I.S. — Advanced Autonomous AI Operating Companion
+# 🌌 Void — Advanced Autonomous AI Operating System
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-gold.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-white.svg)](https://opensource.org/licenses/MIT)
 [![macOS Native](https://img.shields.io/badge/macOS-Sonoma%20%7C%20Sequoia-black.svg)]()
-[![Voice: Paul Bettany Neural](https://img.shields.io/badge/Voice-British%20Paul%20Bettany-orange.svg)]()
+[![Hotkey](https://img.shields.io/badge/Hotkey-⌘⇧V-purple.svg)]()
+[![Voice: British Neural](https://img.shields.io/badge/Voice-British%20Paul%20Bettany-black.svg)]()
 
-**J.A.R.V.I.S.** (*Just A Rather Very Intelligent System*) is a production-grade, autonomous desktop AI companion engineered for macOS and iOS. Powered by Google Gemini with multi-model fallback and high-fidelity British neural speech synthesis, J.A.R.V.I.S. executes real-world actions, controls system hardware, automates productivity tools, and responds in 1–2 crisp, witty sentences.
+**Void** is a production-grade, autonomous desktop AI operating system engineered for macOS and iOS. Featuring an interactive 3D Hologram Particle Sphere on pure OLED black, high-fidelity British neural speech synthesis, hardware-level macOS control, and a global mobile remote.
 
 ---
 
 ## 🌟 Key Capabilities
 
-### 🧠 1. True Pro Autonomy & IRL Slang Comprehension
-- **Autonomous Execution**: Executes actions directly instead of returning instructions.
-- **Natural Language & Slang**: Understands casual colloquialisms (*"dim the lights"*, *"lock it down"*, *"how much juice left"*, *"put on some tracks"*).
-- **Fast 1–2 Sentence Delivery**: Paul Bettany personality—polite, sharp, witty, and concise.
+### 🪐 1. 3D Holographic Particle Matrix
+- **Point-Cloud Particle Sphere**: 4,800 starlight points with dense polar caps and concentric horizontal latitude strata rendered natively at 60 FPS.
+- **Interactive Orbit**: Click or touch-drag across the sphere to rotate and inspect it in 3D with realistic momentum.
+- **Audio & State Reactivity**: Dynamic particle expansion, quantum oscillation, and acoustic ripples during idle, listening, thinking, and speaking states.
+- **Global Hotkey**: Press **`⌘⇧V`** (`Cmd + Shift + V`) anywhere on macOS to instantly toggle the Void desktop HUD.
 
-### 🎙️ 2. High-Fidelity British Neural Speech & Instant Stop
-- **Neural Voice**: Ultra-realistic `en-GB-RyanNeural` movie-grade voice with automatic fallback to macOS native `Daniel`.
-- **Instant Barge-In**: Hardware audio cancellation in < 30ms on *"Stop"* or *"Quiet"*.
-- **Echo Gating**: Microphone automatically mutes during speech playback to prevent self-looping.
+### 🧠 2. Autonomous Execution & Zero-Latency Fast Path
+- **Autonomous Execution**: Directly executes real-world actions rather than outputting instructions.
+- **Atticus-Style Fast Path (<1ms)**: Immediate hardware controls (lock workstation, acoustic beacon, screen recording, volume adjustment) execute instantly without cloud latency.
+- **IRL Slang & Colloquialisms**: Understands casual requests (*"dim the lights"*, *"lock it down"*, *"where is my mac"*, *"solve this code"*).
 
-### 📱 3. Multi-Channel Mobile Wakeup (iOS / Siri / Watch)
-- **Bonjour mDNS**: `http://jacobs-MacBook-Air.local:8080/api/initiate` (never breaks across DHCP IP shifts).
-- **Global Cloud Bridge**: `https://ntfy.sh/jk_jarvis_wakeup` (wake your workstation from anywhere in the world on 5G).
+### 🎙️ 3. High-Fidelity British Neural Speech & Far-Field Voice
+- **Ultra-Realistic Voice**: Movie-grade British neural speech (`en-GB-RyanNeural`) with zero-delay streaming.
+- **CoreAudio Ring Buffer & Auto-Gain**: 600ms rolling pre-speech ring buffer and 95% peak normalization for crystal-clear microphone pickup.
+- **Hardware Mute Gating**: Microphone stream cleanly mutes during speech playback to eliminate acoustic feedback.
 
-### 🛠️ 4. 28+ Native macOS Tools
-- **Productivity**: Apple Notes creator, Clipboard manager (`pbcopy`/`pbpaste`), Apple Reminders, Apple Calendar event scheduler, Mail scanner.
-- **System Automation**: Volume control, Dark mode toggle, Lock screen, Sleep display, Empty trash, High-res screenshots, Battery & Hardware diagnostics.
-- **Media & Web**: Direct YouTube / Spotify video & music auto-play, Live DuckDuckGo & Wikipedia web crawler.
-- **Vision & Security**: FaceTime HD camera Sentry Mode intruder detection, Full-screen window OCR & code analysis.
-- **Location & Time**: Live physical geolocation (GPS/IP) and local time detection.
+### 📱 4. Global Mobile Remote (PWA)
+- **Production Edge CDN**: [https://jarvis-mobile-remote.vercel.app](https://jarvis-mobile-remote.vercel.app)
+- **Real-Time Remote Control**: Sentry webcam surveillance, workstation lockdown, 100% volume sound beacon, master volume slider, and live system telemetry.
+
+### 🛠️ 5. Native macOS Tools
+- **Security & Vision**: Native SAC workstation lock (`login.framework`), Desk Sentry with headless sandbox bypass (`SentryEye.app`), Full-screen vision OCR.
+- **Productivity & Hardware**: Apple Notes, Apple Reminders, Calendar event scheduler, Clipboard manager, Master CoreAudio volume sync.
+- **Developer Suite**: Automatic screen problem solver and auto-paste, Git commit automation, Terminal execution.
+
+---
+
+## ⌨️ Shortcuts & Hotkeys
+
+| Action | Shortcut / Trigger |
+| :--- | :--- |
+| **Toggle Void HUD** | **`⌘⇧V`** (`Cmd + Shift + V`) |
+| **Voice Wake Word** | `"Void"`, `"Hey Void"`, `"OK Void"` |
+| **Instant Mute** | Say *"Quiet"*, *"Stop"*, or tap the Void core |
+| **Desk Sentry** | Tap **Desk Sentry** or say *"Sentry Mode"* |
+| **Find My Mac** | Tap **Find Mac** or say *"Find my Mac"* |
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Clone & Setup
+### 1. Setup
 ```bash
-git clone https://github.com/YOUR_USERNAME/jarvis.git
 cd jarvis
 pip install -r requirements.txt
 cp .env.example .env
-# Add your GEMINI_API_KEY in .env
+# Ensure GEMINI_API_KEY is configured in .env
 ```
 
 ### 2. Launch Background Daemon
@@ -51,16 +67,7 @@ cp .env.example .env
 ```
 
 ### 3. Open Standalone 3D HUD
-Double-click `JARVIS.app` or open `http://127.0.0.1:8080` in your browser.
-
----
-
-## 📱 iPhone Shortcut Setup
-
-1. Open **Shortcuts** app on iPhone.
-2. Add action: **Get Contents of URL**.
-3. URL: `http://jacobs-MacBook-Air.local:8080/api/initiate` (Method: `GET`).
-4. Rename shortcut to **Initiate Jarvis** and add to Home Screen or say *"Hey Siri, Initiate Jarvis"*.
+Press **`⌘⇧V`** anywhere on your Mac or visit `http://127.0.0.1:8080/widget`.
 
 ---
 
