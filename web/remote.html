@@ -1550,8 +1550,8 @@
             resize();
             window.addEventListener("resize", resize);
 
-            // Generate 4,500 Point-Cloud Particles matching user reference image exactly
-            const PARTICLE_COUNT = 4500;
+            // Generate 4,800 Point-Cloud Particles with Enhanced Clarity
+            const PARTICLE_COUNT = 4800;
             const particles = [];
             const SPHERE_RADIUS = 96;
             const LATITUDE_BANDS = 24;
@@ -1560,11 +1560,10 @@
                 const rnd = Math.random();
                 let x, y, z, baseSize, baseAlpha;
 
-                if (rnd < 0.44) {
+                if (rnd < 0.36) {
                     // 1. DENSE POLAR CAPS (North & South poles)
-                    // 44% of particles form misty, dense bright white caps
                     const isNorth = Math.random() < 0.5;
-                    const poleFactor = Math.pow(Math.random(), 2.4);
+                    const poleFactor = Math.pow(Math.random(), 2.3);
                     const yNorm = isNorth ? (1.0 - poleFactor * 0.32) : (-1.0 + poleFactor * 0.32);
                     const ringR = Math.sqrt(Math.max(0, 1 - yNorm * yNorm));
                     const phi = Math.random() * Math.PI * 2;
@@ -1574,14 +1573,14 @@
                     y = yNorm * rVar;
                     z = Math.sin(phi) * ringR * rVar;
                     
-                    baseSize = 0.5 + Math.random() * 0.9;
-                    baseAlpha = 0.55 + Math.random() * 0.45;
-                } else if (rnd < 0.88) {
+                    baseSize = 0.80 + Math.random() * 0.95;
+                    baseAlpha = 0.65 + Math.random() * 0.35;
+                } else if (rnd < 0.90) {
                     // 2. STRUCTURED SHELL WITH LATITUDE STRATA
                     const u = Math.random();
                     const rawY = 2 * u - 1;
                     const bandedY = Math.round(rawY * LATITUDE_BANDS) / LATITUDE_BANDS;
-                    const yNorm = rawY * 0.65 + bandedY * 0.35;
+                    const yNorm = rawY * 0.60 + bandedY * 0.40;
                     const ringR = Math.sqrt(Math.max(0, 1 - yNorm * yNorm));
                     const phi = Math.random() * Math.PI * 2;
 
@@ -1590,8 +1589,8 @@
                     y = yNorm * rVar;
                     z = Math.sin(phi) * ringR * rVar;
 
-                    baseSize = 0.4 + Math.random() * 0.8;
-                    baseAlpha = 0.25 + Math.random() * 0.55;
+                    baseSize = 0.70 + Math.random() * 0.85;
+                    baseAlpha = 0.45 + Math.random() * 0.55;
                 } else {
                     // 3. INTERIOR ATMOSPHERIC DUST
                     const phi = Math.random() * Math.PI * 2;
@@ -1602,8 +1601,8 @@
                     y = rVar * Math.cos(theta);
                     z = rVar * Math.sin(theta) * Math.sin(phi);
 
-                    baseSize = 0.3 + Math.random() * 0.5;
-                    baseAlpha = 0.15 + Math.random() * 0.35;
+                    baseSize = 0.50 + Math.random() * 0.65;
+                    baseAlpha = 0.30 + Math.random() * 0.40;
                 }
 
                 particles.push({
@@ -1740,7 +1739,7 @@
                     const screenY = cy + y2 * scale;
 
                     const depthAlpha = ((z2 + SPHERE_RADIUS) / (SPHERE_RADIUS * 2));
-                    const finalAlpha = Math.max(0.12, Math.min(1.0, p.alpha * (0.35 + depthAlpha * 0.65)));
+                    const finalAlpha = Math.max(0.35, Math.min(1.0, p.alpha * (0.52 + depthAlpha * 0.48)));
 
                     projected.push({
                         x: screenX,
@@ -1755,7 +1754,7 @@
 
                 for (let i = 0; i < projected.length; i++) {
                     const p = projected[i];
-                    const s = Math.max(0.5, p.size);
+                    const s = Math.max(0.85, p.size);
 
                     let colorPrefix = "255, 255, 255";
                     if (hologramState === "listening") colorPrefix = "56, 189, 248";
@@ -1765,9 +1764,9 @@
                     ctx.fillRect(p.x - s * 0.5, p.y - s * 0.5, s, s);
 
                     // Soft starlight bloom on bright foreground points
-                    if (p.alpha > 0.85 && s > 1.1) {
-                        ctx.fillStyle = `rgba(${colorPrefix}, ${p.alpha * 0.25})`;
-                        ctx.fillRect(p.x - s * 1.2, p.y - s * 1.2, s * 2.4, s * 2.4);
+                    if (p.alpha > 0.82 && s > 1.1) {
+                        ctx.fillStyle = `rgba(${colorPrefix}, ${p.alpha * 0.28})`;
+                        ctx.fillRect(p.x - s * 1.1, p.y - s * 1.1, s * 2.2, s * 2.2);
                     }
                 }
 
