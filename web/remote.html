@@ -1550,30 +1550,68 @@
             resize();
             window.addEventListener("resize", resize);
 
-            // Generate 2,200 Fibonacci Sphere Particles matching user reference image
-            const PARTICLE_COUNT = 2200;
+            // Generate 4,500 Point-Cloud Particles matching user reference image exactly
+            const PARTICLE_COUNT = 4500;
             const particles = [];
-            const SPHERE_RADIUS = 95;
+            const SPHERE_RADIUS = 96;
+            const LATITUDE_BANDS = 24;
 
             for (let i = 0; i < PARTICLE_COUNT; i++) {
-                const y = 1 - (i / (PARTICLE_COUNT - 1)) * 2;
-                const radiusAtY = Math.sqrt(1 - y * y);
-                const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-                const theta = goldenAngle * i;
-                const x = Math.cos(theta) * radiusAtY;
-                const z = Math.sin(theta) * radiusAtY;
+                const rnd = Math.random();
+                let x, y, z, baseSize, baseAlpha;
 
-                // Dense cluster at poles matching the user's reference screenshot
-                const isPole = Math.abs(y) > 0.82;
-                const baseSize = isPole ? (Math.random() * 1.5 + 0.8) : (Math.random() * 1.2 + 0.5);
-                const brightness = isPole ? (0.75 + Math.random() * 0.25) : (0.35 + Math.random() * 0.55);
+                if (rnd < 0.44) {
+                    // 1. DENSE POLAR CAPS (North & South poles)
+                    // 44% of particles form misty, dense bright white caps
+                    const isNorth = Math.random() < 0.5;
+                    const poleFactor = Math.pow(Math.random(), 2.4);
+                    const yNorm = isNorth ? (1.0 - poleFactor * 0.32) : (-1.0 + poleFactor * 0.32);
+                    const ringR = Math.sqrt(Math.max(0, 1 - yNorm * yNorm));
+                    const phi = Math.random() * Math.PI * 2;
+                    
+                    const rVar = SPHERE_RADIUS * (0.95 + Math.random() * 0.08);
+                    x = Math.cos(phi) * ringR * rVar;
+                    y = yNorm * rVar;
+                    z = Math.sin(phi) * ringR * rVar;
+                    
+                    baseSize = 0.5 + Math.random() * 0.9;
+                    baseAlpha = 0.55 + Math.random() * 0.45;
+                } else if (rnd < 0.88) {
+                    // 2. STRUCTURED SHELL WITH LATITUDE STRATA
+                    const u = Math.random();
+                    const rawY = 2 * u - 1;
+                    const bandedY = Math.round(rawY * LATITUDE_BANDS) / LATITUDE_BANDS;
+                    const yNorm = rawY * 0.65 + bandedY * 0.35;
+                    const ringR = Math.sqrt(Math.max(0, 1 - yNorm * yNorm));
+                    const phi = Math.random() * Math.PI * 2;
+
+                    const rVar = SPHERE_RADIUS * (0.97 + Math.random() * 0.05);
+                    x = Math.cos(phi) * ringR * rVar;
+                    y = yNorm * rVar;
+                    z = Math.sin(phi) * ringR * rVar;
+
+                    baseSize = 0.4 + Math.random() * 0.8;
+                    baseAlpha = 0.25 + Math.random() * 0.55;
+                } else {
+                    // 3. INTERIOR ATMOSPHERIC DUST
+                    const phi = Math.random() * Math.PI * 2;
+                    const theta = Math.acos(2 * Math.random() - 1);
+                    const rVar = SPHERE_RADIUS * (0.25 + Math.random() * 0.70);
+
+                    x = rVar * Math.sin(theta) * Math.cos(phi);
+                    y = rVar * Math.cos(theta);
+                    z = rVar * Math.sin(theta) * Math.sin(phi);
+
+                    baseSize = 0.3 + Math.random() * 0.5;
+                    baseAlpha = 0.15 + Math.random() * 0.35;
+                }
 
                 particles.push({
-                    origX: x * SPHERE_RADIUS,
-                    origY: y * SPHERE_RADIUS,
-                    origZ: z * SPHERE_RADIUS,
+                    origX: x,
+                    origY: y,
+                    origZ: z,
                     size: baseSize,
-                    alpha: brightness,
+                    alpha: baseAlpha,
                     phase: Math.random() * Math.PI * 2
                 });
             }
@@ -1717,17 +1755,19 @@
 
                 for (let i = 0; i < projected.length; i++) {
                     const p = projected[i];
-                    ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
+                    const s = Math.max(0.5, p.size);
 
-                    // Soft starlight glow on bright foreground points
-                    if (p.alpha > 0.8 && p.size > 1.2) {
-                        ctx.fillStyle = `rgba(192, 132, 252, ${p.alpha * 0.3})`;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size * 2.2, 0, Math.PI * 2);
-                        ctx.fill();
+                    let colorPrefix = "255, 255, 255";
+                    if (hologramState === "listening") colorPrefix = "56, 189, 248";
+                    else if (hologramState === "thinking") colorPrefix = "192, 132, 252";
+
+                    ctx.fillStyle = `rgba(${colorPrefix}, ${p.alpha})`;
+                    ctx.fillRect(p.x - s * 0.5, p.y - s * 0.5, s, s);
+
+                    // Soft starlight bloom on bright foreground points
+                    if (p.alpha > 0.85 && s > 1.1) {
+                        ctx.fillStyle = `rgba(${colorPrefix}, ${p.alpha * 0.25})`;
+                        ctx.fillRect(p.x - s * 1.2, p.y - s * 1.2, s * 2.4, s * 2.4);
                     }
                 }
 
