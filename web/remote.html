@@ -1129,9 +1129,9 @@
             if (navigator.vibrate) navigator.vibrate(15);
         }
 
-        async function sendCommand(cmd) {
+        async function sendCommand(cmd, isSilent = false) {
             triggerHaptic();
-            addStreamMessage(cmd, true);
+            if (!isSilent) addStreamMessage(cmd, true);
             streamStatusSub.innerText = "Transmitting...";
             try {
                 await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
@@ -1147,9 +1147,26 @@
             triggerHaptic();
             const btn = document.getElementById("navRefreshBtn");
             if (btn) btn.style.transform = "rotate(360deg)";
+            streamStatusSub.innerText = "SYNCING MAC DATA...";
+            sendCommand("stats", true);
             setTimeout(() => {
-                window.location.reload();
-            }, 180);
+                if (btn) btn.style.transform = "rotate(0deg)";
+            }, 800);
+        }
+
+        function loadCachedTelemetry() {
+            try {
+                const raw = localStorage.getItem("jarvis_last_telemetry");
+                if (raw) {
+                    const cached = JSON.parse(raw);
+                    if (cached.battery) mainBatteryVal.innerText = cached.battery;
+                    if (cached.cpu) cpuLoadVal.innerText = cached.cpu;
+                    if (cached.vol) {
+                        volSlider.value = cached.vol;
+                        volDisplay.innerText = cached.vol + "%";
+                    }
+                }
+            } catch(e) {}
         }
 
         // Live Volume Slider Control
@@ -1245,24 +1262,42 @@
 
                     // Handle Text Reply
                     if (data.message && !data.message.startsWith("You received a file:")) {
-                        addStreamMessage(data.message, false);
-                        streamStatusSub.innerText = "REPLY RECEIVED";
+                        const isTelemetry = data.message.includes("Battery:") && data.message.includes("CPU:");
+                        if (!isTelemetry) {
+                            addStreamMessage(data.message, false);
+                        }
+                        streamStatusSub.innerText = "ONLINE";
 
                         // Parse Battery
-                        if (data.message.includes("Battery:")) {
-                            const match = data.message.match(/Battery:\s*(\d+%)/);
-                            if (match) {
-                                mainBatteryVal.innerText = match[1];
-                            }
+                        const matchBatt = data.message.match(/Battery:\s*(\d+%)/);
+                        if (matchBatt) {
+                            mainBatteryVal.innerText = matchBatt[1];
                         }
 
                         // Parse CPU
-                        if (data.message.includes("CPU:")) {
-                            const matchCpu = data.message.match(/CPU:\s*(\d+)%/);
-                            if (matchCpu) {
-                                cpuLoadVal.innerText = matchCpu[1] + ".0";
-                            }
+                        const matchCpu = data.message.match(/CPU:\s*([\d\.]+)%/);
+                        if (matchCpu) {
+                            let cpu = parseFloat(matchCpu[1]);
+                            cpuLoadVal.innerText = cpu.toFixed(1);
                         }
+
+                        // Parse Volume
+                        const matchVol = data.message.match(/Volume:\s*(\d+)%/i);
+                        if (matchVol) {
+                            const v = parseInt(matchVol[1]);
+                            volSlider.value = v;
+                            volDisplay.innerText = v + "%";
+                        }
+
+                        // Save cached telemetry
+                        try {
+                            localStorage.setItem("jarvis_last_telemetry", JSON.stringify({
+                                battery: mainBatteryVal.innerText,
+                                cpu: cpuLoadVal.innerText,
+                                vol: volSlider.value,
+                                timestamp: Date.now()
+                            }));
+                        } catch(e) {}
                     }
                 }
             } catch(e) {}
@@ -1324,10 +1359,12 @@
         let enteredPin = "";
 
         function initSecurityLock() {
+            loadCachedTelemetry();
             const isAuth = localStorage.getItem("jarvis_auth_unlocked");
             const overlay = document.getElementById("pinLockModal");
             if (isAuth === "true") {
                 overlay.classList.add("unlocked");
+                setTimeout(refreshApp, 250);
             } else {
                 overlay.classList.remove("unlocked");
                 enteredPin = "";
@@ -1387,6 +1424,7 @@
                     overlay.classList.add("unlocked");
                     statusMsg.innerText = "AUTHENTICATION REQUIRED";
                     statusMsg.style.color = "";
+                    setTimeout(refreshApp, 200);
                 }, 350);
             } else {
                 triggerHaptic();
@@ -1413,7 +1451,14 @@
             updatePinDots();
         }
 
-        // Initialize PIN security on load
+        // Auto-refresh live Mac stats every 20 seconds while remote is active
+        setInterval(() => {
+            if (document.visibilityState === 'visible' && localStorage.getItem("jarvis_auth_unlocked") === "true") {
+                sendCommand("stats", true);
+            }
+        }, 20000);
+
+        // Initialize PIN security and sync on load
         window.addEventListener("DOMContentLoaded", initSecurityLock);
     </script>
 </body>

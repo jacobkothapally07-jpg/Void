@@ -37,11 +37,13 @@ def get_system_health():
             _cached_cores = os.cpu_count() or 8
         load1, _, _ = os.getloadavg()
         util_pct = round((load1 / _cached_cores) * 100, 1)
+        health["cpu_usage_percent"] = util_pct
         health["cpu"] = {
             "cores": _cached_cores,
             "estimated_utilization": f"{min(100.0, util_pct)}%"
         }
     except Exception:
+        health["cpu_usage_percent"] = 25.0
         health["cpu"] = {"cores": 8, "estimated_utilization": "25%"}
 
     # 3. Memory
@@ -79,6 +81,14 @@ def get_system_health():
     _last_health = health
     _last_health_time = now
     return health
+
+def get_mac_volume() -> int:
+    try:
+        res = subprocess.run(["osascript", "-e", "output volume of (get volume settings)"], capture_output=True, text=True, timeout=1)
+        val = res.stdout.strip()
+        return int(val) if val.isdigit() else 50
+    except Exception:
+        return 50
 
 def set_mac_volume(level: int):
     try:

@@ -181,11 +181,16 @@ def handle_remote_command(command_text: str):
         send_phone_reply("Workstation locked down successfully, Sir.", title="Security Locked", tags="lock")
         return
 
-    # 4. Battery & Health
-    if any(k in lower for k in ["battery", "health", "system", "stats"]):
+    # 4. Battery & Health / Telemetry Sync
+    if any(k in lower for k in ["battery", "health", "system", "stats", "sync", "refresh", "telemetry", "ping"]):
+        from tools.system_tools import get_mac_volume
         h = get_system_health()
         batt = h.get("battery", {})
-        msg = f"Battery: {batt.get('percent', '100%')} ({batt.get('power_source', 'AC Power')}) | CPU: {h.get('cpu_usage_percent', 0)}%"
+        pct = batt.get("percent", "100%")
+        pwr = batt.get("power_source", "AC Power")
+        cpu_val = h.get("cpu_usage_percent", 14.2)
+        vol_val = get_mac_volume()
+        msg = f"Battery: {pct} ({pwr}) | CPU: {cpu_val}% | Volume: {vol_val}%"
         send_phone_reply(msg, title="System Health", tags="battery")
         return
 
@@ -209,7 +214,7 @@ def handle_remote_command(command_text: str):
         val = int(m_vol.group(1))
         from tools.system_tools import set_mac_volume
         set_mac_volume(val)
-        send_phone_reply(f"Master volume adjusted to {val}%, Sir.", title="Volume", tags="sound")
+        send_phone_reply(f"Master volume adjusted to {val}%, Sir. (Volume: {val}%)", title="Volume", tags="sound")
         return
 
     # 6. Fast Action Dispatch
