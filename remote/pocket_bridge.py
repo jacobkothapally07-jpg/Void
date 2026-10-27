@@ -56,8 +56,17 @@ def ensure_cloudflared_tunnel(local_port=8080):
                     url = m.group(0)
                     with open("/tmp/jarvis_remote_url.txt", "w") as f:
                         f.write(url)
-                    print(f"\033[96m[Pocket JARVIS HTTPS Web Remote] {url}/remote\033[0m")
-                    print(f"\033[92m[Permanent GitHub Pages URL] https://jacobkothapally07-jpg.github.io/jarvis/\033[0m")
+                    print(f"\033[96m[Pocket JARVIS HTTPS Remote] {url}/remote\033[0m")
+                    # Also print local network IP
+                    try:
+                        import socket
+                        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        s.connect(("8.8.8.8", 80))
+                        lip = s.getsockname()[0]
+                        s.close()
+                        print(f"\033[92m[Pocket JARVIS Local Wi-Fi] http://{lip}:{local_port}/remote\033[0m")
+                    except Exception:
+                        pass
                     return url
     except Exception as e:
         print(f"[Pocket JARVIS Tunnel] {e}")
