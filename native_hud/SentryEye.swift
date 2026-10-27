@@ -7,7 +7,7 @@ class SentryEye: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     let session = AVCaptureSession()
     let videoOutput = AVCaptureVideoDataOutput()
     var frameCount = 0
-    let framesToWarmUp = 12
+    let framesToWarmUp = 4
     var frameCaptured = false
     var completion: ((Int, String?) -> Void)?
     var outputPath: String = "/tmp/jarvis_sentry_capture.jpg"
@@ -20,12 +20,21 @@ class SentryEye: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         session.beginConfiguration()
         session.sessionPreset = .medium
         
-        guard let device = AVCaptureDevice.default(for: .video) else {
+        let discovery = AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera],
+            mediaType: .video,
+            position: .unspecified
+        )
+        let device = discovery.devices.first(where: { $0.localizedName.contains("FaceTime") })
+            ?? discovery.devices.first
+            ?? AVCaptureDevice.default(for: .video)
+        
+        guard let validDevice = device else {
             completion(0, nil)
             return
         }
         
-        guard let input = try? AVCaptureDeviceInput(device: device), session.canAddInput(input) else {
+        guard let input = try? AVCaptureDeviceInput(device: validDevice), session.canAddInput(input) else {
             completion(0, nil)
             return
         }
@@ -103,7 +112,7 @@ sentry.captureAndAnalyze(outputFile: targetPath) { faces, path in
 }
 
 let startTime = Date()
-while !finished && Date().timeIntervalSince(startTime) < 4.0 {
+while !finished && Date().timeIntervalSince(startTime) < 8.0 {
     RunLoop.current.run(until: Date().addingTimeInterval(0.05))
 }
 
@@ -117,3 +126,4 @@ if let jsonData = try? JSONSerialization.data(withJSONObject: jsonResult, option
    let jsonString = String(data: jsonData, encoding: .utf8) {
     print(jsonString)
 }
+exit(finished ? 0 : 1)

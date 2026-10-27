@@ -157,28 +157,78 @@ def handle_remote_command(command_text: str):
     # 2. FaceTime HD Camera (Desk / Sentry View)
     if any(k in lower for k in ["camera", "desk", "sentry", "webcam", "see desk"]):
         cam_path = "/tmp/pocket_jarvis_cam.jpg"
-        sentry_bin = os.path.expanduser("~/.gemini/antigravity/scratch/jarvis/native_hud/SentryEye")
-        if os.path.exists(sentry_bin):
-            subprocess.run([sentry_bin, cam_path], check=False)
-            if os.path.exists(cam_path):
-                subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "70", "-Z", "1280", cam_path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                
-                # Auto-archive to user's Pictures folder
-                archive_dir = os.path.expanduser("~/Pictures/JARVIS_Sentry")
-                os.makedirs(archive_dir, exist_ok=True)
-                ts = time.strftime("%Y%m%d_%H%M%S")
-                subprocess.run(["cp", cam_path, os.path.join(archive_dir, f"Sentry_{ts}.jpg")], check=False)
+        if os.path.exists(cam_path):
+            try:
+                os.remove(cam_path)
+            except Exception:
+                pass
 
-                send_phone_photo(cam_path, title="Workstation Desk View", filename="desk.jpg")
-                send_phone_reply("Here is the live camera feed of your desk, Sir.", title="Desk Vision", tags="camera")
-                return
-        send_phone_reply("Could not access camera module, Sir.", title="Camera Error", tags="warning")
+        captured = False
+        sentry_app = os.path.expanduser("~/.gemini/antigravity/scratch/jarvis/native_hud/SentryEye.app")
+        
+        # 1. Launch via LaunchServices (Aqua GUI session, full camera entitlements)
+        if os.path.exists(sentry_app):
+            try:
+                subprocess.run(["open", "-a", sentry_app, "--args", cam_path], check=False)
+                for _ in range(40):
+                    if os.path.exists(cam_path) and os.path.getsize(cam_path) > 0:
+                        captured = True
+                        break
+                    time.sleep(0.1)
+            except Exception:
+                pass
+
+        # 2. Direct binary fallback
+        if not captured:
+            sentry_bin = os.path.join(sentry_app, "Contents/MacOS/SentryEye")
+            if os.path.exists(sentry_bin):
+                try:
+                    subprocess.run([sentry_bin, cam_path], check=False, timeout=6)
+                    if os.path.exists(cam_path) and os.path.getsize(cam_path) > 0:
+                        captured = True
+                except Exception:
+                    pass
+
+        # 3. Hardware ffmpeg fallback
+        if not captured:
+            ffmpeg_bin = "/opt/homebrew/bin/ffmpeg"
+            if os.path.exists(ffmpeg_bin):
+                try:
+                    subprocess.run([
+                        ffmpeg_bin, "-y",
+                        "-f", "avfoundation",
+                        "-framerate", "30",
+                        "-video_size", "1280x720",
+                        "-i", "0",
+                        "-frames:v", "1",
+                        "-update", "1",
+                        cam_path
+                    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
+                    if os.path.exists(cam_path) and os.path.getsize(cam_path) > 0:
+                        captured = True
+                except Exception:
+                    pass
+
+        if captured:
+            subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "75", "-Z", "1280", cam_path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            
+            # Auto-archive to user's Pictures folder
+            archive_dir = os.path.expanduser("~/Pictures/JARVIS_Sentry")
+            os.makedirs(archive_dir, exist_ok=True)
+            ts = time.strftime("%Y%m%d_%H%M%S")
+            subprocess.run(["cp", cam_path, os.path.join(archive_dir, f"Sentry_{ts}.jpg")], check=False)
+
+            send_phone_photo(cam_path, title="Workstation Desk View", filename="desk.jpg")
+            send_phone_reply("Here is the live camera feed of your desk, Sir.", title="Desk Vision", tags="camera")
+            return
+
+        send_phone_reply("Could not access camera module. Please check Camera permission in System Settings, Sir.", title="Camera Error", tags="warning")
         return
 
     # 3. Lock Workstation
     if any(k in lower for k in ["lock", "lock mac", "lock down", "secure mac"]):
-        control_mac_settings("lock")
-        send_phone_reply("Workstation locked down successfully, Sir.", title="Security Locked", tags="lock")
+        res = control_mac_settings("lock")
+        send_phone_reply(res.get("detail", "Workstation locked down successfully, Sir."), title="Security Locked", tags="lock")
         return
 
     # 4. Battery & Health / Telemetry Sync

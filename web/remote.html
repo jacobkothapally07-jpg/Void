@@ -1214,13 +1214,9 @@
 
         function toggleSentry() {
             triggerHaptic();
-            sentrySwitch.classList.toggle("active");
-            if (sentrySwitch.classList.contains("active")) {
-                sendCommand("camera");
-                streamStatusSub.innerText = "SENTRY ACTIVE";
-            } else {
-                streamStatusSub.innerText = "SENTRY OFF";
-            }
+            sentrySwitch.classList.add("active");
+            streamStatusSub.innerText = "CAPTURING SENTRY...";
+            sendCommand("camera");
         }
 
         function closeSnapshot() {

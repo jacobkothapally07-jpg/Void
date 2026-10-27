@@ -113,8 +113,21 @@ def control_mac_settings(action: str, value: str = "") -> dict:
     act = action.lower().strip()
     try:
         if act == "lock":
-            subprocess.run(["osascript", "-e", "tell application \"System Events\" to keystroke \"q\" using {control down, command down}"], check=False)
-            return {"status": "success", "detail": "Mac locked, Sir."}
+            # Native macOS lock screen via login framework (requires no accessibility keystroke permissions)
+            try:
+                import ctypes
+                lib = ctypes.cdll.LoadLibrary('/System/Library/PrivateFrameworks/login.framework/login')
+                lib.SACLockScreenImmediate()
+                return {"status": "success", "detail": "Mac workstation locked down, Sir."}
+            except Exception:
+                pass
+            # Fallback: display sleep
+            try:
+                subprocess.run(["pmset", "displaysleepnow"], check=False)
+                return {"status": "success", "detail": "Display put to sleep, Sir."}
+            except Exception:
+                pass
+            return {"status": "error", "message": "Could not lock workstation."}
             
         elif act in ["dark_mode_toggle", "dark_mode"]:
             subprocess.run(["osascript", "-e", "tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode"], check=True)
