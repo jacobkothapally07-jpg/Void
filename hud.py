@@ -67,6 +67,9 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
         except Exception:
             pass
 
+    def do_HEAD(self):
+        self.do_GET()
+
     def do_GET(self):
         clean_path = self.path.split("?")[0]
         if clean_path in ["/", "/index.html"]:
