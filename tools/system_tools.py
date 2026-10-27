@@ -3,6 +3,7 @@ import shutil
 import re
 import os
 import time
+import threading
 
 _cached_total_mem = None
 _cached_cores = None
@@ -147,6 +148,11 @@ def start_sound_beacon():
 def stop_sound_beacon():
     global _beacon_running
     _beacon_running = False
+    try:
+        subprocess.run(["pkill", "-KILL", "-f", "Submarine.aiff"], check=False)
+        subprocess.run(["pkill", "-KILL", "-f", "Workstation location beacon"], check=False)
+    except Exception:
+        pass
     return {"status": "success", "detail": "Location beacon disengaged, Sir."}
 
 def control_mac_settings(action: str, value: str = "") -> dict:

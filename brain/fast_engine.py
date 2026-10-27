@@ -100,6 +100,15 @@ def dispatch_fast_action(user_input: str):
         set_jarvis_sleeping(True)
         return True, "Entering sleep mode, Sir. Wake me via voice or phone remote whenever you need me."
 
+    # 3b. Find My Mac Acoustic Beacon
+    if any(k in lower for k in ["stop beacon", "stop alarm", "cancel beacon", "dismiss beacon", "found it", "stop beacon alarm"]):
+        res = control_mac_settings("stop_beacon")
+        return True, res.get("detail", "Location beacon disengaged, Sir.")
+
+    if any(k in lower for k in ["find my mac", "find mac", "beacon", "alarm", "locate mac", "where is my mac", "ping mac", "sound beacon"]):
+        res = control_mac_settings("beacon")
+        return True, res.get("detail", "Workstation sound beacon activated at 100% volume, Sir.")
+
     # 4. Instant Mute & Standby
     if any(k in lower for k in ["stop", "shut up", "be quiet", "quiet", "hush", "mute", "silence", "stop talking", "stop yapping", "shut your mouth", "quiet please"]):
         from voice.tts import stop_speaking
@@ -107,7 +116,7 @@ def dispatch_fast_action(user_input: str):
         return True, "Muted, Sir."
 
     # 5. Basic Greetings / Pings
-    if lower in ["wake up", "wake up void", "wake up jarvis", "ping void", "ping jarvis", "ping", "open void", "hey void", "void", "hello void", "hi void", "are you there void", "void you there", "open jarvis", "hey jarvis", "jarvis", "hello jarvis", "hi jarvis", "you there"]:
+    if lower in ["wake up", "wake up void", "wake up jarvis", "ping void", "ping jarvis", "ping", "open void", "hey void", "void", "hello void", "hi void", "are you there void", "void you there", "hoid", "hey hoid", "boyd", "hey boyd", "boid", "lloyd", "hey lloyd", "open jarvis", "hey jarvis", "jarvis", "hello jarvis", "hi jarvis", "you there"]:
         from voice_listener import set_jarvis_sleeping
         from hud import set_widget_state
         from voice.sound_effects import play_repulsor_wake
@@ -289,6 +298,15 @@ def dispatch_fast_action(user_input: str):
         target = m_close.group(1).strip()
         res = close_application(target)
         return True, res.get("detail", f"Closed {target}, Sir.")
+
+    # Find My Mac Acoustic Beacon
+    if any(k in lower for k in ["stop beacon", "stop alarm", "cancel beacon", "dismiss beacon", "found it", "silence"]):
+        res = control_mac_settings("stop_beacon")
+        return True, res.get("detail", "Location beacon disengaged, Sir.")
+
+    if any(k in lower for k in ["find my mac", "find mac", "beacon", "alarm", "locate mac", "where is my mac", "ping mac", "sound beacon"]):
+        res = control_mac_settings("beacon")
+        return True, res.get("detail", "Workstation sound beacon activated at 100% volume, Sir.")
 
     # 13. File Search (e.g. "find my resume", "search file report")
     m_file = re.search(r"(?:find|search for|locate) (?:file|files|document)?\s*(.+)", lower)

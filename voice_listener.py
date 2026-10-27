@@ -46,9 +46,9 @@ def get_jarvis_sleeping() -> bool:
     return _is_jarvis_sleeping
 
 def clean_speech_query(text: str) -> str:
-    """Strips conversational leading wake words so natural queries resolve cleanly."""
+    """Strips conversational leading wake words and phonetic variants so queries resolve cleanly."""
     clean = text.strip()
-    clean = re.sub(r"^(?:(?:hey|ok|okay|hi|hello)\s+)?(?:void|jarvis)[\s,]*", "", clean, flags=re.IGNORECASE).strip()
+    clean = re.sub(r"^(?:(?:hey|ok|okay|hi|hello|yo)\s+)?(?:void|hoid|boyd|boid|lloyd|ford|jarvis)[\s,]*", "", clean, flags=re.IGNORECASE).strip()
     return clean
 
 def run_voice_listener():
@@ -80,9 +80,16 @@ def run_voice_listener():
     _active_stream = stream
     stream.start()
 
-    ambient_floor = 0.016
-    # 400ms pre-speech rolling ring buffer (8 blocks of 50ms)
-    pre_speech_ring = collections.deque(maxlen=8)
+    try:
+        import subprocess
+        subprocess.run(["osascript", "-e", "set volume input volume 90"], check=False)
+        subprocess.run(["osascript", "-e", "set volume without output muted"], check=False)
+    except Exception:
+        pass
+
+    ambient_floor = 0.010
+    # 600ms pre-speech rolling ring buffer (12 blocks of 50ms) to ensure no initial consonants are clipped
+    pre_speech_ring = collections.deque(maxlen=12)
 
     # Let startup sounds complete cleanly and flush initial buffer
     time.sleep(0.8)
@@ -153,12 +160,12 @@ def run_voice_listener():
 
             rms = float(np.sqrt(np.mean(block**2)))
 
-            # Dynamic calibrated thresholds for MacBook Air mic:
-            speech_threshold = max(0.016, ambient_floor * 1.8)
+            # Calibrated speech detection thresholds for clear far-field sensitivity
+            speech_threshold = max(0.009, ambient_floor * 1.35)
 
             # 3. SILENCE / NOISE GATE
             if rms < speech_threshold:
-                ambient_floor = 0.97 * ambient_floor + 0.03 * rms
+                ambient_floor = 0.98 * ambient_floor + 0.02 * rms
                 pre_speech_ring.append(block)
                 continue
 
@@ -172,8 +179,8 @@ def run_voice_listener():
 
             silence_start = None
             recording_start = time.time()
-            silence_threshold = max(0.012, ambient_floor * 1.3)
-            silence_timeout = 0.70
+            silence_threshold = max(0.007, ambient_floor * 1.15)
+            silence_timeout = 1.05  # Natural conversational breathing window
 
             while True:
                 try:
@@ -191,12 +198,12 @@ def run_voice_listener():
                     if silence_start is None:
                         silence_start = now
                     elif now - silence_start >= silence_timeout:
-                        # User has paused naturally for 0.75s -> Sentence complete!
+                        # User has paused naturally for 1.05s -> Sentence complete!
                         break
                 else:
                     silence_start = None
 
-                if total_duration >= 10.0:
+                if total_duration >= 12.0:
                     break
 
             total_speech_len = len(speech_blocks) * (BLOCK_SIZE / float(SAMPLE_RATE))
@@ -207,9 +214,9 @@ def run_voice_listener():
             # 4. AUDIO NORMALIZATION (Auto-Gain) & IN-MEMORY AUDIO
             full_audio = np.concatenate(speech_blocks)
             max_peak = float(np.max(np.abs(full_audio)))
-            if max_peak > 0.005:
-                # Normalize peak to 90% full scale so quiet speech is crystal clear
-                full_audio = full_audio / max_peak * 0.90
+            if max_peak > 0.003:
+                # Normalize peak to 95% full scale for crystal clear voice transcription
+                full_audio = full_audio / max_peak * 0.95
             
             pcm_bytes = (full_audio * 32767.0).astype(np.int16).tobytes()
             audio_data = sr.AudioData(pcm_bytes, SAMPLE_RATE, 2)
@@ -244,8 +251,9 @@ def run_voice_listener():
                 set_widget_state("idle", "VOID // ONLINE")
                 continue
 
-            # Standalone wake/ping
-            if lower in ["void", "hey void", "hello void", "hi void", "okay void", "ok void", "jarvis", "hey jarvis", "hello jarvis", "hi jarvis", "okay jarvis", "ok jarvis"]:
+            # Standalone wake/ping (including phonetic variants of void)
+            wake_phrases = ["void", "hey void", "hello void", "hi void", "okay void", "ok void", "hoid", "hey hoid", "boyd", "hey boyd", "boid", "lloyd", "ford", "jarvis", "hey jarvis", "hello jarvis", "hi jarvis", "okay jarvis", "ok jarvis"]
+            if lower in wake_phrases or (clean_speech_query(raw_text) == "" and any(w in lower for w in ["void", "hoid", "boyd", "jarvis"])):
                 from voice.sound_effects import play_repulsor_wake
                 play_repulsor_wake()
                 req = urllib.request.Request(

@@ -939,35 +939,6 @@
         </div>
     </div>
 
-    <!-- Siri & Action Button Setup Modal -->
-    <div id="siriModal" class="siri-modal-overlay">
-        <div class="siri-modal-card">
-            <div class="siri-modal-header">
-                <span class="siri-modal-title">🎙️ SIRI & ACTION BUTTON</span>
-                <button class="snapshot-close" onclick="closeSiriModal()">✕</button>
-            </div>
-            <div class="siri-modal-body">
-                <p class="siri-desc">Trigger Void natively from your iPhone Lock Screen, Action Button, or hands-free via Siri:</p>
-                <div class="siri-voice-pills">
-                    <div class="voice-cmd-pill">"Hey Siri, Ask Void to lock my Mac"</div>
-                    <div class="voice-cmd-pill">"Hey Siri, Ask Void to find my Mac"</div>
-                    <div class="voice-cmd-pill">"Hey Siri, Ask Void for desk camera"</div>
-                </div>
-                <div class="siri-steps">
-                    <div class="step-num">1</div>
-                    <div class="step-text">Open <b>Shortcuts</b> app on your iPhone & tap <b>+</b>.</div>
-                    <div class="step-num">2</div>
-                    <div class="step-text">Name the shortcut <b>"Ask Void"</b>.</div>
-                    <div class="step-num">3</div>
-                    <div class="step-text">Add <b>"Get Contents of URL"</b> with method POST and Request Body: Shortcut Input.</div>
-                    <div class="step-num">4</div>
-                    <div class="step-text">Under iPhone <b>Settings → Action Button</b>, choose Shortcut → <b>Ask Void</b>.</div>
-                </div>
-                <button class="siri-copy-btn" onclick="copyShortcutURL()">📋 Copy Command Webhook URL</button>
-                <div id="copySuccessMsg" class="copy-success" style="display:none;">✓ URL Copied to Clipboard!</div>
-            </div>
-        </div>
-    </div>
 
     <div class="ambient-glow-top"></div>
 
@@ -1063,10 +1034,6 @@
             <div class="strip-card" onclick="triggerSleepMac()">
                 <div class="strip-icon">🌙</div>
                 <span class="strip-label">Sleep</span>
-            </div>
-            <div class="strip-card" onclick="openSiriModal()">
-                <div class="strip-icon">🎙️</div>
-                <span class="strip-label">Siri Setup</span>
             </div>
         </div>
 
@@ -1265,30 +1232,6 @@
                 if (label) label.innerText = "Find Mac";
                 streamStatusSub.innerText = "ONLINE";
             }
-        }
-
-        function openSiriModal() {
-            triggerHaptic();
-            document.getElementById("siriModal").style.display = "flex";
-        }
-
-        function closeSiriModal() {
-            triggerHaptic();
-            document.getElementById("siriModal").style.display = "none";
-        }
-
-        function copyShortcutURL() {
-            triggerHaptic();
-            const url = `https://ntfy.sh/${CMD_TOPIC}`;
-            navigator.clipboard.writeText(url).then(() => {
-                const msg = document.getElementById("copySuccessMsg");
-                if (msg) {
-                    msg.style.display = "block";
-                    setTimeout(() => { msg.style.display = "none"; }, 3000);
-                }
-            }).catch(() => {
-                prompt("Copy Command Webhook URL:", url);
-            });
         }
 
         // Server-Sent Events (Live incoming alerts from Mac)
