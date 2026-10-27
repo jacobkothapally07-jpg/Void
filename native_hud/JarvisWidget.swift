@@ -20,6 +20,7 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     var webView: WKWebView!
     var statusItem: NSStatusItem!
     var hotKeyRefs: [EventHotKeyRef] = []
+    var lastToggleTime: TimeInterval = 0
     
     let configFile = NSString(string: "~/.jarvis_hotkey.json").expandingTildeInPath
     
@@ -181,12 +182,23 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     }
     
     @objc func toggleWidget() {
+        let now = Date().timeIntervalSince1970
+        if now - lastToggleTime < 0.35 {
+            return // Prevent duplicate event bounce from Carbon + Cocoa
+        }
+        lastToggleTime = now
+
         if window.isVisible {
+            // CLOSING: Hide window & put Void + Mic to sleep (Orange dot OFF)
             window.orderOut(nil)
+            if let url = URL(string: "http://127.0.0.1:8080/api/sleep") {
+                URLSession.shared.dataTask(with: url).resume()
+            }
         } else {
+            // WAKING UP: Show window & turn mic ON (Orange dot ON + Active Voice Listening)
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
-            if let url = URL(string: "http://127.0.0.1:8080/api/listen") {
+            if let url = URL(string: "http://127.0.0.1:8080/api/wake_and_listen") {
                 URLSession.shared.dataTask(with: url).resume()
             }
         }

@@ -133,13 +133,17 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             return
         elif clean_path == "/api/sleep":
             from voice_listener import set_jarvis_sleeping
+            from voice.tts import stop_speaking
+            stop_speaking()
             set_jarvis_sleeping(True)
-            set_widget_state("sleep", "Entering sleep mode...")
+            set_widget_state("sleep", "MIC OFF // STANDBY")
             self._send_json({"status": "success", "mode": "sleep"})
             return
-        elif clean_path in ["/api/listen", "/api/wake"]:
+        elif clean_path in ["/api/wake_and_listen", "/api/listen", "/api/wake"]:
             from voice_listener import set_jarvis_sleeping, trigger_active_listen
             from voice.sound_effects import play_repulsor_wake
+            from voice.tts import stop_speaking
+            stop_speaking()
             set_jarvis_sleeping(False)
             play_repulsor_wake()
             trigger_active_listen()
