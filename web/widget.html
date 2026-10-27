@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. Holographic Core</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Void Holographic Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #ff9900;
-            --gold-bright: #ffaa00;
-            --gold-glow: rgba(255, 150, 0, 0.7);
-            --gold-dim: rgba(255, 140, 0, 0.2);
-            --cyan: #00f0ff;
-            --cyan-glow: rgba(0, 240, 255, 0.6);
-            --font-display: "Orbitron", sans-serif;
-            --font-mono: "Share Tech Mono", monospace;
-            --font-ui: "Rajdhani", sans-serif;
+            --bg-void: #000000;
+            --surface-glass: rgba(12, 14, 20, 0.78);
+            --surface-border: rgba(255, 255, 255, 0.12);
+            --surface-border-bright: rgba(255, 255, 255, 0.28);
+            --accent-white: #ffffff;
+            --accent-cyan: #38bdf8;
+            --accent-purple: #c084fc;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.55);
+            --font-ui: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: "Space Grotesk", sans-serif;
+            --font-mono: "JetBrains Mono", monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -30,16 +33,16 @@
             align-items: center;
             justify-content: center;
             font-family: var(--font-ui);
-            -webkit-app-region: drag; /* Draggable anywhere on desktop */
+            -webkit-app-region: no-drag;
         }
 
         .widget-container {
-            width: 330px;
+            width: 320px;
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
-            padding: 8px;
+            padding: 6px;
         }
 
         /* Top HUD Telemetry Pill */
@@ -47,33 +50,57 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 250px;
-            padding: 4px 12px;
-            background: rgba(8, 12, 18, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--gold-dim);
-            border-radius: 14px;
+            width: 270px;
+            padding: 6px 14px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--surface-border);
+            border-radius: 9999px;
             font-family: var(--font-display);
-            font-size: 9px;
-            letter-spacing: 1.5px;
-            color: var(--gold);
-            margin-bottom: 6px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 10px rgba(255,150,0,0.2);
-            transition: all 0.2s ease;
+            font-size: 9.5px;
+            letter-spacing: 1.2px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.25s ease;
+            cursor: grab;
+        }
+        .hud-header:active {
+            cursor: grabbing;
+            border-color: var(--surface-border-bright);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .status-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #00ffaa;
-            box-shadow: 0 0 8px #00ffaa;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
             display: inline-block;
-            margin-right: 4px;
+            transition: all 0.3s ease;
         }
 
-        /* Circular Arc Reactor Housing */
-        .reactor-box {
+        #statusText {
+            font-weight: 700;
+            letter-spacing: 1.2px;
+        }
+
+        #telemetry {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        /* 3D Hologram Particle Sphere Stage */
+        .hologram-stage {
             position: relative;
             width: 240px;
             height: 240px;
@@ -81,204 +108,71 @@
             align-items: center;
             justify-content: center;
             cursor: grab;
+            border-radius: 50%;
         }
-        .reactor-box:active {
+        .hologram-stage:active {
             cursor: grabbing;
         }
 
-        /* Audio Visualizer Wave Ring (24 radiating bars) */
-        .visualizer-ring {
-            position: absolute;
-            width: 236px;
-            height: 236px;
+        .hologram-canvas {
+            width: 240px;
+            height: 240px;
+            display: block;
             border-radius: 50%;
+            pointer-events: auto;
+        }
+
+        /* Core Starlight Ambient Glow */
+        .ambient-glow {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(56, 189, 248, 0.04) 40%, transparent 70%);
             pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.4s ease;
         }
 
-        .audio-bar {
-            position: absolute;
-            width: 2px;
-            height: 6px;
-            background: rgba(255, 170, 0, 0.45);
-            border-radius: 2px;
-            transform-origin: bottom center;
-            transition: height 0.08s ease, background 0.15s ease;
-        }
-
-        /* Outer HUD Rotating Tech Rings */
-        .tech-ring {
-            position: absolute;
-            width: 226px;
-            height: 226px;
-            border-radius: 50%;
-            border: 1.5px dashed rgba(255, 160, 0, 0.45);
-            animation: rotateCounter 28s linear infinite;
-            pointer-events: none;
-        }
-
-        .tech-ring-2 {
-            position: absolute;
-            width: 216px;
-            height: 216px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 140, 0, 0.25);
-            border-top-color: var(--gold-bright);
-            border-bottom-color: var(--gold-bright);
-            animation: rotateClock 16s linear infinite;
-            pointer-events: none;
-        }
-
-        /* The Main Holographic Image Core */
-        .core-image {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: url('/reactor_core.webp') center center no-repeat;
-            background-size: cover;
-            filter: drop-shadow(0 0 24px var(--gold-glow));
-            animation: rotateClock 42s linear infinite;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        /* Central Glowing Energy Flare */
-        .energy-flare {
-            position: absolute;
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #ffffff 15%, #ffaa00 55%, transparent 80%);
-            box-shadow: 0 0 40px var(--gold), 0 0 80px rgba(255, 150, 0, 0.85);
-            opacity: 0.88;
-            animation: pulseEnergy 2.5s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        /* Dynamic Interactive States */
-        .reactor-box.listening .core-image {
-            filter: drop-shadow(0 0 45px rgba(255, 60, 20, 0.95)) brightness(1.25);
-            animation: rotateClock 7s linear infinite;
-        }
-        .reactor-box.listening .energy-flare {
-            background: radial-gradient(circle, #ffffff 20%, #ff3b30 60%, transparent 80%);
-            box-shadow: 0 0 60px #ff3b30, 0 0 100px rgba(255, 60, 20, 0.9);
-            animation: pulseEnergy 0.9s ease-in-out infinite;
-        }
-
-        .reactor-box.thinking .core-image {
-            filter: drop-shadow(0 0 45px #00f0ff) brightness(1.35);
-            animation: rotateClock 3.5s linear infinite;
-        }
-
-        .reactor-box.speaking .core-image {
-            filter: drop-shadow(0 0 42px var(--gold-glow)) brightness(1.3);
-            animation: rotateClock 10s linear infinite;
-        }
-        .reactor-box.speaking .energy-flare {
-            animation: pulseEnergy 0.75s ease-in-out infinite;
-        }
-
-        @keyframes rotateClock {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes rotateCounter {
-            from { transform: rotate(360deg); }
-            to { transform: rotate(0deg); }
-        }
-
-        @keyframes pulseEnergy {
-            0% { transform: scale(0.9); opacity: 0.7; }
-            50% { transform: scale(1.2); opacity: 1.0; }
-            100% { transform: scale(0.9); opacity: 0.7; }
-        }
-
-        /* Floating Subtitle / Transcript Pill */
+        /* Subtitle Pill */
         .subtitles {
-            width: 290px;
-            background: rgba(8, 12, 18, 0.92);
-            backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 160, 0, 0.4);
-            border-radius: 16px;
-            padding: 8px 14px;
-            margin-top: 8px;
-            font-family: var(--font-ui);
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffeedd;
-            line-height: 1.45;
+            width: 270px;
+            padding: 6px 12px;
+            background: rgba(10, 12, 16, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--text-primary);
             text-align: center;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.85), 0 0 18px rgba(255,150,0,0.2);
+            line-height: 1.4;
+            letter-spacing: 0.2px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
             opacity: 0;
-            transform: translateY(8px);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            max-height: 90px;
-            overflow-y: auto;
-            -webkit-app-region: no-drag;
-            user-select: text;
+            transform: translateY(4px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+            margin-top: 4px;
+            margin-bottom: 6px;
+            word-break: break-word;
         }
         .subtitles.visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Bottom Quick Action Bar */
-        .btn-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-            max-width: 320px;
-            margin-top: 6px;
-            -webkit-app-region: no-drag;
-        }
-
-        .pill-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 160, 0, 0.25);
-            color: var(--gold);
-            font-family: var(--font-mono);
-            font-size: 10px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .pill-btn:hover {
-            background: rgba(255, 160, 0, 0.2);
-            border-color: var(--gold);
-            box-shadow: 0 0 10px var(--gold-glow);
-        }
-
-        .rec-btn.recording {
-            background: rgba(255, 59, 48, 0.35) !important;
-            border-color: #ff3b30 !important;
-            color: #ffffff !important;
-            animation: pulseRecord 1.2s infinite ease-in-out;
-        }
-
-        @keyframes pulseRecord {
-            0% { box-shadow: 0 0 4px #ff3b30; }
-            50% { box-shadow: 0 0 14px #ff3b30; }
-            100% { box-shadow: 0 0 4px #ff3b30; }
-        }
-
-        /* Hidden Input Box */
+        /* Quick Command Input Bar */
         .input-bar {
-            width: 280px;
             display: none;
-            margin-top: 8px;
-            background: rgba(12, 16, 24, 0.96);
-            border: 1px solid var(--gold);
-            border-radius: 18px;
-            padding: 6px 14px;
-            box-shadow: 0 0 20px rgba(255, 160, 0, 0.35);
-            -webkit-app-region: no-drag;
+            width: 270px;
+            background: rgba(14, 17, 24, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--surface-border-bright);
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
         }
         .input-bar input {
             width: 100%;
@@ -287,75 +181,339 @@
             outline: none;
             color: #ffffff;
             font-family: var(--font-ui);
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 12.5px;
+            font-weight: 500;
         }
         .input-bar input::placeholder {
-            color: rgba(255, 255, 255, 0.35);
+            color: var(--text-secondary);
+        }
+
+        /* Button Action Row */
+        .btn-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 270px;
+            margin-top: 2px;
+        }
+
+        .pill-btn {
+            flex: 1;
+            padding: 6px 4px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-family: var(--font-display);
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+        .pill-btn:hover {
+            color: #ffffff;
+            border-color: var(--surface-border-bright);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .pill-btn:active {
+            transform: scale(0.95);
+        }
+
+        .pill-btn.recording {
+            border-color: #ef4444;
+            color: #ef4444;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+            animation: pulse-rec 1.2s infinite;
+        }
+        @keyframes pulse-rec {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.55; }
         }
     </style>
 </head>
 <body>
     <div class="widget-container">
-        <!-- Telemetry Header -->
-        <div class="hud-header">
-            <div><span class="status-dot" id="statusDot"></span><span id="statusText">JARVIS // ONLINE</span></div>
+        <!-- Top HUD Telemetry Header (Draggable) -->
+        <div class="hud-header" id="hudHeader" title="Drag to move Void widget anywhere on desktop">
+            <div class="status-badge">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">VOID // ONLINE</span>
+            </div>
             <div id="telemetry">CPU 0% | 100%⚡</div>
         </div>
 
-        <!-- Arc Reactor Glowing Orb Core -->
-        <div class="reactor-box" id="reactorBox" onclick="toggleInput()" title="Click to type or drag widget anywhere">
-            <div class="visualizer-ring" id="visRing"></div>
-            <div class="tech-ring"></div>
-            <div class="tech-ring-2"></div>
-            <div class="core-image"></div>
-            <div class="energy-flare"></div>
+        <!-- 3D Holographic Particle Sphere -->
+        <div class="hologram-stage" id="hologramStage" title="Swipe or drag to orbit Void in 3D • Click to mute/type">
+            <div class="ambient-glow" id="ambientGlow"></div>
+            <canvas id="voidHologramCanvas" class="hologram-canvas"></canvas>
         </div>
 
-        <!-- Quick Subtitle Pill -->
+        <!-- Subtitle Pill -->
         <div class="subtitles" id="subtitles">Standing by, Sir.</div>
 
-        <!-- Hidden Quick Command Input -->
+        <!-- Quick Command Input -->
         <div class="input-bar" id="inputBar">
-            <input type="text" id="cmdInput" placeholder="Type command... (Enter to send)" />
+            <input type="text" id="cmdInput" placeholder="Command Void... (Enter to send)" />
         </div>
 
-        <!-- Widget Control Bar -->
+        <!-- Quick Action Buttons -->
         <div class="btn-row">
             <button class="pill-btn" onclick="toggleInput()">⌨️ TYPE</button>
-            <button class="pill-btn rec-btn" id="recBtn" onclick="toggleScreenRecording()" title="Start or Stop Screen Recording">🎥 REC</button>
-            <button class="pill-btn" onclick="askQuick('what is on my screen right now')" title="Visual scan and explanation of current screen">👁️ SCAN</button>
-            <button class="pill-btn" onclick="askQuick('solve the coding problem on screen and paste it')" title="Solve coding problem & auto-paste">⚡ CODE</button>
+            <button class="pill-btn" id="recBtn" onclick="toggleScreenRecording()" title="Screen Recording">🎥 REC</button>
+            <button class="pill-btn" onclick="askQuick('what is on my screen right now')" title="Visual scan of screen">👁️ SCAN</button>
+            <button class="pill-btn" onclick="askQuick('solve the coding problem on screen and paste it')" title="Solve coding problem">⚡ CODE</button>
         </div>
     </div>
 
     <script>
-        const reactor = document.getElementById("reactorBox");
-        const subtitles = document.getElementById("subtitles");
+        const canvas = document.getElementById("voidHologramCanvas");
+        const ctx = canvas.getContext("2d");
         const statusText = document.getElementById("statusText");
         const statusDot = document.getElementById("statusDot");
         const telemetry = document.getElementById("telemetry");
+        const subtitles = document.getElementById("subtitles");
         const inputBar = document.getElementById("inputBar");
         const cmdInput = document.getElementById("cmdInput");
-        const visRing = document.getElementById("visRing");
+        const ambientGlow = document.getElementById("ambientGlow");
+        const hudHeader = document.getElementById("hudHeader");
+        const hologramStage = document.getElementById("hologramStage");
 
-        // Build 28 radiating audio visualizer bars around the arc reactor
-        const barCount = 28;
-        const radius = 112;
-        const bars = [];
-        for (let i = 0; i < barCount; i++) {
-            const bar = document.createElement("div");
-            bar.className = "audio-bar";
-            const angle = (i / barCount) * (Math.PI * 2);
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
-            const deg = (angle * 180 / Math.PI) + 90;
-            bar.style.transform = `translate(${x}px, ${y}px) rotate(${deg}deg)`;
-            visRing.appendChild(bar);
-            bars.push(bar);
+        // High-DPI canvas setup
+        const dpr = window.devicePixelRatio || 2;
+        const STAGE_SIZE = 240;
+        canvas.width = STAGE_SIZE * dpr;
+        canvas.height = STAGE_SIZE * dpr;
+        ctx.scale(dpr, dpr);
+
+        // 3D Fibonacci Particle Sphere Model (2,000 Particles)
+        const PARTICLE_COUNT = 2000;
+        const particles = [];
+        const SPHERE_RADIUS = 82;
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const y = 1 - (i / (PARTICLE_COUNT - 1)) * 2;
+            const radiusAtY = Math.sqrt(1 - y * y);
+            const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+            const theta = goldenAngle * i;
+            const x = Math.cos(theta) * radiusAtY;
+            const z = Math.sin(theta) * radiusAtY;
+
+            // Dense polar clustering matching user's reference image
+            const isPole = Math.abs(y) > 0.82;
+            const baseSize = isPole ? (Math.random() * 1.4 + 0.8) : (Math.random() * 1.1 + 0.5);
+            const brightness = isPole ? (0.75 + Math.random() * 0.25) : (0.35 + Math.random() * 0.55);
+
+            particles.push({
+                origX: x * SPHERE_RADIUS,
+                origY: y * SPHERE_RADIUS,
+                origZ: z * SPHERE_RADIUS,
+                size: baseSize,
+                alpha: brightness,
+                phase: Math.random() * Math.PI * 2
+            });
         }
 
+        let rotX = 0.25;
+        let rotY = 0;
+        let velX = 0.001;
+        let velY = 0.004;
+        let isOrbitDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let hasDraggedSignificantly = false;
+
+        let activeState = "idle";
+        let stateAnimTime = 0;
         let subtitleTimeout = null;
+
+        // Interactive 3D Sphere Orbit Dragging
+        hologramStage.addEventListener("mousedown", (e) => {
+            isOrbitDragging = true;
+            hasDraggedSignificantly = false;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            velX = 0;
+            velY = 0;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            if (!isOrbitDragging) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                hasDraggedSignificantly = true;
+            }
+            velY = dx * 0.005;
+            velX = -dy * 0.005;
+            rotY += velY;
+            rotX += velX;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+        });
+
+        window.addEventListener("mouseup", (e) => {
+            if (isOrbitDragging && !hasDraggedSignificantly) {
+                // It was a click, not a drag!
+                if (activeState === "speaking") {
+                    fetch("/api/stop", { method: "POST" });
+                    setVisualState("idle", "VOID // ONLINE");
+                } else {
+                    toggleInput();
+                }
+            }
+            isOrbitDragging = false;
+        });
+
+        // 60 FPS Render Loop
+        function render() {
+            ctx.clearRect(0, 0, STAGE_SIZE, STAGE_SIZE);
+
+            if (!isOrbitDragging) {
+                rotY += velY;
+                rotX += velX;
+                velY = velY * 0.94 + 0.0035 * 0.06;
+                velX = velX * 0.94 + 0.0008 * 0.06;
+            }
+
+            stateAnimTime += 0.035;
+            const cx = STAGE_SIZE / 2;
+            const cy = STAGE_SIZE / 2;
+
+            let radiusMultiplier = 1.0;
+            let speedMod = 1.0;
+            let waveFreq = 2.0;
+
+            if (activeState === "listening") {
+                radiusMultiplier = 1.0 + Math.sin(stateAnimTime * 8) * 0.08;
+                waveFreq = 8.0;
+            } else if (activeState === "thinking") {
+                speedMod = 3.5;
+                radiusMultiplier = 0.92 + Math.sin(stateAnimTime * 12) * 0.05;
+            } else if (activeState === "speaking") {
+                radiusMultiplier = 1.04 + Math.sin(stateAnimTime * 6) * 0.06;
+                waveFreq = 4.0;
+            } else if (activeState === "sleep" || activeState === "shutdown") {
+                radiusMultiplier = 0.65;
+                speedMod = 0.3;
+            } else {
+                radiusMultiplier = 1.0 + Math.sin(stateAnimTime * 1.5) * 0.025;
+            }
+
+            const cosY = Math.cos(rotY * speedMod);
+            const sinY = Math.sin(rotY * speedMod);
+            const cosX = Math.cos(rotX);
+            const sinX = Math.sin(rotX);
+
+            const projected = [];
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                let wave = 1.0;
+                if (activeState !== "sleep" && activeState !== "shutdown") {
+                    wave += Math.sin(p.phase + stateAnimTime * waveFreq) * 0.035;
+                }
+
+                const px = p.origX * radiusMultiplier * wave;
+                const py = p.origY * radiusMultiplier * wave;
+                const pz = p.origZ * radiusMultiplier * wave;
+
+                // 3D Matrix Rotation (Y then X)
+                const x1 = px * cosY - pz * sinY;
+                const z1 = pz * cosY + px * sinY;
+
+                const y2 = py * cosX - z1 * sinX;
+                const z2 = z1 * cosX + py * sinX;
+
+                // Perspective projection
+                const fov = 300;
+                const scale = fov / (fov + z2);
+                const screenX = cx + x1 * scale;
+                const screenY = cy + y2 * scale;
+
+                const depthAlpha = ((z2 + SPHERE_RADIUS) / (SPHERE_RADIUS * 2));
+                const finalAlpha = Math.max(0.12, Math.min(1.0, p.alpha * (0.35 + depthAlpha * 0.65)));
+
+                projected.push({
+                    x: screenX,
+                    y: screenY,
+                    z: z2,
+                    size: p.size * scale,
+                    alpha: finalAlpha
+                });
+            }
+
+            projected.sort((a, b) => a.z - b.z);
+
+            for (let i = 0; i < projected.length; i++) {
+                const p = projected[i];
+
+                if (activeState === "listening") {
+                    ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
+                } else if (activeState === "thinking") {
+                    ctx.fillStyle = `rgba(192, 132, 252, ${p.alpha})`;
+                } else if (activeState === "speaking") {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                } else {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                }
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Starlight aura on bright foreground points
+                if (p.alpha > 0.8 && p.size > 1.2) {
+                    ctx.fillStyle = activeState === "listening"
+                        ? `rgba(56, 189, 248, ${p.alpha * 0.35})`
+                        : (activeState === "thinking"
+                            ? `rgba(192, 132, 252, ${p.alpha * 0.35})`
+                            : `rgba(255, 255, 255, ${p.alpha * 0.3})`);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * 2.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            requestAnimationFrame(render);
+        }
+        render();
+
+        // UI State Updates
+        function setVisualState(state, label) {
+            activeState = state;
+            statusText.innerText = label || "VOID // ONLINE";
+
+            if (state === "listening") {
+                statusDot.style.background = "#38bdf8";
+                statusDot.style.boxShadow = "0 0 10px #38bdf8";
+                ambientGlow.style.background = "radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(56, 189, 248, 0.08) 50%, transparent 75%)";
+            } else if (state === "thinking") {
+                statusDot.style.background = "#c084fc";
+                statusDot.style.boxShadow = "0 0 10px #c084fc";
+                ambientGlow.style.background = "radial-gradient(circle, rgba(192, 132, 252, 0.22) 0%, rgba(192, 132, 252, 0.08) 50%, transparent 75%)";
+            } else if (state === "speaking") {
+                statusDot.style.background = "#ffffff";
+                statusDot.style.boxShadow = "0 0 12px #ffffff";
+                ambientGlow.style.background = "radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.08) 50%, transparent 75%)";
+            } else if (state === "sleep" || state === "shutdown") {
+                statusDot.style.background = "rgba(255, 255, 255, 0.25)";
+                statusDot.style.boxShadow = "none";
+                ambientGlow.style.background = "none";
+            } else {
+                statusDot.style.background = "#10b981";
+                statusDot.style.boxShadow = "0 0 8px #10b981";
+                ambientGlow.style.background = "radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(56, 189, 248, 0.04) 40%, transparent 70%)";
+            }
+        }
 
         function showSubtitle(text, duration = 4500) {
             subtitles.innerText = text;
@@ -368,47 +526,6 @@
             }
         }
 
-        function setVisualState(state, label) {
-            reactor.className = "reactor-box " + state;
-            statusText.innerText = label;
-            if (state === "listening") {
-                statusDot.style.background = "#ff3b30";
-                statusDot.style.boxShadow = "0 0 10px #ff3b30";
-            } else if (state === "thinking") {
-                statusDot.style.background = "#00f0ff";
-                statusDot.style.boxShadow = "0 0 10px #00f0ff";
-            } else if (state === "speaking") {
-                statusDot.style.background = "#ffaa00";
-                statusDot.style.boxShadow = "0 0 10px #ffaa00";
-            } else {
-                statusDot.style.background = "#00ffaa";
-                statusDot.style.boxShadow = "0 0 8px #00ffaa";
-            }
-        }
-
-        // Animate audio bars when speaking or listening
-        function animateVisualizer(active, isSpeaking) {
-            for (let i = 0; i < bars.length; i++) {
-                if (active) {
-                    const h = isSpeaking ? (8 + Math.random() * 16) : (6 + Math.random() * 10);
-                    bars[i].style.height = h + "px";
-                    bars[i].style.background = isSpeaking ? "#ffaa00" : "#ff3b30";
-                } else {
-                    bars[i].style.height = "5px";
-                    bars[i].style.background = "rgba(255, 170, 0, 0.4)";
-                }
-            }
-        }
-
-        let currentActiveState = "idle";
-        setInterval(() => {
-            if (currentActiveState === "speaking" || currentActiveState === "listening") {
-                animateVisualizer(true, currentActiveState === "speaking");
-            } else {
-                animateVisualizer(false, false);
-            }
-        }, 90);
-
         // Poll Python backend for live speech & state
         let lastState = "";
         let lastText = "";
@@ -419,14 +536,13 @@
                 if (data) {
                     const state = data.state || "idle";
                     const text = data.text || "";
-                    currentActiveState = state;
 
                     if (state !== lastState || text !== lastText) {
                         lastState = state;
                         lastText = text;
                         if (state === "sleep" || state === "shutdown") {
-                            setVisualState("idle", "SLEEPING...");
-                            showSubtitle("Entering sleep mode, Sir.", 2500);
+                            setVisualState("sleep", "STANDBY");
+                            showSubtitle("Entering standby mode, Sir.", 2500);
                             setTimeout(() => {
                                 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
                                     window.webkit.messageHandlers.widget.postMessage({ action: "sleep" });
@@ -437,12 +553,12 @@
                             showSubtitle(text || "🎙️ Listening... speak anytime", 0);
                         } else if (state === "thinking") {
                             setVisualState("thinking", "THINKING...");
-                            showSubtitle(text || "⚡ Executing command...", 0);
+                            showSubtitle(text || "⚡ Processing instruction...", 0);
                         } else if (state === "speaking") {
                             setVisualState("speaking", "SPEAKING...");
                             showSubtitle(text, 6000);
                         } else {
-                            setVisualState("idle", "JARVIS // ONLINE");
+                            setVisualState("idle", "VOID // ONLINE");
                         }
                     }
                 }
@@ -466,7 +582,7 @@
                 setVisualState("speaking", "SPEAKING...");
                 showSubtitle(reply, 6000);
             } catch (err) {
-                setVisualState("idle", "JARVIS // ONLINE");
+                setVisualState("idle", "VOID // ONLINE");
             }
         }
 
@@ -488,48 +604,6 @@
             }
         }
 
-        // --- BUTTERY SMOOTH DESKTOP DRAGGING TO ANY PLACE ---
-        let isDragging = false;
-        let startX = 0;
-        let startY = 0;
-
-        function attachDrag(el) {
-            if (!el) return;
-            el.addEventListener("mousedown", (e) => {
-                if (e.target.tagName === "BUTTON" || e.target.tagName === "INPUT" || e.target.closest(".input-bar")) return;
-                isDragging = true;
-                startX = e.screenX;
-                startY = e.screenY;
-            });
-        }
-
-        const hudHeaderEl = document.querySelector(".hud-header");
-        attachDrag(hudHeaderEl);
-        attachDrag(reactor);
-
-        // Click reactor core to instantly silence Jarvis if speaking
-        reactor.addEventListener("click", () => {
-            if (!isDragging) {
-                fetch("/api/stop", { method: "POST" });
-                setVisualState("idle", "JARVIS // ONLINE");
-            }
-        });
-
-        window.addEventListener("mousemove", (e) => {
-            if (!isDragging) return;
-            const dx = e.screenX - startX;
-            const dy = e.screenY - startY;
-            startX = e.screenX;
-            startY = e.screenY;
-            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
-                window.webkit.messageHandlers.widget.postMessage({ action: "move", dx: dx, dy: dy });
-            }
-        });
-
-        window.addEventListener("mouseup", () => {
-            isDragging = false;
-        });
-
         cmdInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && cmdInput.value.trim()) {
                 const val = cmdInput.value.trim();
@@ -548,7 +622,33 @@
             handleCommand(text);
         }
 
-        // --- SCREEN RECORDING TOGGLE ---
+        // Desktop window drag handler via HUD Header
+        let isWindowDragging = false;
+        let winStartX = 0;
+        let winStartY = 0;
+
+        hudHeader.addEventListener("mousedown", (e) => {
+            isWindowDragging = true;
+            winStartX = e.screenX;
+            winStartY = e.screenY;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            if (!isWindowDragging) return;
+            const dx = e.screenX - winStartX;
+            const dy = e.screenY - winStartY;
+            winStartX = e.screenX;
+            winStartY = e.screenY;
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.widget) {
+                window.webkit.messageHandlers.widget.postMessage({ action: "move", dx: dx, dy: dy });
+            }
+        });
+
+        window.addEventListener("mouseup", () => {
+            isWindowDragging = false;
+        });
+
+        // Screen recording toggle
         let isScreenRecording = false;
         async function toggleScreenRecording() {
             const btn = document.getElementById("recBtn");
@@ -585,7 +685,7 @@
         updateStats();
 
         window.addEventListener("DOMContentLoaded", () => {
-            showSubtitle("J.A.R.V.I.S. Holographic Matrix Online", 3500);
+            showSubtitle("Void Holographic Matrix Online", 3500);
         });
     </script>
 </body>

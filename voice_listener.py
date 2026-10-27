@@ -201,7 +201,7 @@ def run_voice_listener():
 
             total_speech_len = len(speech_blocks) * (BLOCK_SIZE / float(SAMPLE_RATE))
             if total_speech_len < MIN_SPEECH_SECONDS:
-                set_widget_state("idle", "JARVIS // ONLINE")
+                set_widget_state("idle", "VOID // ONLINE")
                 continue
 
             # 4. AUDIO NORMALIZATION (Auto-Gain) & IN-MEMORY AUDIO
@@ -232,7 +232,7 @@ def run_voice_listener():
                     raw_text = ""
 
             if not raw_text:
-                set_widget_state("idle", "JARVIS // ONLINE")
+                set_widget_state("idle", "VOID // ONLINE")
                 continue
 
             print(f"\n\033[92m[User Spoke]\033[0m \"{raw_text}\"")

@@ -1,5 +1,5 @@
 _last_hud_wakeup = 0
-_widget_state = {"state": "idle", "text": "JARVIS // ONLINE"}
+_widget_state = {"state": "idle", "text": "VOID // ONLINE"}
 
 def set_widget_state(state, text=""):
     global _widget_state
@@ -142,7 +142,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             from voice.sound_effects import play_repulsor_wake
             play_repulsor_wake()
             set_jarvis_sleeping(False)
-            set_widget_state("idle", "JARVIS // ONLINE")
+            set_widget_state("idle", "VOID // ONLINE")
             speak("Online and operational, Sir. At your service.", async_mode=True)
             self._send_json({"status": "success", "mode": "awake"})
             return
@@ -215,7 +215,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                     if fast_reply == "Muted, Sir.":
                         from voice.tts import stop_speaking
                         stop_speaking()
-                        set_widget_state("idle", "JARVIS // ONLINE")
+                        set_widget_state("idle", "VOID // ONLINE")
                         self._send_json({"response": "Muted, Sir.", "status": "success", "fast_path": True})
                         return
 
@@ -224,7 +224,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                     self._send_json({"response": fast_reply, "status": "success", "fast_path": True})
                     def reset_later():
                         time.sleep(3.5)
-                        set_widget_state("idle", "JARVIS // ONLINE")
+                        set_widget_state("idle", "VOID // ONLINE")
                     threading.Thread(target=reset_later, daemon=True).start()
                     return
 
@@ -237,7 +237,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 speak(response, async_mode=True)
                 def reset_deep():
                     time.sleep(5.0)
-                    set_widget_state("idle", "JARVIS // ONLINE")
+                    set_widget_state("idle", "VOID // ONLINE")
                 threading.Thread(target=reset_deep, daemon=True).start()
                 
                 # Return JSON response immediately
