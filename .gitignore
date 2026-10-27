@@ -21,3 +21,7 @@ __pycache__/
 .jarvis_chrome_app_profile/
 native_hud/JarvisPill
 native_hud/SentryEye
+
+# Vercel Deployment (Local only, off Git)
+.vercel/
+vercel_remote/

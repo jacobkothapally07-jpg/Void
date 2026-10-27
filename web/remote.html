@@ -725,9 +725,190 @@
             transform: scale(0.9);
             background: #f1f5f9;
         }
+
+        /* Master Passcode PIN Lock Modal */
+        .pin-lock-overlay {
+            position: fixed;
+            inset: 0;
+            background: #030408;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pin-lock-overlay.unlocked {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.06);
+        }
+
+        .pin-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .pin-reactor-ring {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 240, 255, 0.45);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.35), inset 0 0 15px rgba(0, 240, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 22px;
+            animation: reactorPulse 3s infinite ease-in-out;
+        }
+
+        .pin-reactor-core {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #00f0ff;
+            box-shadow: 0 0 20px #00f0ff;
+        }
+
+        @keyframes reactorPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 22px rgba(0, 240, 255, 0.35); }
+            50% { transform: scale(1.06); box-shadow: 0 0 35px rgba(0, 240, 255, 0.65); }
+        }
+
+        .pin-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: var(--cyan-core);
+            margin-bottom: 6px;
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+        }
+
+        .pin-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            letter-spacing: 1.5px;
+            margin-bottom: 28px;
+        }
+
+        .pin-dots {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 34px;
+        }
+
+        .p-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .p-dot.filled {
+            background: var(--cyan-core);
+            border-color: var(--cyan-core);
+            box-shadow: 0 0 14px var(--cyan-core);
+            transform: scale(1.2);
+        }
+
+        .pin-keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            width: 100%;
+            max-width: 270px;
+            margin-bottom: 22px;
+        }
+
+        .pin-key {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            font-family: 'Space Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+
+        .pin-key:active {
+            background: rgba(0, 240, 255, 0.18);
+            border-color: var(--cyan-core);
+            transform: scale(0.92);
+        }
+
+        .pin-ghost {
+            background: transparent;
+            border-color: transparent;
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .pin-status {
+            font-size: 10px;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            min-height: 16px;
+            text-align: center;
+        }
+
+        .pin-card.shake {
+            animation: pinShake 0.4s ease-in-out;
+        }
+
+        @keyframes pinShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-12px); }
+            40%, 80% { transform: translateX(12px); }
+        }
     </style>
 </head>
 <body>
+    <!-- PIN Lock Screen Overlay -->
+    <div id="pinLockModal" class="pin-lock-overlay">
+        <div class="pin-card" id="pinCard">
+            <div class="pin-reactor-ring">
+                <div class="pin-reactor-core"></div>
+            </div>
+            <div class="pin-title">SECURITY PROTOCOL</div>
+            <div class="pin-subtitle">ENTER MASTER PASSCODE</div>
+            <div class="pin-dots" id="pinDots">
+                <span class="p-dot"></span>
+                <span class="p-dot"></span>
+                <span class="p-dot"></span>
+                <span class="p-dot"></span>
+            </div>
+            <div class="pin-keypad">
+                <button class="pin-key" onclick="enterPinDigit('1')">1</button>
+                <button class="pin-key" onclick="enterPinDigit('2')">2</button>
+                <button class="pin-key" onclick="enterPinDigit('3')">3</button>
+                <button class="pin-key" onclick="enterPinDigit('4')">4</button>
+                <button class="pin-key" onclick="enterPinDigit('5')">5</button>
+                <button class="pin-key" onclick="enterPinDigit('6')">6</button>
+                <button class="pin-key" onclick="enterPinDigit('7')">7</button>
+                <button class="pin-key" onclick="enterPinDigit('8')">8</button>
+                <button class="pin-key" onclick="enterPinDigit('9')">9</button>
+                <button class="pin-key pin-ghost" onclick="clearPin()">C</button>
+                <button class="pin-key" onclick="enterPinDigit('0')">0</button>
+                <button class="pin-key pin-ghost" onclick="deletePinDigit()">⌫</button>
+            </div>
+            <div class="pin-status" id="pinStatusMsg">AUTHENTICATION REQUIRED</div>
+        </div>
+    </div>
     <div class="ambient-glow-top"></div>
 
     <div class="app-shell">
@@ -749,8 +930,8 @@
                 </span>
             </div>
 
-            <button class="nav-round-btn" onclick="triggerSleepMac()" title="Sleep Workstation">
-                🌙
+            <button class="nav-round-btn" onclick="lockApp()" title="Lock Remote">
+                🔒
             </button>
         </div>
 
@@ -1135,6 +1316,105 @@
                 recognition.start();
             }
         }
+
+        // ==========================================
+        // Master Passcode Security PIN Logic
+        // ==========================================
+        const DEFAULT_PIN = "1415";
+        let enteredPin = "";
+
+        function initSecurityLock() {
+            const isAuth = localStorage.getItem("jarvis_auth_unlocked");
+            const overlay = document.getElementById("pinLockModal");
+            if (isAuth === "true") {
+                overlay.classList.add("unlocked");
+            } else {
+                overlay.classList.remove("unlocked");
+                enteredPin = "";
+                updatePinDots();
+            }
+        }
+
+        function enterPinDigit(digit) {
+            if (enteredPin.length >= 4) return;
+            triggerHaptic();
+            enteredPin += digit;
+            updatePinDots();
+
+            if (enteredPin.length === 4) {
+                setTimeout(verifyPin, 120);
+            }
+        }
+
+        function deletePinDigit() {
+            if (enteredPin.length > 0) {
+                triggerHaptic();
+                enteredPin = enteredPin.slice(0, -1);
+                updatePinDots();
+            }
+        }
+
+        function clearPin() {
+            triggerHaptic();
+            enteredPin = "";
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            const dots = document.querySelectorAll(".p-dot");
+            dots.forEach((dot, index) => {
+                if (index < enteredPin.length) {
+                    dot.classList.add("filled");
+                } else {
+                    dot.classList.remove("filled");
+                }
+            });
+        }
+
+        function verifyPin() {
+            const savedPin = localStorage.getItem("jarvis_master_pin") || DEFAULT_PIN;
+            const card = document.getElementById("pinCard");
+            const statusMsg = document.getElementById("pinStatusMsg");
+
+            if (enteredPin === savedPin) {
+                triggerHaptic();
+                localStorage.setItem("jarvis_auth_unlocked", "true");
+                statusMsg.innerText = "ACCESS GRANTED // WELCOME SIR";
+                statusMsg.style.color = "var(--cyan-core)";
+                
+                setTimeout(() => {
+                    const overlay = document.getElementById("pinLockModal");
+                    overlay.classList.add("unlocked");
+                    statusMsg.innerText = "AUTHENTICATION REQUIRED";
+                    statusMsg.style.color = "";
+                }, 350);
+            } else {
+                triggerHaptic();
+                card.classList.add("shake");
+                statusMsg.innerText = "ACCESS DENIED // INVALID CODE";
+                statusMsg.style.color = "#ef4444";
+                
+                setTimeout(() => {
+                    card.classList.remove("shake");
+                    enteredPin = "";
+                    updatePinDots();
+                    statusMsg.innerText = "AUTHENTICATION REQUIRED";
+                    statusMsg.style.color = "";
+                }, 600);
+            }
+        }
+
+        function lockApp() {
+            triggerHaptic();
+            localStorage.removeItem("jarvis_auth_unlocked");
+            const overlay = document.getElementById("pinLockModal");
+            overlay.classList.remove("unlocked");
+            enteredPin = "";
+            updatePinDots();
+        }
+
+        // Initialize PIN security on load
+        window.addEventListener("DOMContentLoaded", initSecurityLock);
     </script>
 </body>
 </html>
