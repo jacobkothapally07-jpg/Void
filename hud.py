@@ -137,14 +137,14 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             set_widget_state("sleep", "Entering sleep mode...")
             self._send_json({"status": "success", "mode": "sleep"})
             return
-        elif clean_path == "/api/wake":
-            from voice_listener import set_jarvis_sleeping
+        elif clean_path in ["/api/listen", "/api/wake"]:
+            from voice_listener import set_jarvis_sleeping, trigger_active_listen
             from voice.sound_effects import play_repulsor_wake
-            play_repulsor_wake()
             set_jarvis_sleeping(False)
-            set_widget_state("idle", "VOID // ONLINE")
-            speak("Online and operational, Sir. At your service.", async_mode=True)
-            self._send_json({"status": "success", "mode": "awake"})
+            play_repulsor_wake()
+            trigger_active_listen()
+            set_widget_state("listening", "🎙️ Listening... speak anytime")
+            self._send_json({"status": "success", "mode": "listening"})
             return
         elif clean_path == "/api/shutdown":
             self._send_json({"status": "success", "message": "shutting down"})

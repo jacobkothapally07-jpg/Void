@@ -130,8 +130,8 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         
         // 2. Cocoa NSEvent Global Key Monitor Fallback
         NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { event in
-            // Check for Command + Shift + J (keyCode 38)
-            if event.modifierFlags.contains([.command, .shift]) && event.keyCode == 38 {
+            // Check for Command + Shift + V (keyCode 9) or configured hotkey
+            if event.modifierFlags.contains([.command, .shift]) && (event.keyCode == 9 || event.keyCode == cfg.keyCode) {
                 DispatchQueue.main.async {
                     JarvisWidgetController.shared?.toggleWidget()
                 }
@@ -183,14 +183,10 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     @objc func toggleWidget() {
         if window.isVisible {
             window.orderOut(nil)
-            if let url = URL(string: "http://127.0.0.1:8080/api/sleep") {
-                URLSession.shared.dataTask(with: url).resume()
-            }
         } else {
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
-            webView.evaluateJavaScript("focusInput()", completionHandler: nil)
-            if let url = URL(string: "http://127.0.0.1:8080/api/wake") {
+            if let url = URL(string: "http://127.0.0.1:8080/api/listen") {
                 URLSession.shared.dataTask(with: url).resume()
             }
         }

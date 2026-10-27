@@ -24,6 +24,21 @@ MIN_SPEECH_SECONDS = 0.30
 
 _is_jarvis_sleeping = False
 _active_stream = None
+_active_listen_mode = False
+_active_listen_timestamp = 0
+
+def trigger_active_listen():
+    """Immediately wakes Void, brings CoreAudio stream online, and starts listening for commands."""
+    global _active_listen_mode, _active_listen_timestamp, _is_jarvis_sleeping, _active_stream
+    _is_jarvis_sleeping = False
+    _active_listen_mode = True
+    _active_listen_timestamp = time.time()
+    if _active_stream is not None and not _active_stream.active:
+        try:
+            _active_stream.start()
+            print("\033[92m[CoreAudio Hardware] Microphone stream started on Hotkey (Orange dot ON).\033[0m")
+        except Exception as e:
+            print(f"[CoreAudio Error] {e}")
 
 def set_jarvis_sleeping(sleeping: bool):
     global _is_jarvis_sleeping, _active_stream
@@ -158,10 +173,16 @@ def run_voice_listener():
             except queue.Empty:
                 continue
 
+            # If active listen mode timed out (> 8.0s), return to idle
+            global _active_listen_mode, _active_listen_timestamp
+            if _active_listen_mode and (time.time() - _active_listen_timestamp > 8.0):
+                _active_listen_mode = False
+                set_widget_state("idle", "VOID // ONLINE")
+
             rms = float(np.sqrt(np.mean(block**2)))
 
             # Calibrated speech detection thresholds for clear far-field sensitivity
-            speech_threshold = max(0.009, ambient_floor * 1.35)
+            speech_threshold = max(0.007, ambient_floor * 1.15) if _active_listen_mode else max(0.009, ambient_floor * 1.35)
 
             # 3. SILENCE / NOISE GATE
             if rms < speech_threshold:
@@ -244,11 +265,33 @@ def run_voice_listener():
 
             print(f"\n\033[92m[User Spoke]\033[0m \"{raw_text}\"")
 
+            was_hotkey_listen = _active_listen_mode
+            _active_listen_mode = False
+
             lower = raw_text.lower().strip()
             # Standalone stop/mute commands
             if any(k in lower for k in ["stop", "shut up", "be quiet", "quiet", "stop talking", "stop yapping", "hush", "mute", "silence", "stop it"]):
                 stop_speaking()
                 set_widget_state("idle", "VOID // ONLINE")
+                continue
+
+            # If triggered via Hotkey / Tap, execute whatever user spoke directly (no wake word needed!)
+            if was_hotkey_listen:
+                processed_query = clean_speech_query(raw_text)
+                if not processed_query:
+                    processed_query = raw_text
+                req = urllib.request.Request(
+                    "http://127.0.0.1:8080/api/chat",
+                    data=json.dumps({"message": processed_query}).encode("utf-8"),
+                    headers={"Content-Type": "application/json"}
+                )
+                try:
+                    with urllib.request.urlopen(req, timeout=20) as resp:
+                        res = json.loads(resp.read().decode("utf-8"))
+                        reply = res.get("response", "At your service, Sir.")
+                        print(f"\033[96m[Void Replied]\033[0m {reply}")
+                except Exception as e:
+                    pass
                 continue
 
             # Standalone wake/ping (including phonetic variants of void)
