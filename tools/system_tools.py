@@ -136,7 +136,11 @@ def start_sound_beacon():
             if not _beacon_running:
                 break
             
-            subprocess.run(["say", "-v", "Daniel", "[[volm 1.0]] Workstation location beacon active. Sir, I am right here."], check=False)
+            try:
+                from voice import speak
+                speak("Workstation location beacon active. Sir, I am right here.", async_mode=False)
+            except Exception:
+                subprocess.run(["say", "-v", "Daniel", "Workstation location beacon active. Sir, I am right here."], check=False)
             time.sleep(1.0)
             
         stop_sound_beacon()
