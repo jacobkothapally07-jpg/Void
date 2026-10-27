@@ -1,6 +1,7 @@
 import Cocoa
 import WebKit
 import Carbon
+import AVFoundation
 
 class FloatingWidgetPanel: NSPanel {
     override var canBecomeKey: Bool { return true }
@@ -13,6 +14,45 @@ struct HotKeyConfig: Codable {
     var modifiers: UInt32
 }
 
+func createWavData(from pcmData: Data, sampleRate: Int = 16000, channels: Int = 1) -> Data {
+    var header = Data()
+    let totalDataLen = Int32(pcmData.count)
+    let totalAudioLen = totalDataLen + 36
+    let byteRate = Int32(sampleRate * channels * 2)
+    
+    // RIFF header
+    header.append(contentsOf: [0x52, 0x49, 0x46, 0x46]) // "RIFF"
+    var v32 = totalAudioLen.littleEndian
+    header.append(Data(bytes: &v32, count: 4))
+    header.append(contentsOf: [0x57, 0x41, 0x56, 0x45]) // "WAVE"
+    
+    // fmt subchunk
+    header.append(contentsOf: [0x66, 0x6d, 0x74, 0x20]) // "fmt "
+    var subchunk1Size: Int32 = 16
+    header.append(Data(bytes: &subchunk1Size, count: 4))
+    var audioFormat: Int16 = 1 // PCM
+    header.append(Data(bytes: &audioFormat, count: 2))
+    var numChannels: Int16 = Int16(channels)
+    header.append(Data(bytes: &numChannels, count: 2))
+    var sRate: Int32 = Int32(sampleRate)
+    header.append(Data(bytes: &sRate, count: 4))
+    var bRate: Int32 = byteRate
+    header.append(Data(bytes: &bRate, count: 4))
+    var blockAlign: Int16 = Int16(channels * 2)
+    header.append(Data(bytes: &blockAlign, count: 2))
+    var bitsPerSample: Int16 = 16
+    header.append(Data(bytes: &bitsPerSample, count: 2))
+    
+    // data subchunk
+    header.append(contentsOf: [0x64, 0x61, 0x74, 0x61]) // "data"
+    var vDataLen = totalDataLen.littleEndian
+    header.append(Data(bytes: &vDataLen, count: 4))
+    
+    var full = header
+    full.append(pcmData)
+    return full
+}
+
 class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHandler {
     static var shared: JarvisWidgetController?
     
@@ -21,6 +61,19 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     var statusItem: NSStatusItem!
     var hotKeyRefs: [EventHotKeyRef] = []
     var lastToggleTime: TimeInterval = 0
+    
+    // Native CoreAudio Engine (Orange Dot Controller & Voice Streamer)
+    let audioEngine = AVAudioEngine()
+    var isAudioRecording = false
+    var speechPcmBuffer = Data()
+    var preSpeechRing: [Data] = []
+    let maxPreSpeechBlocks = 8
+    var isUserSpeaking = false
+    var silenceStart: TimeInterval? = nil
+    var speechStartTime: TimeInterval = 0
+    var ambientFloor: Float = 0.045
+    var converter: AVAudioConverter? = nil
+    let audioLock = NSLock()
     
     let configFile = NSString(string: "~/.jarvis_hotkey.json").expandingTildeInPath
     
@@ -42,6 +95,14 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         setupWindow()
         setupDistributedNotifications()
         registerHotKeys()
+        
+        // Explicitly request microphone access and start CoreAudio recording (Engage Orange Dot)
+        AVCaptureDevice.requestAccess(for: .audio) { [weak self] granted in
+            print("[Void Native Mic] Microphone authorization granted: \(granted)")
+            DispatchQueue.main.async {
+                self?.startMicrophone()
+            }
+        }
     }
     
     func setupStatusItem() {
@@ -105,6 +166,165 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     
     func hideWidget() {
         window.orderOut(nil)
+    }
+
+    // MARK: - Native CoreAudio Microphone Engine (Orange Dot Controller)
+    func startMicrophone() {
+        guard !isAudioRecording else { return }
+        let input = audioEngine.inputNode
+        let bus = 0
+        let srcFormat = input.outputFormat(forBus: bus)
+        guard srcFormat.sampleRate > 0 else {
+            print("[Void Native Mic] Invalid sample rate, retrying in 1s...")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                self?.startMicrophone()
+            }
+            return
+        }
+        
+        guard let dstFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16000, channels: 1, interleaved: true) else {
+            return
+        }
+        self.converter = AVAudioConverter(from: srcFormat, to: dstFormat)
+        
+        input.removeTap(onBus: bus)
+        
+        audioLock.lock()
+        speechPcmBuffer.removeAll()
+        preSpeechRing.removeAll()
+        isUserSpeaking = false
+        silenceStart = nil
+        audioLock.unlock()
+        
+        input.installTap(onBus: bus, bufferSize: 1024, format: srcFormat) { [weak self] buffer, _ in
+            self?.processAudioBuffer(buffer: buffer, srcFormat: srcFormat, dstFormat: dstFormat)
+        }
+        
+        audioEngine.prepare()
+        do {
+            try audioEngine.start()
+            isAudioRecording = true
+            print("\033[92m[Void Native Mic] CoreAudio Engine ONLINE. Orange Dot ACTIVE in macOS Menu Bar.\033[0m")
+        } catch {
+            print("\033[91m[Void Native Mic Error] Engine start failed: \(error)\033[0m")
+        }
+    }
+    
+    func processAudioBuffer(buffer: AVAudioPCMBuffer, srcFormat: AVAudioFormat, dstFormat: AVAudioFormat) {
+        // 1. HARDWARE ACOUSTIC ECHO MUTE: Discard all microphone buffers while Void is speaking!
+        if FileManager.default.fileExists(atPath: "/tmp/void_speaking.lock") {
+            if let attrs = try? FileManager.default.attributesOfItem(atPath: "/tmp/void_speaking.lock"),
+               let modDate = attrs[.modificationDate] as? Date {
+                let age = Date().timeIntervalSince(modDate)
+                if age < 15.0 {
+                    audioLock.lock()
+                    speechPcmBuffer.removeAll()
+                    preSpeechRing.removeAll()
+                    isUserSpeaking = false
+                    silenceStart = nil
+                    audioLock.unlock()
+                    return
+                } else {
+                    try? FileManager.default.removeItem(atPath: "/tmp/void_speaking.lock")
+                }
+            } else {
+                audioLock.lock()
+                speechPcmBuffer.removeAll()
+                preSpeechRing.removeAll()
+                isUserSpeaking = false
+                silenceStart = nil
+                audioLock.unlock()
+                return
+            }
+        }
+
+        guard let floatData = buffer.floatChannelData?[0] else { return }
+        let frameCount = Int(buffer.frameLength)
+        if frameCount == 0 { return }
+        
+        var sum: Float = 0
+        for i in 0..<frameCount {
+            let sample = floatData[i]
+            sum += sample * sample
+        }
+        let rms = sqrt(sum / Float(frameCount))
+        
+        let targetFrames = AVAudioFrameCount(Double(buffer.frameLength) * 16000.0 / srcFormat.sampleRate)
+        guard let outBuffer = AVAudioPCMBuffer(pcmFormat: dstFormat, frameCapacity: targetFrames + 100),
+              let converter = self.converter else { return }
+        
+        var error: NSError?
+        let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
+            outStatus.pointee = .haveData
+            return buffer
+        }
+        converter.convert(to: outBuffer, error: &error, withInputFrom: inputBlock)
+        
+        guard let int16Data = outBuffer.int16ChannelData?[0] else { return }
+        let pcmChunk = Data(bytes: int16Data, count: Int(outBuffer.frameLength) * 2)
+        
+        audioLock.lock()
+        defer { audioLock.unlock() }
+        
+        let now = Date().timeIntervalSince1970
+        let speechThreshold = max(0.062, ambientFloor * 1.35)
+        
+        if rms > speechThreshold {
+            if !isUserSpeaking {
+                isUserSpeaking = true
+                speechStartTime = now
+                speechPcmBuffer.removeAll()
+                // Prepend rolling ring buffer so no initial consonant is clipped
+                for chunk in preSpeechRing {
+                    speechPcmBuffer.append(chunk)
+                }
+                preSpeechRing.removeAll()
+                print("\n[Void Native Mic] Speech detected (RMS: \(String(format: "%.4f", rms)) > \(String(format: "%.4f", speechThreshold))). Buffering speech...")
+            }
+            speechPcmBuffer.append(pcmChunk)
+            silenceStart = nil
+        } else if isUserSpeaking {
+            speechPcmBuffer.append(pcmChunk)
+            if silenceStart == nil {
+                silenceStart = now
+            } else if now - silenceStart! >= 0.80 || now - speechStartTime >= 12.0 {
+                let completedPcm = speechPcmBuffer
+                speechPcmBuffer.removeAll()
+                isUserSpeaking = false
+                silenceStart = nil
+                
+                // If speech has sufficient length (> 0.35s), send for execution
+                if completedPcm.count >= 16000 * 2 * 35 / 100 {
+                    DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                        self?.sendVoiceCommand(pcmData: completedPcm)
+                    }
+                }
+            }
+        } else {
+            // Adaptive ambient floor tracking & rolling ring buffer
+            ambientFloor = 0.98 * ambientFloor + 0.02 * rms
+            preSpeechRing.append(pcmChunk)
+            if preSpeechRing.count > maxPreSpeechBlocks {
+                preSpeechRing.removeFirst()
+            }
+        }
+    }
+    
+    func sendVoiceCommand(pcmData: Data) {
+        let wav = createWavData(from: pcmData, sampleRate: 16000, channels: 1)
+        guard let url = URL(string: "http://127.0.0.1:8080/api/voice_command") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("audio/wav", forHTTPHeaderField: "Content-Type")
+        request.httpBody = wav
+        
+        URLSession.shared.dataTask(with: request) { data, _, err in
+            if let err = err {
+                print("[Void Voice Send Error] \(err)")
+            } else if let data = data, let str = String(data: data, encoding: .utf8) {
+                print("[Void Voice Executed] \(str)")
+            }
+        }.resume()
     }
 
     // MARK: - Hotkey Configuration & Registration
@@ -180,6 +400,7 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
             }
         } else if action == "sleep" || action == "close" {
             DispatchQueue.main.async {
+                // Hide HUD window to standby (Microphone remains continuous & active)
                 self.hideWidget()
                 if let url = URL(string: "http://127.0.0.1:8080/api/dismiss") {
                     URLSession.shared.dataTask(with: url).resume()
@@ -218,13 +439,13 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         lastToggleTime = now
 
         if window.isVisible {
-            // CLOSING / DISMISSING: Hide overlay window, put Void in background standby
+            // CLOSING: Hide overlay window, put Void in background standby (Mic remains enabled)
             hideWidget()
             if let url = URL(string: "http://127.0.0.1:8080/api/dismiss") {
                 URLSession.shared.dataTask(with: url).resume()
             }
         } else {
-            // WAKING UP: Show window, greet user, and start active listening
+            // WAKING UP: Show window, greet user with voice, and start active listening
             showWidget()
             if let url = URL(string: "http://127.0.0.1:8080/api/wake_and_listen") {
                 URLSession.shared.dataTask(with: url).resume()

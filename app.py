@@ -155,15 +155,10 @@ if __name__ == "__main__":
     from voice.sound_effects import play_repulsor_wake
     play_repulsor_wake()
 
-    # Start 24/7 Background Voice Engine (sounddevice CoreAudio + Google Neural STT)
-    from voice_listener import run_voice_listener
-    t_voice = threading.Thread(target=run_voice_listener, daemon=True)
-    t_voice.start()
-
     # Greet user on boot
     speak("Neural matrix online and active on your workstation, Sir. At your service.", async_mode=True)
 
-    # Launch Native Borderless Floating Holographic Void HUD (Single Instance Enforced)
+    # Launch Native Borderless Floating Holographic Void HUD with Native CoreAudio Mic (Single Instance Enforced)
     widget_app_binary = os.path.join(os.path.dirname(os.path.abspath(__file__)), "native_hud", "Void.app", "Contents", "MacOS", "Void")
     widget_binary = os.path.join(os.path.dirname(os.path.abspath(__file__)), "native_hud", "JarvisWidget")
     subprocess.run(["pkill", "-9", "-f", "JarvisWidget"], check=False)
