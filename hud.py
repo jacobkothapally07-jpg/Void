@@ -285,6 +285,21 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                     self._send_json({"status": "no_speech", "message": "No words detected"})
                     return
                 
+                # Hardware Acoustic Echo Cancellation: Discard if input matches Void's own output
+                from voice.tts import get_current_speaking_text
+                current_speech = get_current_speaking_text()
+                if current_speech and (raw_text.lower() in current_speech or current_speech in raw_text.lower()):
+                    print(f"[Echo Cancellation] Dropped laptop speaker echo: '{raw_text}'")
+                    set_widget_state("listening", "🎙️ Listening... speak anytime")
+                    self._send_json({"status": "echo_suppressed", "message": "Speaker echo dropped"})
+                    return
+                
+                # Filter out short breathing / room noise
+                if len(raw_text.strip()) < 3 or raw_text.lower().strip() in ["uh", "um", "ah", "hmm", "shh", "oh"]:
+                    set_widget_state("listening", "🎙️ Listening... speak anytime")
+                    self._send_json({"status": "noise_ignored", "message": "Ignored noise"})
+                    return
+                
                 print(f"\n\033[92m[User Spoke]\033[0m \"{raw_text}\"")
                 from voice.sound_effects import play_hud_chirp
                 play_hud_chirp()
@@ -326,9 +341,8 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 self._send_json({"response": response, "status": "success", "user_text": raw_text})
             except Exception as e:
                 print(f"[Voice Command Error] {e}")
+                set_widget_state("listening", "🎙️ Listening... speak anytime")
                 self._send_json({"status": "error", "message": str(e)})
-                speak(err_reply, async_mode=True)
-                self._send_json({"response": err_reply, "status": "fallback"})
                 
         elif self.path in ["/api/wakeup", "/api/initiate"]:
             global _last_hud_wakeup

@@ -196,6 +196,16 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     }
     
     func processAudioBuffer(buffer: AVAudioPCMBuffer, srcFormat: AVAudioFormat, dstFormat: AVAudioFormat) {
+        // 1. HARDWARE ACOUSTIC ECHO MUTE: Discard all microphone buffers while Void is speaking!
+        if FileManager.default.fileExists(atPath: "/tmp/void_speaking.lock") {
+            audioLock.lock()
+            speechPcmBuffer.removeAll()
+            isUserSpeaking = false
+            silenceStart = nil
+            audioLock.unlock()
+            return
+        }
+
         guard let floatData = buffer.floatChannelData?[0] else { return }
         let frameCount = Int(buffer.frameLength)
         if frameCount == 0 { return }
@@ -225,7 +235,7 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
         defer { audioLock.unlock() }
         
         let now = Date().timeIntervalSince1970
-        let speechThreshold: Float = 0.012
+        let speechThreshold: Float = 0.024 // Calibrated threshold for intentional user voice
         
         if rms > speechThreshold {
             if !isUserSpeaking {
@@ -240,14 +250,14 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
             speechPcmBuffer.append(pcmChunk)
             if silenceStart == nil {
                 silenceStart = now
-            } else if now - silenceStart! >= 0.85 || now - speechStartTime >= 12.0 {
+            } else if now - silenceStart! >= 0.75 || now - speechStartTime >= 10.0 {
                 let completedPcm = speechPcmBuffer
                 speechPcmBuffer.removeAll()
                 isUserSpeaking = false
                 silenceStart = nil
                 
-                // If speech has sufficient length (> 0.35s), send for execution
-                if completedPcm.count >= 16000 * 2 * 35 / 100 {
+                // If speech has sufficient length (> 0.45s), send for execution
+                if completedPcm.count >= 16000 * 2 * 45 / 100 {
                     DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                         self?.sendVoiceCommand(pcmData: completedPcm)
                     }

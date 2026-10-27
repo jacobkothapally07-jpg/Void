@@ -45,6 +45,11 @@ class JarvisBrain:
             "gemini-3.6-flash"
         ]
 
+    def clear_history(self):
+        self.messages = [
+            {"role": "system", "content": get_system_prompt()}
+        ]
+
     def _call_local_ollama(self, prompt: str) -> str:
         """Runs offline on M3 Apple Silicon GPU/Neural Engine via Ollama (llama3.2:1b)."""
         url = "http://localhost:11434/api/generate"

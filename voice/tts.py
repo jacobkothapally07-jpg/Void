@@ -14,12 +14,18 @@ current_audio_proc = None
 is_speaking_lock = False
 current_speaking_text = ""
 TTS_CACHE_DIR = "/tmp/void_tts_cache_ryan"
+SPEAKING_LOCK_FILE = "/tmp/void_speaking.lock"
 os.makedirs(TTS_CACHE_DIR, exist_ok=True)
 
 def stop_speaking():
     global current_audio_proc, is_speaking_lock, current_speaking_text
     is_speaking_lock = False
     current_speaking_text = ""
+    try:
+        if os.path.exists(SPEAKING_LOCK_FILE):
+            os.remove(SPEAKING_LOCK_FILE)
+    except Exception:
+        pass
     try:
         if current_audio_proc and current_audio_proc.poll() is None:
             current_audio_proc.kill()
@@ -106,6 +112,13 @@ def _speak_neural_sync(clean_text: str):
     is_speaking_lock = True
     current_speaking_text = clean_text.lower().strip()
     
+    # Write hardware speaking lock so microphone never captures laptop speakers
+    try:
+        with open(SPEAKING_LOCK_FILE, "w") as f:
+            f.write(str(time.time()))
+    except Exception:
+        pass
+    
     # Check Voice-Specific Cache (0ms instant playback for repeated responses)
     text_hash = hashlib.md5(clean_text.encode('utf-8')).hexdigest()
     cached_file = os.path.join(TTS_CACHE_DIR, f"ryan_{text_hash}.mp3")
@@ -114,8 +127,12 @@ def _speak_neural_sync(clean_text: str):
         try:
             current_audio_proc = subprocess.Popen(["afplay", cached_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             current_audio_proc.wait()
+            time.sleep(0.40)  # Acoustic room decay
             is_speaking_lock = False
             current_audio_proc = None
+            try:
+                if os.path.exists(SPEAKING_LOCK_FILE): os.remove(SPEAKING_LOCK_FILE)
+            except Exception: pass
             return
         except Exception:
             pass
@@ -182,9 +199,15 @@ def _speak_neural_sync(clean_text: str):
         except Exception:
             pass
             
+    time.sleep(0.40)  # Acoustic room decay
     is_speaking_lock = False
     current_audio_proc = None
     current_speaking_text = ""
+    try:
+        if os.path.exists(SPEAKING_LOCK_FILE):
+            os.remove(SPEAKING_LOCK_FILE)
+    except Exception:
+        pass
     try:
         if os.path.exists(temp_audio):
             os.remove(temp_audio)
