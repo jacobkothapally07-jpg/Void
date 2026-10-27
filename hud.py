@@ -202,6 +202,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
+        from voice.tts import stop_speaking, get_is_speaking
         if self.path == "/api/chat":
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length)
@@ -217,7 +218,6 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 matched, fast_reply = dispatch_fast_action(user_msg)
                 if matched and fast_reply:
                     if fast_reply == "Muted, Sir.":
-                        from voice.tts import stop_speaking
                         stop_speaking()
                         set_widget_state("idle", "VOID // ONLINE")
                         self._send_json({"response": "Muted, Sir.", "status": "success", "fast_path": True})
@@ -228,7 +228,7 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                     self._send_json({"response": fast_reply, "status": "success", "fast_path": True})
                     def reset_later():
                         time.sleep(3.5)
-                        set_widget_state("idle", "VOID // ONLINE")
+                        set_widget_state("listening", "🎙️ Listening... speak anytime")
                     threading.Thread(target=reset_later, daemon=True).start()
                     return
 
@@ -241,13 +241,92 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                 speak(response, async_mode=True)
                 def reset_deep():
                     time.sleep(5.0)
-                    set_widget_state("idle", "VOID // ONLINE")
+                    set_widget_state("listening", "🎙️ Listening... speak anytime")
                 threading.Thread(target=reset_deep, daemon=True).start()
                 
                 # Return JSON response immediately
                 self._send_json({"response": response, "status": "success"})
             except Exception as e:
                 err_reply = "Auxiliary neural channel reconnected. Online and ready, Sir."
+                speak(err_reply, async_mode=True)
+                self._send_json({"response": err_reply, "status": "fallback"})
+                
+        elif self.path == "/api/voice_command":
+            content_length = int(self.headers.get("Content-Length", 0))
+            audio_bytes = self.rfile.read(content_length)
+            try:
+                import io
+                import wave
+                import speech_recognition as sr
+                
+                recognizer = sr.Recognizer()
+                recognizer.dynamic_energy_threshold = False
+                
+                if len(audio_bytes) < 1000:
+                    self._send_json({"status": "ignored", "message": "Buffer too short"})
+                    return
+                
+                with io.BytesIO(audio_bytes) as wav_file:
+                    with sr.AudioFile(wav_file) as source:
+                        audio_data = recognizer.record(source)
+                
+                set_widget_state("thinking", "Transcribing speech...")
+                raw_text = ""
+                try:
+                    raw_text = recognizer.recognize_google(audio_data, language="en-IN").strip()
+                except Exception:
+                    try:
+                        raw_text = recognizer.recognize_google(audio_data, language="en-US").strip()
+                    except Exception:
+                        raw_text = ""
+                
+                if not raw_text:
+                    set_widget_state("listening", "🎙️ Listening... speak anytime")
+                    self._send_json({"status": "no_speech", "message": "No words detected"})
+                    return
+                
+                print(f"\n\033[92m[User Spoke]\033[0m \"{raw_text}\"")
+                from voice.sound_effects import play_hud_chirp
+                play_hud_chirp()
+                set_widget_state("thinking", f"Executing: {raw_text}")
+                
+                from voice_listener import clean_speech_query
+                processed = clean_speech_query(raw_text)
+                if not processed:
+                    processed = raw_text
+                
+                matched, fast_reply = dispatch_fast_action(processed)
+                if matched and fast_reply:
+                    if fast_reply == "Muted, Sir.":
+                        stop_speaking()
+                        set_widget_state("listening", "🎙️ Listening... speak anytime")
+                        self._send_json({"response": "Muted, Sir.", "status": "success", "user_text": raw_text})
+                        return
+                    
+                    set_widget_state("speaking", fast_reply)
+                    speak(fast_reply, async_mode=True)
+                    self._send_json({"response": fast_reply, "status": "success", "user_text": raw_text})
+                    def reset_later():
+                        time.sleep(3.5)
+                        set_widget_state("listening", "🎙️ Listening... speak anytime")
+                    threading.Thread(target=reset_later, daemon=True).start()
+                    return
+                
+                response = brain.respond(processed)
+                if not response:
+                    response = "Operation completed successfully, Sir."
+                
+                set_widget_state("speaking", response)
+                speak(response, async_mode=True)
+                def reset_deep():
+                    time.sleep(5.0)
+                    set_widget_state("listening", "🎙️ Listening... speak anytime")
+                threading.Thread(target=reset_deep, daemon=True).start()
+                
+                self._send_json({"response": response, "status": "success", "user_text": raw_text})
+            except Exception as e:
+                print(f"[Voice Command Error] {e}")
+                self._send_json({"status": "error", "message": str(e)})
                 speak(err_reply, async_mode=True)
                 self._send_json({"response": err_reply, "status": "fallback"})
                 

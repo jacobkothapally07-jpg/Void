@@ -155,17 +155,16 @@ if __name__ == "__main__":
     from voice.sound_effects import play_repulsor_wake
     play_repulsor_wake()
 
-    # Start 24/7 Native Background Voice Listener (sounddevice + Google Neural STT)
-    from voice_listener import run_voice_listener
-    t_voice = threading.Thread(target=run_voice_listener, daemon=True)
-    t_voice.start()
-
-    # Launch Native Borderless Floating Holographic Arc Reactor (Single Instance Enforced)
+    # Native Swift CoreAudio Engine in Void.app handles mic streaming & Orange Dot
+    # Launch Native Borderless Floating Holographic Void HUD (Single Instance Enforced)
+    widget_app_binary = os.path.join(os.path.dirname(os.path.abspath(__file__)), "native_hud", "Void.app", "Contents", "MacOS", "Void")
     widget_binary = os.path.join(os.path.dirname(os.path.abspath(__file__)), "native_hud", "JarvisWidget")
     subprocess.run(["pkill", "-9", "-f", "JarvisWidget"], check=False)
-    time.sleep(0.2)
-    if os.path.exists(widget_binary):
-        subprocess.Popen([widget_binary])
+    subprocess.run(["pkill", "-9", "-f", "Void.app"], check=False)
+    time.sleep(0.3)
+    target_bin = widget_app_binary if os.path.exists(widget_app_binary) else widget_binary
+    if os.path.exists(target_bin):
+        subprocess.Popen([target_bin])
 
     # Keep server running persistently on main thread
     try:
