@@ -657,7 +657,7 @@
 
         window.addEventListener("mousedown", (e) => {
             // Ignore if clicking buttons, text inputs, action pills, or inside the interactive canvas
-            if (e.target.closest("button, input, textarea, canvas, .action-btn, #queryInput, .pill-btn")) return;
+            if (e.target.closest("button, input, textarea, canvas, .action-btn, #cmdInput, .input-bar, .pill-btn, .hologram-stage")) return;
             isWindowDragging = true;
             winStartX = e.screenX;
             winStartY = e.screenY;
