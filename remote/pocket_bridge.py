@@ -231,6 +231,17 @@ def handle_remote_command(command_text: str):
         send_phone_reply(res.get("detail", "Workstation locked down successfully, Sir."), title="Security Locked", tags="lock")
         return
 
+    # 3b. Find My Mac Acoustic Beacon (Check Stop first to avoid partial keyword match)
+    if any(k in lower for k in ["stop beacon", "stop alarm", "cancel beacon", "dismiss beacon", "found it", "silence"]):
+        res = control_mac_settings("stop_beacon")
+        send_phone_reply(res.get("detail", "Location beacon disengaged, Sir."), title="Beacon Stopped", tags="white_check_mark")
+        return
+
+    if any(k in lower for k in ["find my mac", "find mac", "beacon", "alarm", "locate mac", "where is my mac", "ping mac", "sound beacon"]):
+        res = control_mac_settings("beacon")
+        send_phone_reply(res.get("detail", "Workstation sound beacon activated at 100% volume, Sir."), title="Find My Mac", tags="bell,rotating_light")
+        return
+
     # 4. Battery & Health / Telemetry Sync
     if any(k in lower for k in ["battery", "health", "system", "stats", "sync", "refresh", "telemetry", "ping"]):
         from tools.system_tools import get_mac_volume

@@ -875,6 +875,108 @@
             20%, 60% { transform: translateX(-12px); }
             40%, 80% { transform: translateX(12px); }
         }
+
+        /* Siri Setup Modal */
+        .siri-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 4, 8, 0.88);
+            z-index: 99998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .siri-modal-card {
+            background: #0f121c;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(168, 85, 247, 0.2);
+            overflow: hidden;
+            animation: fadeIn 0.25s ease-out;
+        }
+        .siri-modal-header {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(168, 85, 247, 0.12);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.25);
+        }
+        .siri-modal-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #d8b4fe;
+        }
+        .siri-modal-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .siri-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+        .voice-cmd-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-family: 'Space Mono', monospace;
+            color: var(--cyan-core);
+            margin-bottom: 6px;
+        }
+        .siri-steps {
+            display: grid;
+            grid-template-columns: 24px 1fr;
+            gap: 10px 12px;
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+        .step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(168, 85, 247, 0.25);
+            color: #c084fc;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+        .siri-copy-btn {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(236, 72, 153, 0.3);
+            margin-top: 4px;
+            transition: all 0.15s ease;
+        }
+        .siri-copy-btn:active {
+            transform: scale(0.96);
+        }
+        .copy-success {
+            font-size: 11px;
+            color: #22c55e;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -907,6 +1009,36 @@
                 <button class="pin-key pin-ghost" onclick="deletePinDigit()">⌫</button>
             </div>
             <div class="pin-status" id="pinStatusMsg">AUTHENTICATION REQUIRED</div>
+        </div>
+    </div>
+
+    <!-- Siri & Action Button Setup Modal -->
+    <div id="siriModal" class="siri-modal-overlay">
+        <div class="siri-modal-card">
+            <div class="siri-modal-header">
+                <span class="siri-modal-title">🎙️ SIRI & ACTION BUTTON</span>
+                <button class="snapshot-close" onclick="closeSiriModal()">✕</button>
+            </div>
+            <div class="siri-modal-body">
+                <p class="siri-desc">Trigger J.A.R.V.I.S. natively from your iPhone Lock Screen, Action Button, or hands-free via Siri:</p>
+                <div class="siri-voice-pills">
+                    <div class="voice-cmd-pill">"Hey Siri, Ask Jarvis to lock my Mac"</div>
+                    <div class="voice-cmd-pill">"Hey Siri, Ask Jarvis to find my Mac"</div>
+                    <div class="voice-cmd-pill">"Hey Siri, Ask Jarvis for desk camera"</div>
+                </div>
+                <div class="siri-steps">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Open <b>Shortcuts</b> app on your iPhone & tap <b>+</b>.</div>
+                    <div class="step-num">2</div>
+                    <div class="step-text">Name the shortcut <b>"Ask Jarvis"</b>.</div>
+                    <div class="step-num">3</div>
+                    <div class="step-text">Add <b>"Get Contents of URL"</b> with method POST, URL below, and Request Body: Shortcut Input.</div>
+                    <div class="step-num">4</div>
+                    <div class="step-text">Under iPhone <b>Settings → Action Button</b>, choose Shortcut → <b>Ask Jarvis</b>.</div>
+                </div>
+                <button class="siri-copy-btn" onclick="copyShortcutURL()">📋 Copy Command Webhook URL</button>
+                <div id="copySuccessMsg" class="copy-success" style="display:none;">✓ URL Copied to Clipboard!</div>
+            </div>
         </div>
     </div>
     <div class="ambient-glow-top"></div>
@@ -1032,23 +1164,23 @@
             </div>
         </div>
 
-        <!-- 4 Quick Action Pills -->
+        <!-- Quick Action Pills -->
         <div class="action-strip">
             <div class="strip-card" onclick="sendCommand('screenshot')">
                 <div class="strip-icon">📸</div>
                 <span class="strip-label">Screen</span>
             </div>
-            <div class="strip-card" onclick="sendCommand('camera')">
-                <div class="strip-icon">👁️</div>
-                <span class="strip-label">Sentry</span>
+            <div class="strip-card" onclick="toggleBeacon()" id="beaconStripBtn">
+                <div class="strip-icon">🚨</div>
+                <span class="strip-label" id="beaconLabel">Find Mac</span>
             </div>
             <div class="strip-card" onclick="triggerSleepMac()">
                 <div class="strip-icon">🌙</div>
                 <span class="strip-label">Sleep</span>
             </div>
-            <div class="strip-card" onclick="sendCommand('play music')">
-                <div class="strip-icon">🎵</div>
-                <span class="strip-label">Spotify</span>
+            <div class="strip-card" onclick="openSiriModal()">
+                <div class="strip-icon">🎙️</div>
+                <span class="strip-label">Siri Setup</span>
             </div>
         </div>
 
@@ -1221,6 +1353,56 @@
 
         function closeSnapshot() {
             snapshotViewer.style.display = "none";
+        }
+
+        let isBeaconActive = false;
+        function toggleBeacon() {
+            triggerHaptic();
+            const btn = document.getElementById("beaconStripBtn");
+            const label = document.getElementById("beaconLabel");
+            if (!isBeaconActive) {
+                isBeaconActive = true;
+                sendCommand("find my mac");
+                if (btn) {
+                    btn.style.background = "rgba(239, 68, 68, 0.25)";
+                    btn.style.borderColor = "#ef4444";
+                }
+                if (label) label.innerText = "Stop Alarm";
+                streamStatusSub.innerText = "BEACON ACTIVE (100% VOL)";
+            } else {
+                isBeaconActive = false;
+                sendCommand("stop beacon");
+                if (btn) {
+                    btn.style.background = "";
+                    btn.style.borderColor = "";
+                }
+                if (label) label.innerText = "Find Mac";
+                streamStatusSub.innerText = "ONLINE";
+            }
+        }
+
+        function openSiriModal() {
+            triggerHaptic();
+            document.getElementById("siriModal").style.display = "flex";
+        }
+
+        function closeSiriModal() {
+            triggerHaptic();
+            document.getElementById("siriModal").style.display = "none";
+        }
+
+        function copyShortcutURL() {
+            triggerHaptic();
+            const url = `https://ntfy.sh/${CMD_TOPIC}`;
+            navigator.clipboard.writeText(url).then(() => {
+                const msg = document.getElementById("copySuccessMsg");
+                if (msg) {
+                    msg.style.display = "block";
+                    setTimeout(() => { msg.style.display = "none"; }, 3000);
+                }
+            }).catch(() => {
+                prompt("Copy Command Webhook URL:", url);
+            });
         }
 
         // Carousel Scroll Tracker

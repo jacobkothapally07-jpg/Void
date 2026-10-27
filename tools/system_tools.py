@@ -105,6 +105,50 @@ def open_mac_application(app_name: str):
     except Exception as e:
         return {"status": "error", "message": f"Failed to launch {app_name}: {str(e)}"}
 
+_beacon_running = False
+_beacon_thread = None
+
+def start_sound_beacon():
+    global _beacon_running, _beacon_thread
+    if _beacon_running:
+        return {"status": "already_running", "detail": "Beacon already sounding, Sir."}
+    
+    _beacon_running = True
+    
+    def _beacon_loop():
+        # Unmute and set master volume to 100%
+        set_mac_volume(100)
+        try:
+            subprocess.run(["osascript", "-e", "set volume without output muted"], check=False)
+        except Exception:
+            pass
+
+        start_time = time.time()
+        # Sound alert for up to 60 seconds or until stopped
+        while _beacon_running and (time.time() - start_time < 60):
+            for _ in range(2):
+                if not _beacon_running:
+                    break
+                subprocess.run(["afplay", "/System/Library/Sounds/Submarine.aiff"], check=False)
+                time.sleep(0.25)
+            
+            if not _beacon_running:
+                break
+            
+            subprocess.run(["say", "-v", "Daniel", "[[volm 1.0]] Workstation location beacon active. Sir, I am right here."], check=False)
+            time.sleep(1.0)
+            
+        stop_sound_beacon()
+
+    _beacon_thread = threading.Thread(target=_beacon_loop, daemon=True)
+    _beacon_thread.start()
+    return {"status": "success", "detail": "Workstation sound beacon activated at 100% volume, Sir."}
+
+def stop_sound_beacon():
+    global _beacon_running
+    _beacon_running = False
+    return {"status": "success", "detail": "Location beacon disengaged, Sir."}
+
 def control_mac_settings(action: str, value: str = "") -> dict:
     """
     Controls hardware and system settings on macOS:
@@ -149,6 +193,12 @@ def control_mac_settings(action: str, value: str = "") -> dict:
             subprocess.run(["pmset", "displaysleepnow"], check=False)
             return {"status": "success", "detail": "Display put to sleep, Sir."}
             
+        elif act in ["beacon", "find_mac", "find_my_mac", "sound_beacon"]:
+            return start_sound_beacon()
+
+        elif act in ["stop_beacon", "stop_alarm", "cancel_beacon", "dismiss_beacon"]:
+            return stop_sound_beacon()
+
         elif act == "take_screenshot":
             desktop_path = os.path.expanduser(f"~/Desktop/Screenshot_{int(time.time())}.png")
             subprocess.run(["screencapture", "-x", desktop_path], check=True)
