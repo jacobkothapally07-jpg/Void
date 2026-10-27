@@ -236,8 +236,8 @@ def dispatch_fast_action(user_input: str):
         res = solve_and_paste_code(auto_paste=True)
         return True, res.get("detail", "Problem analyzed and solution pasted, Sir.")
 
-    # 9. Screen Q&A & Error Debugging
-    if any(k in lower for k in ["what's on my screen", "what is on my screen", "look at my screen", "look at this", "what is this error", "what does this error mean"]):
+    # 9. Screen Q&A, Reading, & Error Debugging
+    if any(k in lower for k in ["read my screen", "read screen", "read the screen", "what's on my screen", "what is on my screen", "look at my screen", "look at this", "scan my screen", "scan screen", "what is this error", "what does this error mean", "what do you see"]):
         res = ask_about_screen(query=user_input)
         return True, res.get("detail", res.get("answer", "Screen analyzed, Sir."))
 

@@ -41,9 +41,8 @@ class JarvisBrain:
             {"role": "system", "content": get_system_prompt()}
         ]
         self.model_pool = [
-            "gemini-flash-lite-latest",
-            "gemini-3.5-flash",
-            "gemini-3.5-flash-lite"
+            "gemini-3-flash-preview",
+            "gemini-3.6-flash"
         ]
 
     def _call_local_ollama(self, prompt: str) -> str:
@@ -88,7 +87,7 @@ class JarvisBrain:
             headers={"Content-Type": "application/json", "User-Agent": "JARVIS/1.0"},
             method="POST"
         )
-        with urllib.request.urlopen(req, timeout=12, context=get_ssl_context()) as response:
+        with urllib.request.urlopen(req, timeout=6, context=get_ssl_context()) as response:
             return json.loads(response.read().decode("utf-8"))
 
     def try_instant_local(self, user_input: str):

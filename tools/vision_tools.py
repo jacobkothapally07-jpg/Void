@@ -60,8 +60,8 @@ def analyze_screen(query: str = "Describe and analyze what is on my screen in de
 
         req_data = json.dumps(payload).encode("utf-8")
 
-        # Multi-model fallback rotation for Vision (prevents 429 Rate Limits)
-        vision_models = ["gemini-flash-lite-latest", "gemini-3.5-flash", "gemini-3.5-flash-lite"]
+        # Fast working vision models with low latency
+        vision_models = ["gemini-3-flash-preview", "gemini-3.6-flash"]
         last_err = None
 
         for model in vision_models:
