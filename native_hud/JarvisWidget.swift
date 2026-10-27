@@ -198,12 +198,28 @@ class JarvisWidgetController: NSObject, NSApplicationDelegate, WKScriptMessageHa
     func processAudioBuffer(buffer: AVAudioPCMBuffer, srcFormat: AVAudioFormat, dstFormat: AVAudioFormat) {
         // 1. HARDWARE ACOUSTIC ECHO MUTE: Discard all microphone buffers while Void is speaking!
         if FileManager.default.fileExists(atPath: "/tmp/void_speaking.lock") {
-            audioLock.lock()
-            speechPcmBuffer.removeAll()
-            isUserSpeaking = false
-            silenceStart = nil
-            audioLock.unlock()
-            return
+            if let attrs = try? FileManager.default.attributesOfItem(atPath: "/tmp/void_speaking.lock"),
+               let modDate = attrs[.modificationDate] as? Date {
+                let age = Date().timeIntervalSince(modDate)
+                if age < 15.0 {
+                    audioLock.lock()
+                    speechPcmBuffer.removeAll()
+                    isUserSpeaking = false
+                    silenceStart = nil
+                    audioLock.unlock()
+                    return
+                } else {
+                    // Stale lock from a killed/crashed process (>15s) -> auto remove
+                    try? FileManager.default.removeItem(atPath: "/tmp/void_speaking.lock")
+                }
+            } else {
+                audioLock.lock()
+                speechPcmBuffer.removeAll()
+                isUserSpeaking = false
+                silenceStart = nil
+                audioLock.unlock()
+                return
+            }
         }
 
         guard let floatData = buffer.floatChannelData?[0] else { return }

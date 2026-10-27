@@ -13,9 +13,27 @@ from config import TTS_PROVIDER, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID, ELEVEN
 current_audio_proc = None
 is_speaking_lock = False
 current_speaking_text = ""
+import collections
+recent_spoken_history = collections.deque(maxlen=8)
 TTS_CACHE_DIR = "/tmp/void_tts_cache_ryan"
 SPEAKING_LOCK_FILE = "/tmp/void_speaking.lock"
 os.makedirs(TTS_CACHE_DIR, exist_ok=True)
+
+def is_recent_echo(text: str) -> bool:
+    """Detects whether transcribed text is an echo of Void's own recent spoken output."""
+    clean = text.lower().strip()
+    if not clean:
+        return False
+    # Check exact substring or inverted substring match
+    for item in recent_spoken_history:
+        if clean in item or item in clean:
+            return True
+        # Check high word overlap (e.g. >= 50% words in common)
+        words1 = set(re.findall(r"\w+", clean))
+        words2 = set(re.findall(r"\w+", item))
+        if len(words1) >= 2 and len(words1.intersection(words2)) / float(len(words1)) >= 0.5:
+            return True
+    return False
 
 def stop_speaking():
     global current_audio_proc, is_speaking_lock, current_speaking_text
@@ -107,17 +125,31 @@ def _generate_elevenlabs_audio(clean_text: str, output_path: str) -> bool:
         print(f"[TTS ElevenLabs Notice] {e}")
     return False
 
-def _speak_neural_sync(clean_text: str):
-    global current_audio_proc, is_speaking_lock, current_speaking_text
-    is_speaking_lock = True
-    current_speaking_text = clean_text.lower().strip()
-    
-    # Write hardware speaking lock so microphone never captures laptop speakers
+def _play_file_with_echo_lock(audio_file: str):
+    """Plays audio file through afplay with automatic hardware speaker lock and echo dissipation."""
+    global current_audio_proc
     try:
         with open(SPEAKING_LOCK_FILE, "w") as f:
             f.write(str(time.time()))
     except Exception:
         pass
+    try:
+        current_audio_proc = subprocess.Popen(["afplay", audio_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        current_audio_proc.wait()
+    finally:
+        time.sleep(0.40)  # Room reverberation dissipation
+        current_audio_proc = None
+        try:
+            if os.path.exists(SPEAKING_LOCK_FILE):
+                os.remove(SPEAKING_LOCK_FILE)
+        except Exception:
+            pass
+
+def _speak_neural_sync(clean_text: str):
+    global current_audio_proc, is_speaking_lock, current_speaking_text
+    is_speaking_lock = True
+    current_speaking_text = clean_text.lower().strip()
+    recent_spoken_history.append(current_speaking_text)
     
     # Check Voice-Specific Cache (0ms instant playback for repeated responses)
     text_hash = hashlib.md5(clean_text.encode('utf-8')).hexdigest()
@@ -125,14 +157,8 @@ def _speak_neural_sync(clean_text: str):
     
     if os.path.exists(cached_file) and os.path.getsize(cached_file) > 100:
         try:
-            current_audio_proc = subprocess.Popen(["afplay", cached_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            current_audio_proc.wait()
-            time.sleep(0.40)  # Acoustic room decay
+            _play_file_with_echo_lock(cached_file)
             is_speaking_lock = False
-            current_audio_proc = None
-            try:
-                if os.path.exists(SPEAKING_LOCK_FILE): os.remove(SPEAKING_LOCK_FILE)
-            except Exception: pass
             return
         except Exception:
             pass
@@ -150,8 +176,7 @@ def _speak_neural_sync(clean_text: str):
                     shutil.copyfile(temp_audio, cached_file)
                 except Exception:
                     pass
-                current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                current_audio_proc.wait()
+                _play_file_with_echo_lock(temp_audio)
                 played_audio = True
         except Exception:
             played_audio = False
@@ -185,8 +210,7 @@ def _speak_neural_sync(clean_text: str):
                     shutil.copyfile(temp_audio, cached_file)
                 except Exception:
                     pass
-                current_audio_proc = subprocess.Popen(["afplay", temp_audio], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                current_audio_proc.wait()
+                _play_file_with_echo_lock(temp_audio)
                 played_audio = True
         except Exception as e:
             played_audio = False
@@ -194,20 +218,26 @@ def _speak_neural_sync(clean_text: str):
     # 3. Emergency Offline Fallback (only if edge_tts network totally disconnected)
     if not played_audio:
         try:
+            try:
+                with open(SPEAKING_LOCK_FILE, "w") as f:
+                    f.write(str(time.time()))
+            except Exception:
+                pass
             current_audio_proc = subprocess.Popen(["say", "-v", "Daniel", "-r", "165", clean_text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             current_audio_proc.wait()
         except Exception:
             pass
+        finally:
+            time.sleep(0.40)
+            current_audio_proc = None
+            try:
+                if os.path.exists(SPEAKING_LOCK_FILE):
+                    os.remove(SPEAKING_LOCK_FILE)
+            except Exception:
+                pass
             
-    time.sleep(0.40)  # Acoustic room decay
     is_speaking_lock = False
-    current_audio_proc = None
     current_speaking_text = ""
-    try:
-        if os.path.exists(SPEAKING_LOCK_FILE):
-            os.remove(SPEAKING_LOCK_FILE)
-    except Exception:
-        pass
     try:
         if os.path.exists(temp_audio):
             os.remove(temp_audio)

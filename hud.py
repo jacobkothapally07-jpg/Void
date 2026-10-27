@@ -133,7 +133,6 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
             return
         elif clean_path == "/api/sleep":
             from voice_listener import set_jarvis_sleeping
-            from voice.tts import stop_speaking
             stop_speaking()
             set_jarvis_sleeping(True)
             set_widget_state("sleep", "MIC OFF // STANDBY")
@@ -142,7 +141,6 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
         elif clean_path in ["/api/wake_and_listen", "/api/listen", "/api/wake"]:
             from voice_listener import set_jarvis_sleeping, trigger_active_listen
             from voice.sound_effects import play_repulsor_wake
-            from voice.tts import stop_speaking
             stop_speaking()
             set_jarvis_sleeping(False)
             play_repulsor_wake()
@@ -202,7 +200,6 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        from voice.tts import stop_speaking, get_is_speaking
         if self.path == "/api/chat":
             content_length = int(self.headers.get("Content-Length", 0))
             post_data = self.rfile.read(content_length)
@@ -285,10 +282,10 @@ class JarvisHTTPHandler(http.server.BaseHTTPRequestHandler):
                     self._send_json({"status": "no_speech", "message": "No words detected"})
                     return
                 
-                # Hardware Acoustic Echo Cancellation: Discard if input matches Void's own output
-                from voice.tts import get_current_speaking_text
+                # Hardware Acoustic Echo Cancellation: Discard if input matches Void's own recent output
+                from voice.tts import is_recent_echo, get_current_speaking_text
                 current_speech = get_current_speaking_text()
-                if current_speech and (raw_text.lower() in current_speech or current_speech in raw_text.lower()):
+                if (current_speech and (raw_text.lower() in current_speech or current_speech in raw_text.lower())) or is_recent_echo(raw_text):
                     print(f"[Echo Cancellation] Dropped laptop speaker echo: '{raw_text}'")
                     set_widget_state("listening", "🎙️ Listening... speak anytime")
                     self._send_json({"status": "echo_suppressed", "message": "Speaker echo dropped"})
