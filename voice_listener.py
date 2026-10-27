@@ -32,11 +32,11 @@ def set_jarvis_sleeping(sleeping: bool):
         try:
             if sleeping and _active_stream.active:
                 _active_stream.stop()
-                set_widget_state("sleep", "MIC OFF // SLEEPING")
+                set_widget_state("sleep", "MIC OFF // VOID SLEEPING")
                 print("\033[93m[CoreAudio Hardware] Microphone stream stopped (Orange dot OFF).\033[0m")
             elif not sleeping and not _active_stream.active:
                 _active_stream.start()
-                set_widget_state("idle", "JARVIS // ONLINE")
+                set_widget_state("idle", "VOID // ONLINE")
                 print("\033[92m[CoreAudio Hardware] Microphone stream restarted (Orange dot ON).\033[0m")
         except Exception as e:
             print(f"[CoreAudio Power Error] {e}")
@@ -48,12 +48,12 @@ def get_jarvis_sleeping() -> bool:
 def clean_speech_query(text: str) -> str:
     """Strips conversational leading wake words so natural queries resolve cleanly."""
     clean = text.strip()
-    clean = re.sub(r"^(?:(?:hey|ok|okay|hi|hello)\s+)?jarvis[\s,]*", "", clean, flags=re.IGNORECASE).strip()
+    clean = re.sub(r"^(?:(?:hey|ok|okay|hi|hello)\s+)?(?:void|jarvis)[\s,]*", "", clean, flags=re.IGNORECASE).strip()
     return clean
 
 def run_voice_listener():
     print("\033[96m=====================================================\033[0m")
-    print("\033[96m   J.A.R.V.I.S. PRO STREAMING VOICE ENGINE ACTIVE   \033[0m")
+    print("\033[96m          VOID PRO STREAMING VOICE ENGINE ACTIVE     \033[0m")
     print("\033[96m   CoreAudio Ring Stream • Auto-Gain • 0ms Barge-In \033[0m")
     print("\033[96m=====================================================\033[0m\n")
 
@@ -154,8 +154,7 @@ def run_voice_listener():
             rms = float(np.sqrt(np.mean(block**2)))
 
             # Dynamic calibrated thresholds for MacBook Air mic:
-            # Ambient room noise is ~0.015 - 0.018. User speech is 0.150 - 0.400.
-            speech_threshold = max(0.035, ambient_floor * 2.2)
+            speech_threshold = max(0.016, ambient_floor * 1.8)
 
             # 3. SILENCE / NOISE GATE
             if rms < speech_threshold:
@@ -173,8 +172,7 @@ def run_voice_listener():
 
             silence_start = None
             recording_start = time.time()
-            # Silence threshold: when audio drops back below 0.026, user has paused
-            silence_threshold = max(0.026, ambient_floor * 1.6)
+            silence_threshold = max(0.012, ambient_floor * 1.3)
             silence_timeout = 0.70
 
             while True:
@@ -243,16 +241,16 @@ def run_voice_listener():
             # Standalone stop/mute commands
             if any(k in lower for k in ["stop", "shut up", "be quiet", "quiet", "stop talking", "stop yapping", "hush", "mute", "silence", "stop it"]):
                 stop_speaking()
-                set_widget_state("idle", "JARVIS // ONLINE")
+                set_widget_state("idle", "VOID // ONLINE")
                 continue
 
             # Standalone wake/ping
-            if lower in ["jarvis", "hey jarvis", "hello jarvis", "hi jarvis", "okay jarvis", "ok jarvis"]:
+            if lower in ["void", "hey void", "hello void", "hi void", "okay void", "ok void", "jarvis", "hey jarvis", "hello jarvis", "hi jarvis", "okay jarvis", "ok jarvis"]:
                 from voice.sound_effects import play_repulsor_wake
                 play_repulsor_wake()
                 req = urllib.request.Request(
                     "http://127.0.0.1:8080/api/chat",
-                    data=json.dumps({"message": "hey jarvis"}).encode("utf-8"),
+                    data=json.dumps({"message": "hey void"}).encode("utf-8"),
                     headers={"Content-Type": "application/json"}
                 )
                 try:
@@ -273,7 +271,7 @@ def run_voice_listener():
             with urllib.request.urlopen(req, timeout=20) as resp:
                 res = json.loads(resp.read().decode("utf-8"))
                 reply = res.get("response", "At your service, Sir.")
-                print(f"\033[96m[Jarvis Replied]\033[0m {reply}")
+                print(f"\033[96m[Void Replied]\033[0m {reply}")
 
         except Exception as e:
             time.sleep(0.05)

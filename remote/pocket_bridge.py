@@ -56,7 +56,7 @@ def ensure_cloudflared_tunnel(local_port=8080):
                     url = m.group(0)
                     with open("/tmp/jarvis_remote_url.txt", "w") as f:
                         f.write(url)
-                    print(f"\033[96m[Pocket JARVIS HTTPS Remote] {url}/remote\033[0m")
+                    print(f"\033[96m[Void HTTPS Remote] {url}/remote\033[0m")
                     # Also print local network IP
                     try:
                         import socket
@@ -64,12 +64,12 @@ def ensure_cloudflared_tunnel(local_port=8080):
                         s.connect(("8.8.8.8", 80))
                         lip = s.getsockname()[0]
                         s.close()
-                        print(f"\033[92m[Pocket JARVIS Local Wi-Fi] http://{lip}:{local_port}/remote\033[0m")
+                        print(f"\033[92m[Void Local Wi-Fi] http://{lip}:{local_port}/remote\033[0m")
                     except Exception:
                         pass
                     return url
     except Exception as e:
-        print(f"[Pocket JARVIS Tunnel] {e}")
+        print(f"[Void Tunnel] {e}")
     return None
 
 def _get_ssl_context():
@@ -82,7 +82,7 @@ def _get_ssl_context():
         ctx.verify_mode = ssl.CERT_NONE
         return ctx
 
-def send_phone_reply(text: str, title: str = "J.A.R.V.I.S.", tags: str = "robot"):
+def send_phone_reply(text: str, title: str = "Void", tags: str = "robot"):
     """Sends a text notification back to the user's phone via ntfy.sh."""
     url = f"https://ntfy.sh/{NTFY_REPLY_TOPIC}"
     try:
@@ -93,7 +93,7 @@ def send_phone_reply(text: str, title: str = "J.A.R.V.I.S.", tags: str = "robot"
                 "Title": title,
                 "Tags": tags,
                 "Priority": "default",
-                "User-Agent": "JARVIS-Remote/1.0"
+                "User-Agent": "Void-Remote/1.0"
             },
             method="POST"
         )
@@ -260,13 +260,13 @@ def handle_remote_command(command_text: str):
         control_mac_settings("sleep_display")
         from voice_listener import set_jarvis_sleeping
         set_jarvis_sleeping(True)
-        send_phone_reply("Mac display sleeping and J.A.R.V.I.S. placed on low-power standby, Sir.", title="System Sleeping", tags="moon,zzz")
+        send_phone_reply("Mac display sleeping and Void placed on low-power standby, Sir.", title="System Sleeping", tags="moon,zzz")
         return
 
     if any(k in lower for k in ["wake", "wake up"]):
         from voice_listener import set_jarvis_sleeping
         set_jarvis_sleeping(False)
-        send_phone_reply("Online and operational on your Mac, Sir.", title="Systems Active", tags="zap")
+        send_phone_reply("Void online and operational on your Mac, Sir.", title="Systems Active", tags="zap")
         return
 
     # 5b. Master Volume Control
@@ -281,7 +281,7 @@ def handle_remote_command(command_text: str):
     # 6. Fast Action Dispatch
     matched, fast_reply = dispatch_fast_action(clean)
     if matched and fast_reply:
-        send_phone_reply(fast_reply, title="J.A.R.V.I.S.", tags="robot")
+        send_phone_reply(fast_reply, title="Void", tags="robot")
         return
 
     # 7. Deep Brain / Gemini Intelligence Fallback
@@ -289,13 +289,13 @@ def handle_remote_command(command_text: str):
         from brain import JarvisBrain
         brain = JarvisBrain()
         reply = brain.respond(clean)
-        send_phone_reply(reply, title="J.A.R.V.I.S.", tags="speech_balloon")
+        send_phone_reply(reply, title="Void", tags="speech_balloon")
     except Exception as e:
-        send_phone_reply(f"Command acknowledged, Sir ({str(e)}).", title="J.A.R.V.I.S.", tags="warning")
+        send_phone_reply(f"Command acknowledged, Sir ({str(e)}).", title="Void", tags="warning")
 
 def run_pocket_bridge():
     """Continuously listens for commands sent from the user's phone via ntfy.sh."""
-    print(f"\033[95m[Pocket JARVIS Bridge Active]\033[0m Listening on https://ntfy.sh/{NTFY_CMD_TOPIC}...")
+    print(f"\033[95m[Void Bridge Active]\033[0m Listening on https://ntfy.sh/{NTFY_CMD_TOPIC}...")
     
     # Expose secure worldwide HTTPS endpoint for mobile web HUD
     ensure_cloudflared_tunnel()

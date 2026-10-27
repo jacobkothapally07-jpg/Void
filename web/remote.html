@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>J.A.R.V.I.S. // Mobile Pilot</title>
+    <title>VOID // Mobile Pilot</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#030408">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/iron-man.png">
+    <meta name="theme-color" content="#000000">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/ios-filled/192/ffffff/black-hole.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #030408;
-            --surface-card: #0f121c;
+            --bg: #000000;
+            --surface-card: #090a0f;
+            --surface-elevated: #11131c;
             --border: rgba(255, 255, 255, 0.08);
             --border-hover: rgba(255, 255, 255, 0.16);
             --text-primary: #ffffff;
-            --text-secondary: #8b9bb4;
-            --text-muted: #53627c;
-            --cyan-core: #00f0ff;
-            --cyan-glow: rgba(0, 240, 255, 0.35);
-            --purple-glow: rgba(168, 85, 247, 0.35);
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+            --void-glow: rgba(255, 255, 255, 0.28);
+            --purple-core: #c084fc;
+            --purple-glow: rgba(192, 132, 252, 0.35);
         }
 
         * {
@@ -44,10 +45,10 @@
             align-items: center;
             overflow-x: hidden;
             position: relative;
-            padding: max(14px, env(safe-area-inset-top)) 0 max(16px, env(safe-area-inset-bottom));
+            padding: max(12px, env(safe-area-inset-top)) 0 max(16px, env(safe-area-inset-bottom));
         }
 
-        /* Subtle atmospheric ambient glow matching reference */
+        /* Subtle atmospheric ambient stardust glow */
         .ambient-glow-top {
             position: fixed;
             top: -160px;
@@ -55,24 +56,22 @@
             transform: translateX(-50%);
             width: 480px;
             height: 480px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, rgba(6, 182, 212, 0.12) 45%, transparent 70%);
-            filter: blur(85px);
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(255, 255, 255, 0.04) 40%, transparent 70%);
+            filter: blur(90px);
             pointer-events: none;
-            z-index: 0;
         }
 
-        /* Main Container with generous, uncluttered breathing room */
         .app-shell {
             width: 100%;
             max-width: 440px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             z-index: 1;
-            padding: 0 18px;
+            padding: 0 16px;
         }
 
-        /* Top Clean Navigation (Clean J.A.R.V.I.S. Branding) */
+        /* Top Clean Navigation */
         .top-nav {
             display: flex;
             align-items: center;
@@ -108,232 +107,169 @@
         }
 
         .nav-title {
-            font-size: 19px;
+            font-size: 15px;
             font-weight: 800;
-            letter-spacing: -0.3px;
+            letter-spacing: 4px;
             color: #ffffff;
+            text-transform: uppercase;
+            text-shadow: 0 0 14px rgba(255, 255, 255, 0.5);
         }
 
         .nav-subtitle {
-            font-size: 10.5px;
+            font-size: 10px;
             font-weight: 600;
-            color: #10b981;
-            text-transform: uppercase;
+            color: var(--text-secondary);
             letter-spacing: 1.5px;
             display: flex;
             align-items: center;
             gap: 6px;
+            font-family: 'Space Mono', monospace;
         }
 
         .pulsing-indicator {
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 8px #10b981;
-            animation: pulse-dot 1.8s infinite;
+            background: #ffffff;
+            box-shadow: 0 0 8px #ffffff;
+            animation: pulse-dot 2.2s infinite ease-in-out;
         }
 
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.35; transform: scale(0.8); }
+            0%, 100% { opacity: 0.35; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.3); }
         }
 
-        /* Hero Squircle Carousel with Peek Cards (Reference Image 2) */
-        .carousel-container {
+        /* 3D PARTICLE HOLOGRAM HERO SECTION (Matching User Image) */
+        .hologram-card {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            height: 290px;
+            background: radial-gradient(circle at 50% 50%, #08090f 0%, #000000 85%);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 28px;
             position: relative;
-        }
-
-        .carousel-viewport {
-            width: 100%;
-            overflow-x: auto;
-            display: flex;
-            gap: 14px;
-            padding: 4px 6px 6px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .carousel-viewport::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* Luminous Squircle Card (Reference Image 2) */
-        .luminous-card {
-            flex: 0 0 calc(100% - 24px);
-            max-width: 380px;
-            height: 235px;
-            border-radius: 34px;
-            padding: 20px 22px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            scroll-snap-align: center;
             overflow: hidden;
-            box-shadow: 
-                inset 0 1px 0 rgba(255, 255, 255, 0.22),
-                0 16px 40px rgba(0, 0, 0, 0.8);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .card-battery {
-            background: radial-gradient(circle at 50% -10%, rgba(217, 70, 239, 0.38) 0%, rgba(147, 51, 234, 0.18) 40%, #0d0f1a 80%);
-            border: 1px solid rgba(217, 70, 239, 0.3);
-        }
-
-        .card-diagnostics {
-            background: radial-gradient(circle at 50% -10%, rgba(6, 182, 212, 0.38) 0%, rgba(37, 99, 235, 0.18) 40%, #0d0f1a 80%);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        .card-header-bar {
-            width: 100%;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-tag {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #e2e8f0;
-            letter-spacing: -0.2px;
-        }
-
-        .info-circle {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
-            color: #94a3b8;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
 
-        /* Dot Matrix Core Readout (Reference Image 2) */
-        .card-body-telemetry {
+        .hologram-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .hologram-canvas:active {
+            cursor: grabbing;
+        }
+
+        .hologram-hud-top {
+            position: absolute;
+            top: 14px;
+            left: 18px;
+            right: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .hologram-pill {
+            font-size: 10px;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .hologram-hud-bottom {
+            position: absolute;
+            bottom: 12px;
+            left: 18px;
+            right: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .telemetry-col {
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 2px;
         }
 
-        .dot-matrix-display {
-            font-family: 'Space Mono', monospace;
-            font-size: 52px;
+        .telemetry-val {
+            font-size: 20px;
             font-weight: 700;
-            letter-spacing: 3px;
+            font-family: 'Space Mono', monospace;
             color: #ffffff;
-            line-height: 1;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
         }
 
-        .telemetry-unit {
-            font-size: 13px;
+        .telemetry-lbl {
+            font-size: 9px;
             font-weight: 600;
             color: var(--text-secondary);
-            margin-top: 2px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
         }
 
-        /* Dotted Wave Graphics */
-        .orbital-wave-box {
-            width: 100%;
-            height: 42px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .orbital-svg {
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-        }
-
-        .sub-metric-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #cbd5e1;
-            letter-spacing: 0.2px;
-        }
-
-        .pagination-track {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .page-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.2s ease;
-        }
-
-        .page-dot.active {
-            width: 16px;
-            border-radius: 4px;
-            background: #ffffff;
-        }
-
-        /* UNCLUTTERED VOLUME SLIDER CARD (Reference Image 2 Slider Style) */
-        .volume-card {
-            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.22) 0%, var(--surface-card) 75%);
-            border: 1px solid rgba(59, 130, 246, 0.28);
-            border-radius: 26px;
-            padding: 16px 20px;
+        /* MASTER VOLUME SLIDER CARD */
+        .vol-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 14px 18px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
         }
 
-        .volume-header {
+        .vol-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .volume-label {
-            font-size: 13px;
+        .vol-title {
+            font-size: 11px;
             font-weight: 700;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 7px;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
         }
 
-        .volume-percent {
+        .vol-number {
+            font-size: 13px;
+            font-weight: 700;
             font-family: 'Space Mono', monospace;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--cyan-core);
+            color: #ffffff;
         }
 
-        /* Custom Modern Slider Track & Thumb */
         .slider-row {
             display: flex;
             align-items: center;
             gap: 12px;
-            width: 100%;
         }
 
         .vol-icon {
             font-size: 14px;
-            color: #94a3b8;
-            flex-shrink: 0;
+            color: var(--text-muted);
         }
 
         .custom-slider {
@@ -341,11 +277,9 @@
             -webkit-appearance: none;
             appearance: none;
             height: 6px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.12);
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
             outline: none;
-            cursor: pointer;
-            transition: background 0.15s ease;
         }
 
         .custom-slider::-webkit-slider-thumb {
@@ -355,39 +289,33 @@
             height: 22px;
             border-radius: 50%;
             background: #ffffff;
-            border: 2px solid var(--cyan-core);
-            box-shadow: 0 0 12px var(--cyan-core);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
             cursor: pointer;
-            transition: transform 0.15s ease;
+            border: 2px solid #000000;
         }
 
-        .custom-slider::-webkit-slider-thumb:active {
-            transform: scale(1.18);
-        }
-
-        /* Streamlined 2-Tile Row */
+        /* 2-TILE PRIMARY CONTROLS */
         .controls-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            width: 100%;
         }
 
         .tile-card {
             background: var(--surface-card);
             border: 1px solid var(--border);
-            border-radius: 22px;
-            padding: 15px 16px;
+            border-radius: 20px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-height: 72px;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .tile-card:active {
             transform: scale(0.96);
+            background: var(--surface-elevated);
             border-color: rgba(255, 255, 255, 0.2);
         }
 
@@ -404,24 +332,23 @@
         }
 
         .tile-subtitle {
-            font-size: 11px;
-            color: #8b9bb4;
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
         }
 
-        /* iOS Switch */
         .ios-switch {
             width: 44px;
             height: 26px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 13px;
+            padding: 2px;
+            transition: all 0.25s ease;
             position: relative;
-            transition: background 0.25s ease;
-            cursor: pointer;
         }
 
         .ios-switch.active {
-            background: #2563eb;
-            box-shadow: 0 0 10px rgba(37, 99, 235, 0.6);
+            background: #ffffff;
         }
 
         .switch-knob {
@@ -429,23 +356,20 @@
             height: 22px;
             background: #ffffff;
             border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .ios-switch.active .switch-knob {
             transform: translateX(18px);
+            background: #000000;
         }
 
-        /* 4 Quick Pills Strip */
+        /* 4 QUICK ACTION STRIP */
         .action-strip {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            width: 100%;
         }
 
         .strip-card {
@@ -456,16 +380,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 6px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.2s ease;
         }
 
         .strip-card:active {
-            transform: scale(0.92);
-            border-color: rgba(255, 255, 255, 0.25);
-            background: rgba(255, 255, 255, 0.08);
+            transform: scale(0.94);
+            background: var(--surface-elevated);
         }
 
         .strip-icon {
@@ -473,104 +395,21 @@
         }
 
         .strip-label {
-            font-size: 10.5px;
-            font-weight: 700;
-            color: #e2e8f0;
-            text-align: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
         }
 
-        /* ALWAYS VISIBLE LIVE NEURAL CHAT STREAM */
-        .neural-stream-box {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .stream-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2px;
-        }
-
-        .stream-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .stream-pulse-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--cyan-core);
-            box-shadow: 0 0 6px var(--cyan-core);
-        }
-
-        .stream-status-sub {
-            font-size: 11px;
-            font-family: 'Space Mono', monospace;
-            color: #64748b;
-        }
-
-        .stream-messages-card {
-            background: var(--surface-card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 16px;
-            min-height: 190px;
-            max-height: 360px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .msg-bubble {
-            max-width: 86%;
-            padding: 10px 14px;
-            font-size: 13.5px;
-            line-height: 1.45;
-            position: relative;
-            animation: fadeIn 0.2s ease-out;
-            word-break: break-word;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-
-        .msg-bubble.user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
-            color: #ffffff;
-            border-radius: 18px 18px 4px 18px;
-            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.25);
-        }
-
-        .msg-bubble.jarvis {
-            align-self: flex-start;
-            background: #171b28;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #f1f5f9;
-            border-radius: 18px 18px 18px 4px;
-        }
-
-        /* Live Snapshot Modal View */
+        /* LIVE SNAPSHOT MODAL VIEW */
         .snapshot-viewer {
             display: none;
             width: 100%;
             background: var(--surface-card);
-            border: 1px solid var(--cyan-core);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 0 25px var(--cyan-glow);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
             animation: fadeIn 0.25s ease-out;
         }
 
@@ -579,14 +418,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 240, 255, 0.1);
-            border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .snapshot-title {
             font-size: 11px;
             font-weight: 700;
-            color: var(--cyan-core);
+            color: #ffffff;
             letter-spacing: 0.5px;
         }
 
@@ -606,7 +445,84 @@
             display: block;
         }
 
-        /* ALWAYS VISIBLE FLOATING PROMPT DOCK */
+        /* LIVE NEURAL STREAM CHAT */
+        .neural-stream-box {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 85px;
+        }
+
+        .stream-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stream-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stream-pulse-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #ffffff;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        .stream-status-sub {
+            font-size: 9px;
+            font-family: 'Space Mono', monospace;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .stream-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 140px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .msg-bubble {
+            font-size: 12px;
+            line-height: 1.45;
+            padding: 8px 12px;
+            max-width: 88%;
+            word-break: break-word;
+        }
+
+        .msg-bubble.user {
+            align-self: flex-end;
+            background: #ffffff;
+            color: #000000;
+            font-weight: 500;
+            border-radius: 16px 16px 4px 16px;
+        }
+
+        .msg-bubble.jarvis {
+            align-self: flex-start;
+            background: #11131c;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #f1f5f9;
+            border-radius: 16px 16px 16px 4px;
+        }
+
+        /* FLOATING PROMPT DOCK */
         .floating-prompt-dock {
             position: fixed;
             bottom: max(14px, env(safe-area-inset-bottom));
@@ -614,8 +530,8 @@
             transform: translateX(-50%);
             width: calc(100% - 24px);
             max-width: 440px;
-            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.32) 0%, rgba(15, 18, 30, 0.96) 75%);
-            border: 1px solid rgba(59, 130, 246, 0.32);
+            background: rgba(12, 14, 20, 0.94);
+            border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 36px;
             padding: 8px 10px 8px 12px;
             display: flex;
@@ -623,7 +539,7 @@
             gap: 8px;
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.15);
             z-index: 50;
         }
 
@@ -631,60 +547,51 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #ffffff;
-            font-size: 17px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.2s ease;
             flex-shrink: 0;
         }
 
         .dock-sleep-btn:active {
-            transform: scale(0.9);
-            background: rgba(239, 68, 68, 0.25);
-            border-color: #ef4444;
-        }
-
-        .dock-input-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
+            transform: scale(0.92);
         }
 
         .dock-input {
-            width: 100%;
+            flex: 1;
             background: transparent;
             border: none;
             color: #ffffff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 14.5px;
-            font-weight: 500;
+            font-size: 14px;
+            font-family: inherit;
             outline: none;
-            user-select: text;
+            padding: 6px 4px;
         }
 
         .dock-input::placeholder {
             color: #64748b;
+            font-size: 13px;
         }
 
         .dock-voice-btn {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
-            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             color: #ffffff;
-            font-size: 17px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 0 16px rgba(236, 72, 153, 0.55);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.15s ease;
             flex-shrink: 0;
         }
 
@@ -694,8 +601,9 @@
 
         .dock-voice-btn.listening {
             animation: pulse-mic 1.2s infinite;
-            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
-            box-shadow: 0 0 24px rgba(239, 68, 68, 0.8);
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 0 20px #ffffff;
         }
 
         @keyframes pulse-mic {
@@ -710,7 +618,7 @@
             border-radius: 50%;
             background: #ffffff;
             border: none;
-            color: #030408;
+            color: #000000;
             font-size: 16px;
             font-weight: 700;
             display: flex;
@@ -723,22 +631,22 @@
 
         .dock-send-btn:active {
             transform: scale(0.9);
-            background: #f1f5f9;
+            background: #e2e8f0;
         }
 
-        /* Master Passcode PIN Lock Modal */
+        /* MASTER PIN PASSCODE LOCK MODAL (VOID SINGULARITY) */
         .pin-lock-overlay {
             position: fixed;
             inset: 0;
-            background: #030408;
+            background: #000000;
             z-index: 99999;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 24px;
-            backdrop-filter: blur(35px);
-            -webkit-backdrop-filter: blur(35px);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
             transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -756,39 +664,41 @@
             width: 100%;
         }
 
-        .pin-reactor-ring {
-            width: 72px;
-            height: 72px;
+        .pin-singularity-ring {
+            width: 76px;
+            height: 76px;
             border-radius: 50%;
-            border: 2px solid rgba(0, 240, 255, 0.45);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.35), inset 0 0 15px rgba(0, 240, 255, 0.25);
+            border: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 22px;
-            animation: reactorPulse 3s infinite ease-in-out;
+            margin-bottom: 24px;
+            animation: singularityPulse 3s infinite ease-in-out;
+            position: relative;
         }
 
-        .pin-reactor-core {
-            width: 32px;
-            height: 32px;
+        .pin-singularity-core {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #00f0ff;
-            box-shadow: 0 0 20px #00f0ff;
+            background: #000000;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 15px #ffffff;
         }
 
-        @keyframes reactorPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 22px rgba(0, 240, 255, 0.35); }
-            50% { transform: scale(1.06); box-shadow: 0 0 35px rgba(0, 240, 255, 0.65); }
+        @keyframes singularityPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 255, 255, 0.3); }
+            50% { transform: scale(1.06); box-shadow: 0 0 40px rgba(255, 255, 255, 0.6); }
         }
 
         .pin-title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 800;
-            letter-spacing: 3px;
-            color: var(--cyan-core);
+            letter-spacing: 4px;
+            color: #ffffff;
             margin-bottom: 6px;
-            text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+            text-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
         }
 
         .pin-subtitle {
@@ -796,6 +706,7 @@
             color: var(--text-secondary);
             letter-spacing: 1.5px;
             margin-bottom: 28px;
+            font-family: 'Space Mono', monospace;
         }
 
         .pin-dots {
@@ -813,9 +724,9 @@
         }
 
         .p-dot.filled {
-            background: var(--cyan-core);
-            border-color: var(--cyan-core);
-            box-shadow: 0 0 14px var(--cyan-core);
+            background: #ffffff;
+            border-color: #ffffff;
+            box-shadow: 0 0 14px #ffffff;
             transform: scale(1.2);
         }
 
@@ -832,7 +743,7 @@
             aspect-ratio: 1;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.09);
             color: #ffffff;
             font-size: 24px;
             font-weight: 600;
@@ -845,8 +756,8 @@
         }
 
         .pin-key:active {
-            background: rgba(0, 240, 255, 0.18);
-            border-color: var(--cyan-core);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
             transform: scale(0.92);
         }
 
@@ -876,54 +787,60 @@
             40%, 80% { transform: translateX(12px); }
         }
 
-        /* Siri Setup Modal */
+        /* SIRI & ACTION BUTTON MODAL */
         .siri-modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(3, 4, 8, 0.88);
+            background: rgba(0, 0, 0, 0.92);
             z-index: 99998;
             display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
+
         .siri-modal-card {
-            background: #0f121c;
-            border: 1px solid rgba(168, 85, 247, 0.35);
+            background: #090a0f;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
             width: 100%;
             max-width: 380px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(168, 85, 247, 0.2);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
             overflow: hidden;
             animation: fadeIn 0.25s ease-out;
         }
+
         .siri-modal-header {
             padding: 14px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(168, 85, 247, 0.12);
-            border-bottom: 1px solid rgba(168, 85, 247, 0.25);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .siri-modal-title {
             font-size: 13px;
             font-weight: 800;
-            letter-spacing: 1.5px;
-            color: #d8b4fe;
+            letter-spacing: 2px;
+            color: #ffffff;
         }
+
         .siri-modal-body {
             padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 14px;
         }
+
         .siri-desc {
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.45;
         }
+
         .voice-cmd-pill {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -931,9 +848,10 @@
             padding: 8px 12px;
             font-size: 12px;
             font-family: 'Space Mono', monospace;
-            color: var(--cyan-core);
+            color: #ffffff;
             margin-bottom: 6px;
         }
+
         .siri-steps {
             display: grid;
             grid-template-columns: 24px 1fr;
@@ -942,34 +860,38 @@
             color: #cbd5e1;
             line-height: 1.4;
         }
+
         .step-num {
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background: rgba(168, 85, 247, 0.25);
-            color: #c084fc;
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 11px;
         }
+
         .siri-copy-btn {
-            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            background: #ffffff;
             border: none;
-            color: #ffffff;
+            color: #000000;
             font-weight: 700;
             font-size: 13px;
             padding: 12px 16px;
             border-radius: 14px;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(236, 72, 153, 0.3);
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
             margin-top: 4px;
             transition: all 0.15s ease;
         }
+
         .siri-copy-btn:active {
             transform: scale(0.96);
         }
+
         .copy-success {
             font-size: 11px;
             color: #22c55e;
@@ -977,16 +899,21 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
-    <!-- PIN Lock Screen Overlay -->
+    <!-- PIN Lock Screen Overlay (VOID SINGULARITY) -->
     <div id="pinLockModal" class="pin-lock-overlay">
         <div class="pin-card" id="pinCard">
-            <div class="pin-reactor-ring">
-                <div class="pin-reactor-core"></div>
+            <div class="pin-singularity-ring">
+                <div class="pin-singularity-core"></div>
             </div>
-            <div class="pin-title">SECURITY PROTOCOL</div>
+            <div class="pin-title">VOID // AUTHENTICATION</div>
             <div class="pin-subtitle">ENTER MASTER PASSCODE</div>
             <div class="pin-dots" id="pinDots">
                 <span class="p-dot"></span>
@@ -1008,7 +935,7 @@
                 <button class="pin-key" onclick="enterPinDigit('0')">0</button>
                 <button class="pin-key pin-ghost" onclick="deletePinDigit()">⌫</button>
             </div>
-            <div class="pin-status" id="pinStatusMsg">AUTHENTICATION REQUIRED</div>
+            <div class="pin-status" id="pinStatusMsg">SECURITY VERIFICATION REQUIRED</div>
         </div>
     </div>
 
@@ -1020,33 +947,34 @@
                 <button class="snapshot-close" onclick="closeSiriModal()">✕</button>
             </div>
             <div class="siri-modal-body">
-                <p class="siri-desc">Trigger J.A.R.V.I.S. natively from your iPhone Lock Screen, Action Button, or hands-free via Siri:</p>
+                <p class="siri-desc">Trigger Void natively from your iPhone Lock Screen, Action Button, or hands-free via Siri:</p>
                 <div class="siri-voice-pills">
-                    <div class="voice-cmd-pill">"Hey Siri, Ask Jarvis to lock my Mac"</div>
-                    <div class="voice-cmd-pill">"Hey Siri, Ask Jarvis to find my Mac"</div>
-                    <div class="voice-cmd-pill">"Hey Siri, Ask Jarvis for desk camera"</div>
+                    <div class="voice-cmd-pill">"Hey Siri, Ask Void to lock my Mac"</div>
+                    <div class="voice-cmd-pill">"Hey Siri, Ask Void to find my Mac"</div>
+                    <div class="voice-cmd-pill">"Hey Siri, Ask Void for desk camera"</div>
                 </div>
                 <div class="siri-steps">
                     <div class="step-num">1</div>
                     <div class="step-text">Open <b>Shortcuts</b> app on your iPhone & tap <b>+</b>.</div>
                     <div class="step-num">2</div>
-                    <div class="step-text">Name the shortcut <b>"Ask Jarvis"</b>.</div>
+                    <div class="step-text">Name the shortcut <b>"Ask Void"</b>.</div>
                     <div class="step-num">3</div>
-                    <div class="step-text">Add <b>"Get Contents of URL"</b> with method POST, URL below, and Request Body: Shortcut Input.</div>
+                    <div class="step-text">Add <b>"Get Contents of URL"</b> with method POST and Request Body: Shortcut Input.</div>
                     <div class="step-num">4</div>
-                    <div class="step-text">Under iPhone <b>Settings → Action Button</b>, choose Shortcut → <b>Ask Jarvis</b>.</div>
+                    <div class="step-text">Under iPhone <b>Settings → Action Button</b>, choose Shortcut → <b>Ask Void</b>.</div>
                 </div>
                 <button class="siri-copy-btn" onclick="copyShortcutURL()">📋 Copy Command Webhook URL</button>
                 <div id="copySuccessMsg" class="copy-success" style="display:none;">✓ URL Copied to Clipboard!</div>
             </div>
         </div>
     </div>
+
     <div class="ambient-glow-top"></div>
 
     <div class="app-shell">
         <!-- Top Navigation -->
         <div class="top-nav">
-            <button class="nav-round-btn" id="navRefreshBtn" onclick="refreshApp()" title="Refresh App">
+            <button class="nav-round-btn" id="navRefreshBtn" onclick="refreshApp()" title="Refresh & Sync">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="23 4 23 10 17 10"></polyline>
                     <polyline points="1 20 1 14 7 14"></polyline>
@@ -1055,10 +983,10 @@
             </button>
 
             <div class="nav-title-group">
-                <span class="nav-title">J.A.R.V.I.S.</span>
+                <span class="nav-title">VOID</span>
                 <span class="nav-subtitle">
                     <div class="pulsing-indicator"></div>
-                    SYSTEM ONLINE
+                    SINGULARITY ONLINE
                 </span>
             </div>
 
@@ -1067,78 +995,36 @@
             </button>
         </div>
 
-        <!-- Hero Squircle Carousel with Peek Edges (Reference Image 2) -->
-        <div class="carousel-container">
-            <div class="carousel-viewport" id="cardViewport">
-                <!-- Card 1: Battery Level -->
-                <div class="luminous-card card-battery">
-                    <div class="card-header-bar">
-                        <span class="card-tag">Battery Level</span>
-                        <div class="info-circle">ⓘ</div>
-                    </div>
+        <!-- 3D HOLOGRAM PARTICLE SPHERE HERO (User Reference Image) -->
+        <div class="hologram-card">
+            <canvas id="voidHologramCanvas" class="hologram-canvas"></canvas>
 
-                    <div class="card-body-telemetry">
-                        <div class="dot-matrix-display" id="mainBatteryVal">46%</div>
-                        <span class="telemetry-unit">Power Level</span>
-                    </div>
-
-                    <div class="orbital-wave-box">
-                        <svg class="orbital-svg" viewBox="0 0 240 40">
-                            <ellipse cx="120" cy="35" rx="85" ry="24" fill="none" stroke="rgba(255,255,255,0.22)" stroke-dasharray="3,4" stroke-width="1.2"/>
-                            <ellipse cx="120" cy="35" rx="55" ry="16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-dasharray="2,3" stroke-width="1.2"/>
-                            <circle cx="95" cy="18" r="2.5" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)"/>
-                            <circle cx="145" cy="18" r="2.5" fill="#ffffff" filter="drop-shadow(0 0 3px #ffffff)"/>
-                            <circle cx="120" cy="11" r="3" fill="#ffffff" filter="drop-shadow(0 0 4px #ec4899)"/>
-                        </svg>
-                    </div>
-
-                    <span class="sub-metric-label">Power Source: Battery • Optimal</span>
-                </div>
-
-                <!-- Card 2: Workstation Diagnostics -->
-                <div class="luminous-card card-diagnostics">
-                    <div class="card-header-bar">
-                        <span class="card-tag">Workstation Health</span>
-                        <div class="info-circle">ⓘ</div>
-                    </div>
-
-                    <div class="card-body-telemetry">
-                        <div class="dot-matrix-display" id="cpuLoadVal">0.0</div>
-                        <span class="telemetry-unit">CPU Utilization %</span>
-                    </div>
-
-                    <div class="orbital-wave-box">
-                        <svg class="orbital-svg" viewBox="0 0 240 40">
-                            <ellipse cx="120" cy="35" rx="85" ry="24" fill="none" stroke="rgba(0,240,255,0.28)" stroke-dasharray="3,4" stroke-width="1.2"/>
-                            <ellipse cx="120" cy="35" rx="55" ry="16" fill="none" stroke="rgba(0,240,255,0.4)" stroke-dasharray="2,3" stroke-width="1.2"/>
-                            <circle cx="75" cy="24" r="2.5" fill="#00f0ff" filter="drop-shadow(0 0 4px #00f0ff)"/>
-                            <circle cx="165" cy="24" r="2.5" fill="#00f0ff" filter="drop-shadow(0 0 4px #00f0ff)"/>
-                            <circle cx="120" cy="11" r="3" fill="#ffffff" filter="drop-shadow(0 0 4px #00f0ff)"/>
-                        </svg>
-                    </div>
-
-                    <span class="sub-metric-label">MacBook Air • Neural Link Active</span>
-                </div>
+            <div class="hologram-hud-top">
+                <span class="hologram-pill" id="holoStatusPill">ORBITAL // STABLE</span>
+                <span class="hologram-pill">3D TOUCH ACTIVE</span>
             </div>
 
-            <div class="pagination-track">
-                <div class="page-dot active" id="dot0"></div>
-                <div class="page-dot" id="dot1"></div>
+            <div class="hologram-hud-bottom">
+                <div class="telemetry-col">
+                    <span class="telemetry-val" id="mainBatteryVal">67%</span>
+                    <span class="telemetry-lbl" id="batterySubLbl">Power Level</span>
+                </div>
+                <div class="telemetry-col" style="align-items: flex-end;">
+                    <span class="telemetry-val" id="cpuLoadVal">12.4</span>
+                    <span class="telemetry-lbl">CPU Load %</span>
+                </div>
             </div>
         </div>
 
-        <!-- UNCLUTTERED VOLUME SLIDER CARD (Reference Image 2 Slider) -->
-        <div class="volume-card">
-            <div class="volume-header">
-                <span class="volume-label">
-                    <span>🔊</span>
-                    <span>Master Volume</span>
-                </span>
-                <span class="volume-percent" id="volDisplay">50%</span>
+        <!-- Master Volume Slider Card -->
+        <div class="vol-card">
+            <div class="vol-header">
+                <span class="vol-title">Master Output Volume</span>
+                <span class="vol-number" id="volDisplay">78%</span>
             </div>
             <div class="slider-row">
                 <span class="vol-icon">🔈</span>
-                <input type="range" min="0" max="100" value="50" class="custom-slider" id="volSlider" oninput="updateVolume(this.value)">
+                <input type="range" min="0" max="100" value="78" class="custom-slider" id="volSlider" oninput="updateVolume(this.value)">
                 <span class="vol-icon">🔊</span>
             </div>
         </div>
@@ -1200,32 +1086,25 @@
                     <span class="stream-pulse-dot"></span>
                     <span>Neural Stream</span>
                 </div>
-                <span class="stream-status-sub" id="streamStatusSub">READY</span>
+                <span class="stream-status-sub" id="streamStatusSub">ONLINE</span>
             </div>
-
-            <div class="stream-messages-card" id="mainStreamMessages">
-                <div class="msg-bubble jarvis">
-                    Good evening, Sir. System ready. Type a prompt below or tap the microphone anytime.
-                </div>
+            <div class="stream-messages" id="mainStreamMessages">
+                <div class="msg-bubble jarvis">Void online and operational, Sir. Awaiting your command.</div>
             </div>
         </div>
-
-        <div style="height: 85px;"></div>
     </div>
 
     <!-- ALWAYS VISIBLE FLOATING PROMPT DOCK -->
     <div class="floating-prompt-dock">
-        <!-- 1. Sleep Mac Button -->
-        <button class="dock-sleep-btn" id="dockSleepBtn" onclick="triggerSleepMac()" title="Sleep / Wake Workstation">
+        <!-- 1. Dedicated Sleep/Wake Button -->
+        <button class="dock-sleep-btn" id="dockSleepBtn" onclick="triggerSleepMac()" title="Sleep/Wake">
             🌙
         </button>
 
-        <!-- 2. Visible Chat Box for Effortless Prompting -->
-        <div class="dock-input-wrapper">
-            <input type="text" id="mainPromptInput" class="dock-input" placeholder="Ask or command J.A.R.V.I.S..." onkeydown="if(event.key==='Enter') sendPromptText()">
-        </div>
+        <!-- 2. Main Prompt Text Input -->
+        <input type="text" class="dock-input" id="mainPromptInput" placeholder="Command Void..." onkeydown="if(event.key==='Enter') sendPromptText()">
 
-        <!-- 3. Glowing Voice Mic Button -->
+        <!-- 3. Dedicated Voice Microphone Button -->
         <button class="dock-voice-btn" id="dockVoiceBtn" onclick="toggleSpeech()" title="Tap to Speak">
             🎙️
         </button>
@@ -1241,6 +1120,7 @@
         const REPLY_TOPIC = "jk_reply_c20c924a97e53fc63041ff3d391f2a38";
 
         const mainBatteryVal = document.getElementById("mainBatteryVal");
+        const batterySubLbl = document.getElementById("batterySubLbl");
         const cpuLoadVal = document.getElementById("cpuLoadVal");
         const volSlider = document.getElementById("volSlider");
         const volDisplay = document.getElementById("volDisplay");
@@ -1253,6 +1133,7 @@
         const dockVoiceBtn = document.getElementById("dockVoiceBtn");
         const streamStatusSub = document.getElementById("streamStatusSub");
         const sentrySwitch = document.getElementById("sentrySwitch");
+        const holoStatusPill = document.getElementById("holoStatusPill");
 
         let isSleeping = false;
         let volDebounce = null;
@@ -1264,7 +1145,8 @@
         async function sendCommand(cmd, isSilent = false) {
             triggerHaptic();
             if (!isSilent) addStreamMessage(cmd, true);
-            streamStatusSub.innerText = "Transmitting...";
+            streamStatusSub.innerText = "TRANSMITTING...";
+            setHologramState("thinking");
             try {
                 await fetch(`https://ntfy.sh/${CMD_TOPIC}`, {
                     method: "POST",
@@ -1272,6 +1154,7 @@
                 });
             } catch(e) {
                 streamStatusSub.innerText = "Error: " + e.message;
+                setHologramState("idle");
             }
         }
 
@@ -1279,7 +1162,8 @@
             triggerHaptic();
             const btn = document.getElementById("navRefreshBtn");
             if (btn) btn.style.transform = "rotate(360deg)";
-            streamStatusSub.innerText = "SYNCING MAC DATA...";
+            streamStatusSub.innerText = "SYNCING VOID...";
+            setHologramState("thinking");
             sendCommand("stats", true);
             setTimeout(() => {
                 if (btn) btn.style.transform = "rotate(0deg)";
@@ -1288,7 +1172,7 @@
 
         function loadCachedTelemetry() {
             try {
-                const raw = localStorage.getItem("jarvis_last_telemetry");
+                const raw = localStorage.getItem("void_last_telemetry") || localStorage.getItem("jarvis_last_telemetry");
                 if (raw) {
                     const cached = JSON.parse(raw);
                     if (cached.battery) mainBatteryVal.innerText = cached.battery;
@@ -1335,12 +1219,14 @@
                 dockSleepBtn.style.background = "rgba(239, 68, 68, 0.3)";
                 dockSleepBtn.style.borderColor = "#ef4444";
                 streamStatusSub.innerText = "SLEEPING";
+                setHologramState("sleeping");
             } else {
                 isSleeping = false;
                 sendCommand("wake up");
                 dockSleepBtn.style.background = "";
                 dockSleepBtn.style.borderColor = "";
                 streamStatusSub.innerText = "ONLINE";
+                setHologramState("idle");
             }
         }
 
@@ -1405,23 +1291,6 @@
             });
         }
 
-        // Carousel Scroll Tracker
-        const cardViewport = document.getElementById("cardViewport");
-        const dot0 = document.getElementById("dot0");
-        const dot1 = document.getElementById("dot1");
-
-        cardViewport.addEventListener("scroll", () => {
-            const scrollLeft = cardViewport.scrollLeft;
-            const cardWidth = cardViewport.offsetWidth * 0.8;
-            if (scrollLeft > cardWidth / 2) {
-                dot0.classList.remove("active");
-                dot1.classList.add("active");
-            } else {
-                dot1.classList.remove("active");
-                dot0.classList.add("active");
-            }
-        });
-
         // Server-Sent Events (Live incoming alerts from Mac)
         const eventSource = new EventSource(`https://ntfy.sh/${REPLY_TOPIC}/sse`);
         eventSource.onmessage = function(event) {
@@ -1436,6 +1305,8 @@
                         snapshotTitle.innerText = data.title ? ("📸 " + data.title.toUpperCase()) : "📸 LIVE VISUAL CAPTURE";
                         snapshotViewer.style.display = "block";
                         snapshotViewer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        setHologramState("speaking");
+                        setTimeout(() => setHologramState("idle"), 2500);
                     }
 
                     // Handle Text Reply
@@ -1443,6 +1314,10 @@
                         const isTelemetry = data.message.includes("Battery:") && data.message.includes("CPU:");
                         if (!isTelemetry) {
                             addStreamMessage(data.message, false);
+                            setHologramState("speaking");
+                            setTimeout(() => setHologramState("idle"), 3000);
+                        } else {
+                            setHologramState("idle");
                         }
                         streamStatusSub.innerText = "ONLINE";
 
@@ -1450,6 +1325,11 @@
                         const matchBatt = data.message.match(/Battery:\s*(\d+%)/);
                         if (matchBatt) {
                             mainBatteryVal.innerText = matchBatt[1];
+                        }
+                        if (data.message.includes("AC Power")) {
+                            batterySubLbl.innerText = "AC Power";
+                        } else if (data.message.includes("Battery")) {
+                            batterySubLbl.innerText = "On Battery";
                         }
 
                         // Parse CPU
@@ -1469,7 +1349,7 @@
 
                         // Save cached telemetry
                         try {
-                            localStorage.setItem("jarvis_last_telemetry", JSON.stringify({
+                            localStorage.setItem("void_last_telemetry", JSON.stringify({
                                 battery: mainBatteryVal.innerText,
                                 cpu: cpuLoadVal.innerText,
                                 vol: volSlider.value,
@@ -1496,6 +1376,7 @@
                 isListening = true;
                 dockVoiceBtn.classList.add("listening");
                 mainPromptInput.placeholder = "Listening to your voice...";
+                setHologramState("listening");
                 triggerHaptic();
             };
 
@@ -1508,13 +1389,15 @@
             recognition.onerror = function() {
                 isListening = false;
                 dockVoiceBtn.classList.remove("listening");
-                mainPromptInput.placeholder = "Ask or command J.A.R.V.I.S...";
+                mainPromptInput.placeholder = "Command Void...";
+                setHologramState("idle");
             };
 
             recognition.onend = function() {
                 isListening = false;
                 dockVoiceBtn.classList.remove("listening");
-                mainPromptInput.placeholder = "Ask or command J.A.R.V.I.S...";
+                mainPromptInput.placeholder = "Command Void...";
+                if (hologramState === "listening") setHologramState("idle");
             };
         }
 
@@ -1538,7 +1421,8 @@
 
         function initSecurityLock() {
             loadCachedTelemetry();
-            const isAuth = localStorage.getItem("jarvis_auth_unlocked");
+            initHologramSphere();
+            const isAuth = localStorage.getItem("void_auth_unlocked") || localStorage.getItem("jarvis_auth_unlocked");
             const overlay = document.getElementById("pinLockModal");
             if (isAuth === "true") {
                 overlay.classList.add("unlocked");
@@ -1587,20 +1471,20 @@
         }
 
         function verifyPin() {
-            const savedPin = localStorage.getItem("jarvis_master_pin") || DEFAULT_PIN;
+            const savedPin = localStorage.getItem("void_master_pin") || localStorage.getItem("jarvis_master_pin") || DEFAULT_PIN;
             const card = document.getElementById("pinCard");
             const statusMsg = document.getElementById("pinStatusMsg");
 
             if (enteredPin === savedPin) {
                 triggerHaptic();
-                localStorage.setItem("jarvis_auth_unlocked", "true");
+                localStorage.setItem("void_auth_unlocked", "true");
                 statusMsg.innerText = "ACCESS GRANTED // WELCOME SIR";
-                statusMsg.style.color = "var(--cyan-core)";
+                statusMsg.style.color = "#ffffff";
                 
                 setTimeout(() => {
                     const overlay = document.getElementById("pinLockModal");
                     overlay.classList.add("unlocked");
-                    statusMsg.innerText = "AUTHENTICATION REQUIRED";
+                    statusMsg.innerText = "SECURITY VERIFICATION REQUIRED";
                     statusMsg.style.color = "";
                     setTimeout(refreshApp, 200);
                 }, 350);
@@ -1614,7 +1498,7 @@
                     card.classList.remove("shake");
                     enteredPin = "";
                     updatePinDots();
-                    statusMsg.innerText = "AUTHENTICATION REQUIRED";
+                    statusMsg.innerText = "SECURITY VERIFICATION REQUIRED";
                     statusMsg.style.color = "";
                 }, 600);
             }
@@ -1622,6 +1506,7 @@
 
         function lockApp() {
             triggerHaptic();
+            localStorage.removeItem("void_auth_unlocked");
             localStorage.removeItem("jarvis_auth_unlocked");
             const overlay = document.getElementById("pinLockModal");
             overlay.classList.remove("unlocked");
@@ -1629,14 +1514,237 @@
             updatePinDots();
         }
 
+        // ==========================================
+        // 3D POINT-CLOUD HOLOGRAM PARTICLE SPHERE
+        // ==========================================
+        let hologramState = "idle";
+        let stateAnimTime = 0;
+
+        function setHologramState(newState) {
+            hologramState = newState;
+            if (holoStatusPill) {
+                if (newState === "listening") holoStatusPill.innerText = "ACOUSTIC // LISTENING";
+                else if (newState === "thinking") holoStatusPill.innerText = "QUANTUM // PROCESSING";
+                else if (newState === "speaking") holoStatusPill.innerText = "TRANSMITTING // ACTIVE";
+                else if (newState === "sleeping") holoStatusPill.innerText = "STANDBY // LOW-POWER";
+                else holoStatusPill.innerText = "ORBITAL // STABLE";
+            }
+        }
+
+        function initHologramSphere() {
+            const canvas = document.getElementById("voidHologramCanvas");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            const dpr = window.devicePixelRatio || 1;
+            let width = 0;
+            let height = 0;
+
+            function resize() {
+                width = canvas.parentElement.clientWidth;
+                height = canvas.parentElement.clientHeight;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
+            }
+            resize();
+            window.addEventListener("resize", resize);
+
+            // Generate 2,200 Fibonacci Sphere Particles matching user reference image
+            const PARTICLE_COUNT = 2200;
+            const particles = [];
+            const SPHERE_RADIUS = 95;
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const y = 1 - (i / (PARTICLE_COUNT - 1)) * 2;
+                const radiusAtY = Math.sqrt(1 - y * y);
+                const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+                const theta = goldenAngle * i;
+                const x = Math.cos(theta) * radiusAtY;
+                const z = Math.sin(theta) * radiusAtY;
+
+                // Dense cluster at poles matching the user's reference screenshot
+                const isPole = Math.abs(y) > 0.82;
+                const baseSize = isPole ? (Math.random() * 1.5 + 0.8) : (Math.random() * 1.2 + 0.5);
+                const brightness = isPole ? (0.75 + Math.random() * 0.25) : (0.35 + Math.random() * 0.55);
+
+                particles.push({
+                    origX: x * SPHERE_RADIUS,
+                    origY: y * SPHERE_RADIUS,
+                    origZ: z * SPHERE_RADIUS,
+                    size: baseSize,
+                    alpha: brightness,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+
+            let rotX = 0.25;
+            let rotY = 0;
+            let velX = 0.002;
+            let velY = 0.005;
+            let isDragging = false;
+            let lastTouchX = 0;
+            let lastTouchY = 0;
+
+            // Touch / Mouse 3D rotation controls
+            canvas.addEventListener("touchstart", (e) => {
+                isDragging = true;
+                lastTouchX = e.touches[0].clientX;
+                lastTouchY = e.touches[0].clientY;
+                velX = 0;
+                velY = 0;
+            }, { passive: true });
+
+            canvas.addEventListener("touchmove", (e) => {
+                if (!isDragging) return;
+                const dx = e.touches[0].clientX - lastTouchX;
+                const dy = e.touches[0].clientY - lastTouchY;
+                velY = dx * 0.005;
+                velX = -dy * 0.005;
+                rotY += velY;
+                rotX += velX;
+                lastTouchX = e.touches[0].clientX;
+                lastTouchY = e.touches[0].clientY;
+            }, { passive: true });
+
+            window.addEventListener("touchend", () => {
+                isDragging = false;
+            });
+
+            // Mouse events for desktop testing
+            canvas.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                lastTouchX = e.clientX;
+                lastTouchY = e.clientY;
+                velX = 0;
+                velY = 0;
+            });
+
+            window.addEventListener("mousemove", (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - lastTouchX;
+                const dy = e.clientY - lastTouchY;
+                velY = dx * 0.004;
+                velX = -dy * 0.004;
+                rotY += velY;
+                rotX += velX;
+                lastTouchX = e.clientX;
+                lastTouchY = e.clientY;
+            });
+
+            window.addEventListener("mouseup", () => {
+                isDragging = false;
+            });
+
+            function render() {
+                ctx.clearRect(0, 0, width, height);
+
+                if (!isDragging) {
+                    rotY += velY;
+                    rotX += velX;
+                    velY = velY * 0.94 + 0.004 * 0.06;
+                    velX = velX * 0.94 + 0.001 * 0.06;
+                }
+
+                stateAnimTime += 0.03;
+                const cx = width / 2;
+                const cy = height / 2;
+
+                let radiusMultiplier = 1.0;
+                let speedMod = 1.0;
+                let waveFreq = 2.0;
+
+                if (hologramState === "listening") {
+                    radiusMultiplier = 1.0 + Math.sin(stateAnimTime * 8) * 0.08;
+                    waveFreq = 8.0;
+                } else if (hologramState === "thinking") {
+                    speedMod = 3.5;
+                    radiusMultiplier = 0.92 + Math.sin(stateAnimTime * 12) * 0.05;
+                } else if (hologramState === "speaking") {
+                    radiusMultiplier = 1.04 + Math.sin(stateAnimTime * 6) * 0.06;
+                    waveFreq = 4.0;
+                } else if (hologramState === "sleeping") {
+                    radiusMultiplier = 0.65;
+                    speedMod = 0.3;
+                } else {
+                    radiusMultiplier = 1.0 + Math.sin(stateAnimTime * 1.5) * 0.025;
+                }
+
+                const cosY = Math.cos(rotY * speedMod);
+                const sinY = Math.sin(rotY * speedMod);
+                const cosX = Math.cos(rotX);
+                const sinX = Math.sin(rotX);
+
+                const projected = [];
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    let wave = 1.0;
+                    if (hologramState !== "sleeping") {
+                        wave += Math.sin(p.phase + stateAnimTime * waveFreq) * 0.035;
+                    }
+
+                    const px = p.origX * radiusMultiplier * wave;
+                    const py = p.origY * radiusMultiplier * wave;
+                    const pz = p.origZ * radiusMultiplier * wave;
+
+                    // 3D Matrix Rotation (Y then X)
+                    const x1 = px * cosY - pz * sinY;
+                    const z1 = pz * cosY + px * sinY;
+
+                    const y2 = py * cosX - z1 * sinX;
+                    const z2 = z1 * cosX + py * sinX;
+
+                    // Perspective projection
+                    const fov = 340;
+                    const scale = fov / (fov + z2);
+                    const screenX = cx + x1 * scale;
+                    const screenY = cy + y2 * scale;
+
+                    const depthAlpha = ((z2 + SPHERE_RADIUS) / (SPHERE_RADIUS * 2));
+                    const finalAlpha = Math.max(0.12, Math.min(1.0, p.alpha * (0.35 + depthAlpha * 0.65)));
+
+                    projected.push({
+                        x: screenX,
+                        y: screenY,
+                        z: z2,
+                        size: p.size * scale,
+                        alpha: finalAlpha
+                    });
+                }
+
+                projected.sort((a, b) => a.z - b.z);
+
+                for (let i = 0; i < projected.length; i++) {
+                    const p = projected[i];
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Soft starlight glow on bright foreground points
+                    if (p.alpha > 0.8 && p.size > 1.2) {
+                        ctx.fillStyle = `rgba(192, 132, 252, ${p.alpha * 0.3})`;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size * 2.2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                requestAnimationFrame(render);
+            }
+
+            render();
+        }
+
         // Auto-refresh live Mac stats every 20 seconds while remote is active
         setInterval(() => {
-            if (document.visibilityState === 'visible' && localStorage.getItem("jarvis_auth_unlocked") === "true") {
+            if (document.visibilityState === 'visible' && (localStorage.getItem("void_auth_unlocked") === "true" || localStorage.getItem("jarvis_auth_unlocked") === "true")) {
                 sendCommand("stats", true);
             }
         }, 20000);
 
-        // Initialize PIN security and sync on load
+        // Initialize on load
         window.addEventListener("DOMContentLoaded", initSecurityLock);
     </script>
 </body>
